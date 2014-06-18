@@ -58,6 +58,12 @@ def touch_ticket(user, ticket_id):
 def get_recipient_list(ticket_id):
     return tickets_participants.objects.select_related('user').filter(ticket=ticket_id).exclude(user__email=None).exclude(user__email='').values_list('user__email', flat=True)
     
+def get_ticket_url(request, ticket_id):
+    if request.is_secure():
+        return 'https://%s/tickets/view/%s/' % (request.get_host(), ticket_id)
+    else:
+        return 'http://%s/tickets/view/%s/' % (request.get_host(), ticket_id)
+
 def mail_ticket(request, ticket_id, **kwargs):
     rcpt = list(get_recipient_list(ticket_id))
     if 'rcpt' in kwargs and kwargs['rcpt']:
@@ -67,10 +73,10 @@ def mail_ticket(request, ticket_id, **kwargs):
     tic = get_ticket_model().objects.get(pk=ticket_id)
 
     try:    
-        send_mail('#%s - %s' % (tic.id, tic.caption), tic.description, settings.SERVER_EMAIL, rcpt, False)
+        send_mail('#%s - %s' % (tic.id, tic.caption), '%s\n\n%s' % (tic.description, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, rcpt, False)
     except:
-        messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])        
-
+        messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])  
+        
 def mail_comment(request, comment_id):
     com = tickets_comments.objects.get(pk=comment_id)
     ticket_id = com.ticket_id
@@ -80,7 +86,7 @@ def mail_comment(request, comment_id):
     tic = get_ticket_model().objects.get(pk=ticket_id)
     
     try:    
-        send_mail('#%s: %s - %s' % (tic.id, _('new comment'), tic.caption), com.comment, settings.SERVER_EMAIL, rcpt, False)
+        send_mail('#%s: %s - %s' % (tic.id, _('new comment'), tic.caption), '%s\n\n%s' % (com.comment, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, rcpt, False)
     except:
         messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])        
 
@@ -91,7 +97,7 @@ def mail_file(request, file_id):
     if len(rcpt) == 0:
         return
     tic = get_ticket_model().objects.get(pk=ticket_id)
-    body = '%s\n%s: %s\n%s: %s\n%s: %s\n' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type)
+    body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
 
     try:    
         send_mail('#%s: %s - %s' % (tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, rcpt, False)
