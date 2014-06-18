@@ -8,7 +8,8 @@
 
 {% block content %}
 
-    <h2>{% trans "edit ticket" %} #{{ ticketid }}</h2>
+    <h2>{% trans "edit ticket" %} #{{ ticket.id }}</h2>
+    <p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} by {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}</small></p>
     
     <p>&nbsp;</p>
 
