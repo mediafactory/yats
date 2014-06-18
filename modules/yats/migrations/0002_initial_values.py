@@ -18,6 +18,7 @@ class Migration(DataMigration):
         ticket_priority(name=_('critical')).save(user=user)
         ticket_priority(name=_('blocker')).save(user=user)
         
+        ticket_resolution(name=_('new')).save(user=user)
         ticket_resolution(name=_('open')).save(user=user)
         ticket_resolution(name=_('dupplicate')).save(user=user)
         ticket_resolution(name=_('fixed')).save(user=user)
