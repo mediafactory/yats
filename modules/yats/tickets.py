@@ -76,7 +76,7 @@ def action(request, mode, ticket):
             # If page is out of range (e.g. 9999), deliver last page of results.
             comments_lines = paginator.page(paginator.num_pages)
 
-        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticketid': ticket, 'tic': form, 'files': files_lines, 'comments': comments_lines}, RequestContext(request))
+        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'files': files_lines, 'comments': comments_lines}, RequestContext(request))
 
     elif mode == 'edit':
         excludes = ['resolution']

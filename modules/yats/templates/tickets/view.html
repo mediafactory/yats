@@ -11,12 +11,12 @@
 
 {% block content %}
 
-    <h2>{% trans "ticket" %} #{{ ticketid }} <a class="btn btn-small" href="/tickets/edit/{{ ticketid }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small" href="/tickets/upload/{{ ticketid }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small" href="#add_comment">{% trans "add comment" %}</a></h2>
-
+    <h2>{% trans "ticket" %} #{{ ticket.id }} <a class="btn btn-small" href="/tickets/edit/{{ ticket.id }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small" href="/tickets/upload/{{ ticket.id }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small" href="#add_comment">{% trans "add comment" %}</a></h2>
+    <p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} by {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}</small></p>
     <p>&nbsp;</p>
 
     <table class="table table-striped table-hover">
-    {% for field in tic %}{% if field.value %}
+    {% for field in form %}{% if field.value %}
         <tr>
         	<td>{{ field.label_tag }}</td>
         	<td>{{ field|display_value }}</td>
@@ -40,7 +40,7 @@
               {% for line in files %}
                 <tr>
                     <td data-title="{% trans "date" %}">{{ line.c_date|date:"SHORT_DATE_FORMAT" }}</td>
-                    <td data-title="{% trans "name" %}"{% if line.content_type|contains:"image" %} dataimg="/tickets/download/{{ ticketid }}/?file={{ line.id }}&preview=yes"{% endif %}><a href="/tickets/download/{{ ticketid }}/?file={{ line.id }}">{{ line.name }}</a></td>
+                    <td data-title="{% trans "name" %}"{% if line.content_type|contains:"image" %} dataimg="/tickets/download/{{ ticket.id }}/?file={{ line.id }}&preview=yes"{% endif %}><a href="/tickets/download/{{ ticket.id }}/?file={{ line.id }}">{{ line.name }}</a></td>
                     <td data-title="{% trans "size" %}">{% if line.size %}{{ line.size|filesizeformat }}{% else %}{% trans "unknown" %}{% endif %}</td>
                     <td data-title="{% trans "contenttype" %}">{{ line.content_type }}</td>
                 </tr>
