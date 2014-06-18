@@ -93,6 +93,14 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'yats', ['tickets'])
 
+        # Adding model 'tickets_participants'
+        db.create_table(u'yats_tickets_participants', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('ticket', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['yats.tickets'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['auth.User'])),
+        ))
+        db.send_create_signal(u'yats', ['tickets_participants'])
+
         # Adding model 'tickets_comments'
         db.create_table(u'yats_tickets_comments', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -145,6 +153,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'tickets'
         db.delete_table(u'yats_tickets')
+
+        # Deleting model 'tickets_participants'
+        db.delete_table(u'yats_tickets_participants')
 
         # Deleting model 'tickets_comments'
         db.delete_table(u'yats_tickets_comments')
@@ -285,6 +296,12 @@ class Migration(SchemaMigration):
             'ticket': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['yats.tickets']"}),
             'u_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'u_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
+        },
+        u'yats.tickets_participants': {
+            'Meta': {'object_name': 'tickets_participants'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'ticket': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['yats.tickets']"}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
         },
         u'yats.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
