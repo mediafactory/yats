@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from yats.forms import TicketsForm, CommentForm, UploadFileForm
 from yats.models import tickets_files, tickets_comments
-from yats.shortcuts import resize_image
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file
 import os
 import io
 
@@ -21,6 +21,14 @@ def new(request):
         form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user)
         if form.is_valid():
             tic = form.save()
+
+            assigned = form.cleaned_data.get('assigned')
+            if assigned:
+                touch_ticket(assigned, tic.pk)
+            
+            touch_ticket(request.user, tic.pk)
+            
+            mail_ticket(tic.pk)
             
             if form.cleaned_data.get('file_addition', False):
                 return HttpResponseRedirect('/tickets/upload/%s/' % tic.pk)
@@ -46,6 +54,10 @@ def action(request, mode, ticket):
                 com.ticket_id = ticket
                 com.save(user=request.user)
                 
+                touch_ticket(request.user, ticket)
+                
+                mail_comment(com.pk)
+
             else:
                 messages.add_message(request, messages.ERROR, _('comment invalid'))
         
@@ -84,12 +96,21 @@ def action(request, mode, ticket):
             form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic)
             if form.is_valid():
                 tic = form.save()
+                
+                assigned = form.cleaned_data.get('assigned')
+                if assigned:
+                    touch_ticket(assigned, tic.pk)
+                    
+                touch_ticket(request.user, tic.pk)
+                
+                mail_ticket(tic.pk)
+                
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
         
         else:
             form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic)
         
-        return render_to_response('tickets/edit.html', {'ticketid': ticket, 'layout': 'horizontal', 'form': form}, RequestContext(request))    
+        return render_to_response('tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form}, RequestContext(request))    
 
     elif mode == 'download':
         fileid = request.GET.get('file', -1)
@@ -120,6 +141,10 @@ def action(request, mode, ticket):
                 f.public = True
                 f.save(user=request.user)
                 
+                touch_ticket(request.user, ticket)
+                
+                mail_file(f.pk)
+
                 dest = settings.FILE_UPLOAD_PATH
                 if not os.path.exists(dest):
                     os.makedirs(dest)
