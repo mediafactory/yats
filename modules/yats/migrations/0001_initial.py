@@ -89,6 +89,7 @@ class Migration(SchemaMigration):
             ('customer', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['yats.organisation'])),
             ('assigned', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='+', null=True, to=orm['auth.User'])),
             ('resolution', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['yats.ticket_resolution'], null=True)),
+            ('closed', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal(u'yats', ['tickets'])
 
@@ -244,6 +245,7 @@ class Migration(SchemaMigration):
             'c_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'c_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"}),
             'caption': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'closed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'customer': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['yats.organisation']"}),
             'd_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'd_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"}),

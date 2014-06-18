@@ -107,6 +107,7 @@ class tickets(base):
     customer = models.ForeignKey(organisation)
     assigned = models.ForeignKey(User, related_name='+', null=True, blank=True)
     resolution = models.ForeignKey(ticket_resolution, null=True)
+    closed = models.BooleanField(default=False)
 
 class tickets_comments(base):
     ticket = models.ForeignKey(tickets)
