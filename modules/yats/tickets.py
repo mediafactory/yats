@@ -162,7 +162,7 @@ def action(request, mode, ticket):
 def table(request):
     mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
     mod_path = mod_path.split('.').pop(0)
-    tic = get_model(mod_path, cls_name).objects.all()
+    tic = get_model(mod_path, cls_name).objects.select_related('type').all()
 
     if not request.user.is_staff:
         tic = tic.filter(customer=request.organisation)
