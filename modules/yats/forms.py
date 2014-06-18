@@ -97,7 +97,7 @@ class TicketsForm(forms.ModelForm):
 
     class Meta:
         model = mod_cls
-        exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record']
+        exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed']
         
 class CommentForm(forms.Form):
     comment = forms.CharField(required=True)
