@@ -17,6 +17,8 @@ MANAGERS = ADMINS
 EMAIL_HOST = config.get('mail', 'EMAIL_HOST')
 EMAIL_PORT = config.get('mail', 'EMAIL_PORT')
 SERVER_EMAIL = config.get('mail', 'SERVER_EMAIL')
+EMAIL_HOST_USER = config.get('mail', 'EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config.get('mail', 'EMAIL_HOST_PASSWORD')
 
 #DATABASE_ROUTERS = ['web.routers.ModelRouter']
 DATABASES = {
