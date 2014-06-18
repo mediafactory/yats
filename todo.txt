@@ -1,0 +1,15 @@
+- search
+- merge / dupplicate / Actions
+- Mail
+- participants of ticket => for mail
+- workflow
+- default werte im Ticket
+- default and filtert customer in ticket
+
+- hsiotrie
+- reports
+
+- check virus scan
+
+http://getbootstrap.com/2.3.2/base-css.html#buttons
+http://marcoceppi.github.io/bootstrap-glyphicons/
