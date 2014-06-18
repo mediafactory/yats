@@ -165,4 +165,4 @@ LOGGING = {
     }
 }
 
-TICKET_CLASS = 'web.ticket.test'
+TICKET_CLASS = 'web.models.test'
