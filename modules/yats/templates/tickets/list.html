@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n %}
+{% block content %}
+    
+    <h2>{% trans "tickets" %}</h2>
+    
+    <p>&nbsp;</p>
+    
+    {% if lines %}
+    <p>{{ lines.start_index }} - {{ lines.end_index }} {% trans "of" %} {{ lines.paginator.count }}</p>
+    <section id="no-more-tables">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>{% trans "ticket#" %}</th>
+                <th>{% trans "ts" %}</th>
+                <th>{% trans "caption" %}</th>
+            </tr>
+            </thead>
+              {% for line in lines %}
+                <tr>
+                    <td data-title="{% trans "ticket#" %}"><a href="/tickets/view/{{ line.id }}/">{{ line.id }}</a></td>
+                    <td data-title="{% trans "ts" %}">{{ line.c_date }}</td>
+                    <td data-title="{% trans "caption" %}">{{ line.caption }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    
+        {{ lines|pagination }}
+    </section>  
+    {% endif %}
+    
+{% endblock %}

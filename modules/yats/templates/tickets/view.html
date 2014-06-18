@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n forms strings %}
+
+{% block extra_head %}
+    {{ form.media }}
+    <link href="{{ STATIC_URL }}timeline.css" type="text/css" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+{% endblock %}
+
+{% block content %}
+
+    <h2>{% trans "ticket" %} #{{ ticketid }} <a class="btn btn-small" href="/tickets/edit/{{ ticketid }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small" href="/tickets/upload/{{ ticketid }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small" href="#add_comment">{% trans "add comment" %}</a></h2>
+
+    <p>&nbsp;</p>
+
+    <table class="table table-striped table-hover">
+    {% for field in tic %}{% if field.value %}
+        <tr>
+        	<td>{{ field.label_tag }}</td>
+        	<td>{{ field|display_value }}</td>
+        </tr>
+    {% endif %}{% endfor %}
+    </table>
+    
+    <h3>{% trans "files" %}</h3>
+    <hr />
+    {% if files %}
+    <section id="no-more-tables">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>{% trans "date" %}</th>
+                <th>{% trans "document" %}</th>
+                <th>{% trans "size" %}</th>
+                <th>{% trans "contenttype" %}</th>
+            </tr>
+            </thead>
+              {% for line in files %}
+                <tr>
+                    <td data-title="{% trans "date" %}">{{ line.c_date|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td data-title="{% trans "name" %}"{% if line.content_type|contains:"image" %} dataimg="/tickets/download/{{ ticketid }}/?file={{ line.id }}&preview=yes"{% endif %}><a href="/tickets/download/{{ ticketid }}/?file={{ line.id }}">{{ line.name }}</a></td>
+                    <td data-title="{% trans "size" %}">{% if line.size %}{{ line.size|filesizeformat }}{% else %}{% trans "unknown" %}{% endif %}</td>
+                    <td data-title="{% trans "contenttype" %}">{{ line.content_type }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    
+        {{ files|pagination }}
+    </section>
+    {% else %}
+    {% trans "no files so far" %}
+    {% endif %}
+    
+    <h3>{% trans "comments" %}</h3>
+    <hr />
+    {% if comments %}
+    <ul class="timeline">
+        {% for line in comments %}
+        <li{% cycle '' ' class="timeline-inverted"' %}>
+          <div class="timeline-badge info"><i class="icon-tag icon-white"></i></div>
+          <div class="timeline-panel">
+            <div class="timeline-heading">
+              <p><small class="text-muted">{{ line.c_user }} <i class="icon-time"></i> {{ line.c_date }}</small></p>
+            </div>
+            <div class="timeline-body">
+              <p>{{ line.comment }}</p>
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <br />
+    <br />
+    {% endif %}
+    <p><a name="add_comment">{% trans "leave new comment" %}</a></p>
+    <form class="form-{{ layout }}" action="" method="post">
+        {% csrf_token %}
+    	<textarea cols="40" id="id_comment" name="comment" rows="10" class="span12"></textarea>
+    	<br /><br />
+        <input type="submit" value="{% trans "comment" %}" class="btn btn-primary pull-right">
+    </form>
+
+
+<script type="text/javascript">
+    jQuery(document).tooltip({
+            position: {
+                collision: "fit"
+            },
+            track: true,
+            items : "[dataimg]",
+            content : function() {
+                var element = jQuery(this);
+                if (element.is("[dataimg]")) {
+                    return '<img src="'+ element.attr("dataimg") +'" width="300" />';
+                }
+            }
+        });
+
+    function onRowDblClick(rowid) {
+        //window.location.href = '/files/download/{{ model }}/' + rowid + '/';
+        alert('dbl click')
+    }
+</script>
+{% endblock %}

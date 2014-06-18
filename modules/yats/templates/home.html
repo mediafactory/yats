@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n %}
+
+{% block extra_head %}
+    {{ form.media }}
+{% endblock %}
+
+{% block content %}
+
+    <h2>{% trans "dashboard" %}</h2>
+    
+    <p>&nbsp;</p>
+        
+    {% if lines %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{% trans "project name" %}</th>
+                <th>{% trans "project#" %} {{ SETTINGS.OWN_FIELD_PREFIX }}</th>
+                <th>{% trans "project# customer" %}</th>
+                <th>{% trans "destination" %}</th>
+                <th>{% trans "status" %}</th>
+            </tr>
+            </thead>
+        {% for line in lines %}
+            <tr>
+
+                <!--<td ata-title="{% trans "project name" %}"><a href="/{{ LANGUAGE_CODE }}/shipments/{{ line.id }}/">{{ line.name }}</a></td> -->
+                <td ata-title="{% trans "project name" %}"><a href="/{{ LANGUAGE_CODE }}/project/{{ line.id }}/">{{ line.name }}</a></td>
+                <td ata-title="{% trans "project#" %} {{ SETTINGS.OWN_FIELD_PREFIX }}">{{ line.external_ref }}</a></td>
+                <td ata-title="{% trans "order# customer" %}">{{ line.customer_oder_number }}</td>
+                <td ata-title="{% trans "destination" %}">{{ line.recipient_country }}</td>
+                <td ata-title="{% trans "status" %}">{{ line.get_project_state_display }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    {{ lines|pagination }}
+
+    {% endif %}
+
+{% endblock %}

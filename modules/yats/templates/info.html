@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n %}
+
+{% block content %}
+<div class="menu_content">
+    <table>
+        <tr>
+            <td>YATS:</td>
+            <td>{{ version }}</td>
+        </tr>
+        <tr>
+            <td>{% trans "script engine" %}</td>
+            <td>{{ python }}</td>
+        </tr>
+        <tr>
+            <td>{% trans "base framework" %}:</td>
+            <td>{{ django }}</td>
+        </tr>
+        <tr>
+            <td>{% trans "user-agent" %}:</td>
+            <td>{{ request.META.HTTP_USER_AGENT }}</td>
+        </tr>
+        <tr>
+            <td>{% trans "server" %}:</td>
+            <td>{{ request.get_host }}</td>
+        </tr>
+        <tr>
+            <td>{% trans "host" %}:</td>
+            <td>{{ hostname }}</td>
+        </tr>
+        <tr>
+            <td>{% trans "user" %}:</td>
+            <td>{{ request.user.username }}</td>
+        </tr>
+        <tr>
+            <td>{% trans "organisation" %}:</td>
+            <td>{{ request.organisation.name }}</td>
+        </tr>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+*.log
+*.pyc
+*.mo
+yats/distribution/
+files/
+.settings/
+.project
+.pydevproject
+.DS_Store
+*.pot

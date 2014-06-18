@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/miadi/!svn/ver/3875/branches/br_1-0-1/debian/usr/local/miadi/debug/pysrc/tests/samples/nested_dir
+END
+non_test_file.py
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/miadi/!svn/ver/3875/branches/br_1-0-1/debian/usr/local/miadi/debug/pysrc/tests/samples/nested_dir/non_test_file.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/miadi/!svn/ver/3875/branches/br_1-0-1/debian/usr/local/miadi/debug/pysrc/tests/samples/nested_dir/__init__.py
+END
+simple4_test.py
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/miadi/!svn/ver/3875/branches/br_1-0-1/debian/usr/local/miadi/debug/pysrc/tests/samples/nested_dir/simple4_test.py
+END

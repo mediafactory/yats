@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n %}
+
+{% block extra_head %}
+    {{ form.media }}
+{% endblock %}
+
+{% block content %}
+
+    <h2>{% trans "edit ticket" %} #{{ ticketid }}</h2>
+    
+    <p>&nbsp;</p>
+
+    <form class="form-{{ layout }}" action="" method="post">
+        {% csrf_token %}
+        {{ form|as_bootstrap:layout }}
+        {% if layout == "horizontal" %}
+            <p class="form-actions">
+                <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+            </p>
+        {% else %}
+            <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+        {% endif %}
+    </form>        
+
+{% endblock %}

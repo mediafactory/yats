@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+{% load bootstrap_toolkit i18n %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <meta name="description" content="">
+    <meta name="author" content="media factory">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <link href="{{ STATIC_URL }}base.css" type="text/css" rel="stylesheet" media="all">
+    {% bootstrap_stylesheet_tag %}
+    {% bootstrap_stylesheet_tag "responsive" %}
+    <!--[if lt IE 9]>
+    <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    {% bootstrap_javascript_tag %}
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner ">
+        <div class="container pull-left">
+            <a class="brand " id="brand" href="/">YATS:</a>
+            <ul class="nav">
+                <li><a href="/" class="">{% trans "Home" %}</a></li>		
+                <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>        
+                <li><a href="/tickets/new/" class="">{% trans "New" %}</a></li>        
+            </ul>
+        </div>
+        <p class="navbar-text pull-right">{% trans "logged in as" %}: {{ request.user }}@{{ request.organisation.name }}&nbsp;&nbsp;</p>
+    </div>
+</div>
+
+<div class="container">
+
+    {% bootstrap_messages %}
+
+    {% block content %}Empty page{% endblock %}
+
+    <p><hr /></p>
+
+    <footer class="row">
+    	<div class="span6">
+    		{{ SETTINGS.CUSTOMER }}<br />
+    		{{ SETTINGS.TEL }}<br />
+    		{{ SETTINGS.MAIL }}<br />    		
+    	</div>
+        <div class="span6" style="text-align:right">
+            <p>
+                <a href="http://www.mediafactory.de">media factory</a> 2012 - 2014
+            </p>
+        </div>
+    </footer>
+
+</div> <!-- container -->
+
+</body>
+</html>
