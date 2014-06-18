@@ -1,8 +1,9 @@
 - search
-- merge / dupplicate / Actions
-- Mail
-- participants of ticket => for mail
-- workflow
+
+- merge / dupplicate / Actions / workflow
+
+- missing Mail-Adress???
+
 - default werte im Ticket
 - default and filtert customer in ticket
 
