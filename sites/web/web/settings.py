@@ -168,3 +168,4 @@ LOGGING = {
 }
 
 TICKET_CLASS = 'web.models.test'
+TICKET_NEW_MAIL_RCPT = 'develope@mediafactory.de'

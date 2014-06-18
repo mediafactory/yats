@@ -28,7 +28,7 @@ def new(request):
             
             touch_ticket(request.user, tic.pk)
             
-            mail_ticket(tic.pk)
+            mail_ticket(request, tic.pk, rcpt=settings.TICKET_NEW_MAIL_RCPT)
             
             if form.cleaned_data.get('file_addition', False):
                 return HttpResponseRedirect('/tickets/upload/%s/' % tic.pk)
@@ -56,7 +56,7 @@ def action(request, mode, ticket):
                 
                 touch_ticket(request.user, ticket)
                 
-                mail_comment(com.pk)
+                mail_comment(request, com.pk)
 
             else:
                 messages.add_message(request, messages.ERROR, _('comment invalid'))
@@ -103,7 +103,7 @@ def action(request, mode, ticket):
                     
                 touch_ticket(request.user, tic.pk)
                 
-                mail_ticket(tic.pk)
+                mail_ticket(request, tic.pk)
                 
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
         
@@ -143,7 +143,7 @@ def action(request, mode, ticket):
                 
                 touch_ticket(request.user, ticket)
                 
-                mail_file(f.pk)
+                mail_file(request, f.pk)
 
                 dest = settings.FILE_UPLOAD_PATH
                 if not os.path.exists(dest):

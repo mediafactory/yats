@@ -1,9 +1,12 @@
 from django.db.models import get_model
 from django.conf import settings
 from django.core.mail import send_mail
+from django.contrib import messages
+from django.utils.translation import ugettext as _
 from yats.models import tickets_participants, tickets_comments, tickets_files
 
 from PIL import Image#, ImageOps
+import sys
 
 def resize_image(filename, size=(200, 150), dpi=75):
     image = Image.open(filename)
@@ -55,17 +58,20 @@ def touch_ticket(user, ticket_id):
 def get_recipient_list(ticket_id):
     return tickets_participants.objects.select_related('user').filter(ticket=ticket_id).exclude(user__email=None).exclude(user__email='').values_list('user__email', flat=True)
     
-def mail_ticket(ticket_id, **kwargs):
-    rcpt = get_recipient_list(ticket_id)
-    if 'rcpt' in kwargs:
+def mail_ticket(request, ticket_id, **kwargs):
+    rcpt = list(get_recipient_list(ticket_id))
+    if 'rcpt' in kwargs and kwargs['rcpt']:
         rcpt.append(kwargs['rcpt'])
     if len(rcpt) == 0:
         return
     tic = get_ticket_model().objects.get(pk=ticket_id)
-    
-    send_mail('#%s - %s' % (tic.id, tic.caption), 'Hallo Welt', settings.SERVER_EMAIL, rcpt, False)
 
-def mail_comment(comment_id):
+    try:    
+        send_mail('#%s - %s' % (tic.id, tic.caption), tic.description, settings.SERVER_EMAIL, rcpt, False)
+    except:
+        messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])        
+
+def mail_comment(request, comment_id):
     com = tickets_comments.objects.get(pk=comment_id)
     ticket_id = com.ticket_id
     rcpt = get_recipient_list(ticket_id)
@@ -73,9 +79,12 @@ def mail_comment(comment_id):
         return
     tic = get_ticket_model().objects.get(pk=ticket_id)
     
-    send_mail('#%s - %s' % (tic.id, tic.caption), com.comment, settings.SERVER_EMAIL, rcpt, False)
+    try:    
+        send_mail('#%s: %s - %s' % (tic.id, _('new comment'), tic.caption), com.comment, settings.SERVER_EMAIL, rcpt, False)
+    except:
+        messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])        
 
-def mail_file(file_id):
+def mail_file(request, file_id):
     io = tickets_files.objects.get(pk=file_id)
     ticket_id = io.ticket_id
     rcpt = get_recipient_list(ticket_id)
@@ -83,4 +92,8 @@ def mail_file(file_id):
         return
     tic = get_ticket_model().objects.get(pk=ticket_id)
     body = '%s\n%s: %s\n%s: %s\n%s: %s\n' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type)
-    send_mail('#%s - %s' % (tic.id, tic.caption), body, settings.SERVER_EMAIL, rcpt, False)
+
+    try:    
+        send_mail('#%s: %s - %s' % (tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, rcpt, False)
+    except:
+        messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])        
