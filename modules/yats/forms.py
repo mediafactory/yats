@@ -6,6 +6,7 @@ from django.forms.models import construct_instance
 from bootstrap_toolkit.widgets import BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
+from yats.models import YES_NO_DONT_KNOW
 
 mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
 mod = importlib.import_module(mod_path)
@@ -127,7 +128,10 @@ class SearchForm(forms.ModelForm):
             
         for field in self.fields:
             if type(self.fields[field]) is forms.fields.DateField:
-                self.fields[field].widget = BootstrapDateInput()            
+                self.fields[field].widget = BootstrapDateInput()
+                
+            if type(self.fields[field]) is forms.fields.BooleanField:
+                self.fields[field].widget = forms.fields.Select(choices=YES_NO_DONT_KNOW)
                     
     def save(self, commit=True):
         """
@@ -147,6 +151,14 @@ class SearchForm(forms.ModelForm):
 
     class Meta:
         model = mod_cls
+        labels = {
+            'c_date': _('created'),
+            'u_date': _('updated'),
+            'd_date': _('deleted'),
+            'c_user': _('created by'),
+            'u_user': _('last updated by'),
+            'd_user': _('deleted by'),
+        }
         
 class CommentForm(forms.Form):
     comment = forms.CharField(required=True)

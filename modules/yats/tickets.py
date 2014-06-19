@@ -182,6 +182,12 @@ def table(request):
 
 def search(request):
     searchable_fields = ['c_user', 'priority', 'type', 'component', 'deadline', 'billing_needed']
-    form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
+    
+    if request.method == 'POST':
+        form = SearchForm(request.POST, include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
+        
+        return table(request)
+    else:
+        form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
     
     return render_to_response('tickets/search.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))

@@ -6,6 +6,12 @@ from django.db.models.signals import post_save
 
 import datetime
 
+YES_NO_DONT_KNOW = (
+    (None, '---------'),
+    (True, _('yes')),
+    (False, _('no')),
+)
+
 # user profiles
 class UserProfile(models.Model):
     user = models.OneToOneField(User, null=True)
