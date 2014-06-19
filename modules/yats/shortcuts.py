@@ -121,6 +121,7 @@ def check_references(request, src_com):
         com = tickets_comments()
         com.comment = _('ticket mentioned by #%s' % src_com.ticket_id)
         com.ticket_id = ref
+        com.action = 3
         com.save(user=request.user)
         
         touch_ticket(request.user, ref)

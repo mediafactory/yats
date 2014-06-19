@@ -122,6 +122,7 @@ class tickets_participants(models.Model):
 class tickets_comments(base):
     ticket = models.ForeignKey(tickets)
     comment = models.TextField()
+    action = models.SmallIntegerField(default=0) # 0 = nothing, 1 = close, 2 = reopen, 3 = ref
 
 class tickets_files(base):
     ticket = models.ForeignKey(tickets)

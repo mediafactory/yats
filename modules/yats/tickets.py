@@ -73,6 +73,7 @@ def action(request, mode, ticket):
                     com = tickets_comments()
                     com.comment = _('ticket closed - resolution: %s\n\n%s') % (ticket_resolution.objects.get(pk=request.POST['resolution']).name, request.POST.get('close_comment', ''))
                     com.ticket_id = ticket
+                    com.action = 1
                     com.save(user=request.user)
                     
                     check_references(request, com)
@@ -123,6 +124,7 @@ def action(request, mode, ticket):
             com = tickets_comments()
             com.comment = _('ticket reopend - resolution deleted')
             com.ticket_id = ticket
+            com.action = 1
             com.save(user=request.user)
             
             check_references(request, com)

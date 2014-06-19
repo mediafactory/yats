@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load bootstrap_toolkit i18n forms strings %}
+{% load bootstrap_toolkit i18n forms strings comments %}
 
 {% block extra_head %}
     {{ form.media }}
@@ -59,7 +59,7 @@
     <ul class="timeline">
         {% for line in comments %}
         <li{% cycle '' ' class="timeline-inverted"' %}>
-          <div class="timeline-badge info"><i class="icon-tag icon-white"></i></div>
+          <div class="timeline-badge {{ line.action|comment_color }}"><i class="icon-tag icon-white"></i></div>
           <div class="timeline-panel">
             <div class="timeline-heading">
               <p><small class="text-muted">{{ line.c_user }} <i class="icon-time"></i> {{ line.c_date }}</small></p>
