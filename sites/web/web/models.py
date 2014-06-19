@@ -1,7 +1,17 @@
 # -*- coding: utf-8 -*- 
 from django.db import models
+from django.utils.functional import lazy
+from django.core.cache import cache
+from django.conf import settings
 from yats.models import tickets, organisation
 from yats.models import base
+
+import base64
+import httplib2
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
 
 class ticket_component(base):
     name = models.CharField(max_length=255)
@@ -9,22 +19,52 @@ class ticket_component(base):
     def __unicode__(self):
         return self.name
 
-class ticket_system_version(base):
-    name = models.CharField(max_length=255)
+def getGibthubTags():
+    owner = settings.GITHUB_OWNER
+    repo = settings.GITHUB_REPO
+    user = settings.GITHUB_USER
+    password = settings.GITHUB_PASS
+    
+    if not owner or not repo:
+        return []
 
-    def __unicode__(self):
-        return self.name
+    cache_name = 'yats.%s.%s.tags.github' % (owner, repo)
+    tags = cache.get(cache_name)
+    if tags:
+        return tags
+    
+    # https://developer.github.com/v3/repos/#list-tags
+    result = []
+    headers = {
+               'Accept': 'application/vnd.github.v3+json',
+               'User-Agent': 'yats'
+               }
+    if user:
+        headers['Authorization'] = 'Basic %s' % base64.b64encode('%s:%s' % (user, password))
+    
+    h = httplib2.Http()
+    header, content = h.request('https://api.github.com/repos/%s/%s/tags' % (owner, repo), 'GET', headers=headers)
+    if header['status'] != '200':
+        raise Exception(content)
+    
+    tags = json.loads(content)
+    
+    for tag in tags:
+        result.append((tag['name'], tag['name'],))
+    
+    cache.set(cache_name, result, 60 * 10)
+    return reversed(sorted(result))
 
 class test(tickets):
     component = models.ForeignKey(ticket_component)
-    version = models.ForeignKey(ticket_system_version)
+    version = models.CharField(max_length=255, choices=lazy(getGibthubTags, list)())
     keywords = models.CharField(max_length=255, blank=True)
     reproduction = models.TextField(null=True)
     billing_needed = models.BooleanField(default=False, )
     billing_reason = models.TextField(null=True, blank=True)
     billing_done = models.BooleanField(default=False)
     solution = models.TextField(null=True, blank=True)
-    fixed_in_version = models.ForeignKey(ticket_system_version, related_name='+', null=True, blank=True)
+    fixed_in_version = models.CharField(max_length=255, choices=lazy(getGibthubTags, list)())
     deadline = models.DateField(null=True, blank=True)
     
     form_excludes = ['billing_needed', 'billing_reason', 'billing_done', 'fixed_in_version', 'solution', 'assigned', 'priority']

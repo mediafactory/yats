@@ -169,3 +169,8 @@ LOGGING = {
 
 TICKET_CLASS = 'web.models.test'
 TICKET_NEW_MAIL_RCPT = 'develope@mediafactory.de'
+
+GITHUB_REPO = config.get('github', 'GITHUB_REPO')
+GITHUB_OWNER = config.get('github', 'GITHUB_OWNER')
+GITHUB_USER = config.get('github', 'GITHUB_USER')
+GITHUB_PASS = config.get('github', 'GITHUB_PASS')
