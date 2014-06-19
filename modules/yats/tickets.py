@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm
 from yats.models import tickets_files, tickets_comments, tickets_reports
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values
 import os
 import io
 try:
@@ -180,7 +180,6 @@ def table(request, **kwargs):
         for field in params:
             if params[field] != None and params[field] != '':
                 search_params[field] = params[field]
-        
         tic = tic.filter(**search_params)
     else:
         is_search = False
@@ -213,10 +212,11 @@ def search(request):
     if request.method == 'POST':
         form = SearchForm(request.POST, include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
         form.is_valid()
-        request.session['last_search'] = form.cleaned_data
+        request.session['last_search'] = clean_search_values(form.cleaned_data)
         
-        return table(request, search=form.cleaned_data)
+        return table(request, search=request.session['last_search'])
     else:
+        del request.session['last_search']
         form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
     
     return render_to_response('tickets/search.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))

@@ -7,6 +7,7 @@ from yats.models import tickets_participants, tickets_comments, tickets_files
 
 from PIL import Image#, ImageOps
 import sys
+import datetime
 
 def resize_image(filename, size=(200, 150), dpi=75):
     image = Image.open(filename)
@@ -102,4 +103,13 @@ def mail_file(request, file_id):
     try:    
         send_mail('#%s: %s - %s' % (tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, rcpt, False)
     except:
-        messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])        
+        messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
+        
+def clean_search_values(search):
+    result = {}
+    for ele in search:
+        if type(search[ele]) not in [bool, int, str, unicode, long, None]:
+            print type(search[ele])
+            if search[ele]:
+                result[ele] = search[ele].pk
+    return result         

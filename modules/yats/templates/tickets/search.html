@@ -12,7 +12,7 @@
     
     <p>&nbsp;</p>
 
-    <form class="form-{{ layout }}" action="" method="post">
+    <form class="form-{{ layout }}" action="{{ request.path }}" method="post">
         {% csrf_token %}
         {{ form|as_bootstrap:layout }}
         {% if layout == "horizontal" %}
