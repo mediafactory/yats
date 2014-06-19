@@ -22,7 +22,7 @@ def new(request):
     excludes = ['resolution']
     
     if request.method == 'POST':
-        form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user)
+        form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
         if form.is_valid():
             tic = form.save()
 
@@ -40,7 +40,7 @@ def new(request):
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
     
     else:
-        form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user)
+        form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
     
     return render_to_response('tickets/new.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))    
 
@@ -239,7 +239,7 @@ def table(request, **kwargs):
     return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search}, RequestContext(request))
 
 def search(request):
-    searchable_fields = ['c_user', 'priority', 'type', 'component', 'deadline', 'billing_needed', 'billing_done']
+    searchable_fields = ['c_user', 'priority', 'type', 'customer', 'component', 'deadline', 'billing_needed', 'billing_done']
     
     if request.method == 'POST' and 'reportname' in request.POST and request.POST['reportname']:
         rep = tickets_reports()
@@ -251,7 +251,7 @@ def search(request):
         return table(request, search=request.session['last_search'])
     
     if request.method == 'POST':
-        form = SearchForm(request.POST, include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
+        form = SearchForm(request.POST, include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
         form.is_valid()
         request.session['last_search'] = clean_search_values(form.cleaned_data)
         
@@ -259,7 +259,7 @@ def search(request):
     else:
         if 'last_search' in request.session:
             del request.session['last_search']
-        form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
+        form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
     
     return render_to_response('tickets/search.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))
 

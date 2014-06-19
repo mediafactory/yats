@@ -62,6 +62,10 @@ class TicketsForm(forms.ModelForm):
         if not 'user' in kwargs:
             raise Exception('missing user')
         self.user = kwargs.pop('user')
+
+        if not 'customer' in kwargs:
+            raise Exception('missing customer')
+        self.customer = kwargs.pop('customer')
         
         if 'exclude_list' in kwargs:
             exclude_list = kwargs.pop('exclude_list')
@@ -70,15 +74,21 @@ class TicketsForm(forms.ModelForm):
             
         if not 'is_stuff' in kwargs or not kwargs.pop('is_stuff'):
             exclude_list = list(set(exclude_list + self.Meta.model.form_excludes))
-        
-        super(TicketsForm, self).__init__(*args, **kwargs)
+            
+            super(TicketsForm, self).__init__(*args, **kwargs)
+            
+            if self.fields.get('customer'):
+                self.fields['customer'].queryset = self.fields['customer'].queryset.filter(pk=self.customer) 
+        else:
+            super(TicketsForm, self).__init__(*args, **kwargs)
         
         for field in exclude_list:
             del self.fields[field]
             
         for field in self.fields:
             if type(self.fields[field]) is forms.fields.DateField:
-                self.fields[field].widget = BootstrapDateInput()            
+                self.fields[field].widget = BootstrapDateInput()
+
                     
     def save(self, commit=True):
         """
@@ -106,24 +116,33 @@ class SearchForm(forms.ModelForm):
             raise Exception('missing user')
         self.user = kwargs.pop('user')
         
+        if not 'customer' in kwargs:
+            raise Exception('missing customer')
+        self.customer = kwargs.pop('customer')
+        
         if 'include_list' in kwargs:
             include_list = kwargs.pop('include_list')
         else:
             include_list = []
             
         if not 'is_stuff' in kwargs or not kwargs.pop('is_stuff'):
+            used_fields = []
             for ele in include_list:
-                if ele in self.Meta.model.form_excludes:
-                    include_list.pop(include_list.index(ele))
-        
-        super(SearchForm, self).__init__(*args, **kwargs)
-        
+                if not ele in self.Meta.model.form_excludes:
+                    used_fields.append(ele)
+            super(SearchForm, self).__init__(*args, **kwargs)
+            
+            if self.fields.get('customer'):
+                self.fields['customer'].queryset = self.fields['customer'].queryset.filter(pk=self.customer) 
+        else:
+            used_fields = include_list
+            super(SearchForm, self).__init__(*args, **kwargs)
         available_fields = []
         for field in self.fields:
             available_fields.append(str(field))
             
         for field in available_fields:
-            if str(field) not in include_list:
+            if str(field) not in used_fields:
                 del self.fields[str(field)]
             
         for field in self.fields:
@@ -132,7 +151,7 @@ class SearchForm(forms.ModelForm):
                 
             if type(self.fields[field]) is forms.fields.BooleanField:
                 self.fields[field].widget = forms.fields.Select(choices=YES_NO_DONT_KNOW)
-                    
+                                    
     def save(self, commit=True):
         """
         Saves this ``form``'s cleaned_data into model instance
