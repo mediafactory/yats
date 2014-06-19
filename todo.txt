@@ -1,9 +1,6 @@
-- 2 X settinsg auslagern (form + searchfields)
-- mark close/reopen in comment history red/green
-
-- history
 - html-head-title
-
+- history
+- Breadcrumbs
 - missing Mail-Adress???
 - check virus scan
 - mail templates
