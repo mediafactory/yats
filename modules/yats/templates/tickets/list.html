@@ -3,7 +3,7 @@
 {% load bootstrap_toolkit i18n %}
 {% block content %}
     
-    <h2>{% trans "tickets" %}</h2>
+    <h2>{% if is_search %}{% trans "search results for tickets" %}&nbsp;<a class="btn btn-small" href="?new=1">{% trans "new search" %}</a>{% else %}{% trans "tickets" %}{% endif %}</h2>
     
     <p>&nbsp;</p>
     
@@ -30,7 +30,10 @@
         </table>
     
         {{ lines|pagination }}
-    </section>  
+    </section>
+    {% endif %}
+    {% if lines.paginator.count == 0 %}
+    {% trans "no tickets found!" %}
     {% endif %}
     
 {% endblock %}

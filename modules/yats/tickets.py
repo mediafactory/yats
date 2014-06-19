@@ -159,13 +159,27 @@ def action(request, mode, ticket):
         
         return render_to_response('tickets/file.html', {'ticketid': ticket, 'layout': 'horizontal', 'form': form}, RequestContext(request))    
 
-def table(request):
+def table(request, **kwargs):
     mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
     mod_path = mod_path.split('.').pop(0)
     tic = get_model(mod_path, cls_name).objects.select_related('type').all()
 
     if not request.user.is_staff:
         tic = tic.filter(customer=request.organisation)
+        
+    if 'search' in kwargs:
+        is_search = True
+
+        search_params = {}
+    
+        params = kwargs['search']
+        for field in params:
+            if params[field] != None and params[field] != '':
+                search_params[field] = params[field]
+        
+        tic = tic.filter(**search_params)
+    else:
+        is_search = False
 
     paginator = Paginator(tic, 10)
     page = request.GET.get('page')
@@ -178,15 +192,20 @@ def table(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         tic_lines = paginator.page(paginator.num_pages)
 
-    return render_to_response('tickets/list.html', {'lines': tic_lines}, RequestContext(request))
+    return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search}, RequestContext(request))
 
 def search(request):
     searchable_fields = ['c_user', 'priority', 'type', 'component', 'deadline', 'billing_needed']
     
+    if request.session.get('last_search') and not 'new' in request.GET:
+        return table(request, search=request.session['last_search'])
+    
     if request.method == 'POST':
         form = SearchForm(request.POST, include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
+        form.is_valid()
+        request.session['last_search'] = form.cleaned_data
         
-        return table(request)
+        return table(request, search=form.cleaned_data)
     else:
         form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
     
