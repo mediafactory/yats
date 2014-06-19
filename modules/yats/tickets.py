@@ -8,7 +8,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
-from yats.forms import TicketsForm, CommentForm, UploadFileForm
+from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm
 from yats.models import tickets_files, tickets_comments
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file
 import os
@@ -179,3 +179,9 @@ def table(request):
         tic_lines = paginator.page(paginator.num_pages)
 
     return render_to_response('tickets/list.html', {'lines': tic_lines}, RequestContext(request))
+
+def search(request):
+    searchable_fields = ['c_user', 'priority', 'type', 'component', 'deadline', 'billing_needed']
+    form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
+    
+    return render_to_response('tickets/search.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))

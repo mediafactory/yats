@@ -99,6 +99,55 @@ class TicketsForm(forms.ModelForm):
         model = mod_cls
         exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed']
         
+class SearchForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        if not 'user' in kwargs:
+            raise Exception('missing user')
+        self.user = kwargs.pop('user')
+        
+        if 'include_list' in kwargs:
+            include_list = kwargs.pop('include_list')
+        else:
+            include_list = []
+            
+        if not 'is_stuff' in kwargs or not kwargs.pop('is_stuff'):
+            for ele in include_list:
+                if ele in self.Meta.model.form_excludes:
+                    include_list.pop(include_list.index(ele))
+        
+        super(SearchForm, self).__init__(*args, **kwargs)
+        
+        available_fields = []
+        for field in self.fields:
+            available_fields.append(str(field))
+            
+        for field in available_fields:
+            if str(field) not in include_list:
+                del self.fields[str(field)]
+            
+        for field in self.fields:
+            if type(self.fields[field]) is forms.fields.DateField:
+                self.fields[field].widget = BootstrapDateInput()            
+                    
+    def save(self, commit=True):
+        """
+        Saves this ``form``'s cleaned_data into model instance
+        ``self.instance``.
+
+        If commit=True, then the changes to ``instance`` will be saved to the
+        database. Returns ``instance``.
+        """
+        if self.instance.pk is None:
+            fail_message = 'created'
+        else:
+            fail_message = 'changed'
+        return save_instance(self, self.instance, self._meta.fields,
+                             fail_message, commit, self._meta.exclude,
+                             construct=False, user=self.user)
+
+    class Meta:
+        model = mod_cls
+        
 class CommentForm(forms.Form):
     comment = forms.CharField(required=True)
 

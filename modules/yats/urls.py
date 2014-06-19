@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 from django.conf.urls import patterns, url
 from yats.views import root, info
-from yats.tickets import new, action, table
+from yats.tickets import new, action, table, search
 
 urlpatterns = patterns('',
    url(r'^$',
@@ -16,6 +16,10 @@ urlpatterns = patterns('',
    url(r'^tickets/list/$',
         view=table,
         name='table'),
+
+   url(r'^tickets/search/$',
+        view=search,
+        name='search'),
 
    url(r'^tickets/(?P<mode>\w+)/(?P<ticket>\d+)/$',
         view=action,
