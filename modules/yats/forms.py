@@ -180,10 +180,11 @@ class SearchForm(forms.ModelForm):
         }
         
 class CommentForm(forms.Form):
-    comment = forms.CharField(required=True)
+    comment = forms.CharField(required=True, label=_('comment'))
 
 class UploadFileForm(forms.Form):
     file = yatsFileField(label=_('file'), required=True)
     
 class TicketCloseForm(forms.Form):
-    resolution = forms.ModelChoiceField(queryset=ticket_resolution.objects.filter(active_record=True))
+    resolution = forms.ModelChoiceField(queryset=ticket_resolution.objects.filter(active_record=True), label=_('resolution'))
+    close_comment = forms.CharField(widget=forms.Textarea(), label=_('comment'))

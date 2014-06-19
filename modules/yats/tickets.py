@@ -71,7 +71,7 @@ def action(request, mode, ticket):
                     tic.save(user=request.user)
                     
                     com = tickets_comments()
-                    com.comment = _('ticket closed - resolution: %s') % ticket_resolution.objects.get(pk=request.POST['resolution']).name
+                    com.comment = _('ticket closed - resolution: %s\n\n%s') % (ticket_resolution.objects.get(pk=request.POST['resolution']).name, request.POST.get('close_comment', ''))
                     com.ticket_id = ticket
                     com.save(user=request.user)
                     
@@ -85,7 +85,7 @@ def action(request, mode, ticket):
                     messages.add_message(request, messages.ERROR, _('comment invalid'))
         
         excludes = []        
-        form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic)
+        form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
         close = TicketCloseForm()
         
         files = tickets_files.objects.filter(ticket=ticket)
