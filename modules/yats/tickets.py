@@ -241,7 +241,7 @@ def table(request, **kwargs):
     return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search}, RequestContext(request))
 
 def search(request):
-    searchable_fields = ['c_user', 'priority', 'type', 'customer', 'component', 'deadline', 'billing_needed', 'billing_done']
+    searchable_fields = settings.TICKET_SEARCH_FIELDS
     
     if request.method == 'POST' and 'reportname' in request.POST and request.POST['reportname']:
         rep = tickets_reports()

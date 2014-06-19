@@ -73,7 +73,7 @@ class TicketsForm(forms.ModelForm):
             exclude_list = []
             
         if not 'is_stuff' in kwargs or not kwargs.pop('is_stuff'):
-            exclude_list = list(set(exclude_list + self.Meta.model.form_excludes))
+            exclude_list = list(set(exclude_list + settings.TICKET_NON_PUBLIC_FIELDS))
             
             super(TicketsForm, self).__init__(*args, **kwargs)
             
@@ -128,7 +128,7 @@ class SearchForm(forms.ModelForm):
         if not 'is_stuff' in kwargs or not kwargs.pop('is_stuff'):
             used_fields = []
             for ele in include_list:
-                if not ele in self.Meta.model.form_excludes:
+                if not ele in settings.TICKET_NON_PUBLIC_FIELDS:
                     used_fields.append(ele)
             super(SearchForm, self).__init__(*args, **kwargs)
             

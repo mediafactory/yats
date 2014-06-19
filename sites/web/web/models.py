@@ -66,5 +66,3 @@ class test(tickets):
     solution = models.TextField(null=True, blank=True)
     fixed_in_version = models.CharField(max_length=255, choices=lazy(getGibthubTags, list)(), blank=True)
     deadline = models.DateField(null=True, blank=True)
-    
-    form_excludes = ['billing_needed', 'billing_reason', 'billing_done', 'fixed_in_version', 'solution', 'assigned', 'priority']
