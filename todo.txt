@@ -1,15 +1,13 @@
-- merge / dupplicate / Actions / workflow
-
 - 2 X settinsg auslagern (form + searchfields)
-
-- default werte im Ticket setzen
-- default and filtert customer in ticket
-- del default values at search
+- mark close/reopen in comment history red/green
 
 - history
+- html-head-title
 
 - missing Mail-Adress???
 - check virus scan
+- mail templates
+- rights
 
 http://getbootstrap.com/2.3.2/base-css.html#buttons
 http://marcoceppi.github.io/bootstrap-glyphicons/
