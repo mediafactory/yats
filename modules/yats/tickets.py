@@ -8,8 +8,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
-from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm
-from yats.models import tickets_files, tickets_comments, tickets_reports
+from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm
+from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values
 import os
 import io
@@ -63,10 +63,26 @@ def action(request, mode, ticket):
                 mail_comment(request, com.pk)
 
             else:
-                messages.add_message(request, messages.ERROR, _('comment invalid'))
+                if 'resolution' in request.POST:
+                    tic.resolution_id = request.POST['resolution']
+                    tic.closed = True
+                    tic.save(user=request.user)
+                    
+                    com = tickets_comments()
+                    com.comment = _('ticket closed - resolution: %s') % ticket_resolution.objects.get(pk=request.POST['resolution']).name
+                    com.ticket_id = ticket
+                    com.save(user=request.user)
+                    
+                    touch_ticket(request.user, ticket)
+                    
+                    mail_comment(request, com.pk)
+                    
+                else:
+                    messages.add_message(request, messages.ERROR, _('comment invalid'))
         
         excludes = []        
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic)
+        close = TicketCloseForm()
         
         files = tickets_files.objects.filter(ticket=ticket)
         paginator = Paginator(files, 10)
@@ -92,7 +108,25 @@ def action(request, mode, ticket):
             # If page is out of range (e.g. 9999), deliver last page of results.
             comments_lines = paginator.page(paginator.num_pages)
 
-        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'files': files_lines, 'comments': comments_lines}, RequestContext(request))
+        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'files': files_lines, 'comments': comments_lines}, RequestContext(request))
+
+    elif mode == 'reopen':
+        if tic.closed:
+            tic.closed = False
+            tic.resolution = None
+            tic.save(user=request.user)
+            
+            com = tickets_comments()
+            com.comment = _('ticket reopend - resolution deleted')
+            com.ticket_id = ticket
+            com.save(user=request.user)
+            
+            touch_ticket(request.user, ticket)
+            
+            mail_comment(request, com.pk)
+            
+        return HttpResponseRedirect('/tickets/view/%s/' % ticket)
+            
 
     elif mode == 'edit':
         excludes = ['resolution']

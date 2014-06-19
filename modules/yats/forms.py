@@ -6,7 +6,7 @@ from django.forms.models import construct_instance
 from bootstrap_toolkit.widgets import BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
-from yats.models import YES_NO_DONT_KNOW
+from yats.models import YES_NO_DONT_KNOW, ticket_resolution
 
 mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
 mod = importlib.import_module(mod_path)
@@ -164,5 +164,7 @@ class CommentForm(forms.Form):
     comment = forms.CharField(required=True)
 
 class UploadFileForm(forms.Form):
-    file  = yatsFileField(label=_('file'), required=True)
-        
+    file = yatsFileField(label=_('file'), required=True)
+    
+class TicketCloseForm(forms.Form):
+    resolution = forms.ModelChoiceField(queryset=ticket_resolution.objects.filter(active_record=True))
