@@ -9,10 +9,14 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm
-from yats.models import tickets_files, tickets_comments
+from yats.models import tickets_files, tickets_comments, tickets_reports
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file
 import os
 import io
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
 
 def new(request):
     excludes = ['resolution']
@@ -197,6 +201,12 @@ def table(request, **kwargs):
 def search(request):
     searchable_fields = ['c_user', 'priority', 'type', 'component', 'deadline', 'billing_needed']
     
+    if request.method == 'POST' and 'reportname' in request.POST and request.POST['reportname']:
+        rep = tickets_reports()
+        rep.name = request.POST['reportname']
+        rep.search = json.dumps(request.session['last_search'])
+        rep.save(user=request.user)
+    
     if request.session.get('last_search') and not 'new' in request.GET:
         return table(request, search=request.session['last_search'])
     
@@ -210,3 +220,23 @@ def search(request):
         form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
     
     return render_to_response('tickets/search.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))
+
+def reports(request):
+    if 'report' in request.GET:
+        rep = tickets_reports.objects.get(pk=request.GET['report'])
+        return table(request, search=json.loads(rep.search))
+    
+    reps = tickets_reports.objects.filter(c_user=request.user)
+
+    paginator = Paginator(reps, 10)
+    page = request.GET.get('page')
+    try:
+        rep_lines = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        rep_lines = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        rep_lines = paginator.page(paginator.num_pages)
+
+    return render_to_response('tickets/reports.html', {'lines': rep_lines}, RequestContext(request))

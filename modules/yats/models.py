@@ -130,29 +130,7 @@ class tickets_files(base):
     size = models.PositiveIntegerField()
     public = models.BooleanField(default=False)
     
-"""
-if settings.TICKET_CLASS:
-    import inspect
-    import sys
-    mods = []
-    mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
-    mod = importlib.import_module(mod_path)
-
-    clsmembers = inspect.getmembers(sys.modules[mod_path], inspect.isclass)
-    for cls in clsmembers:
-        if cls[1].__module__.startswith('web.'):
-            #print cls
-            #print cls[1].__module__
-            if cls[0] != cls_name:
-                print cls[0]
-                mod_cls = getattr(mod, cls[0])
-                mods.append(mod_cls)
-
-    mod_cls = getattr(mod, cls_name)
-    mods.append(mod_cls)
-
-    models.register_models('yats', *mods)
+class tickets_reports(base):
+    name = models.CharField(max_length=255)
+    search = models.TextField()
     
-    models.signals.post_syncdb.disconnect(update_contenttypes)
-
-"""

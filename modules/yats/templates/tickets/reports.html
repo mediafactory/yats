@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n %}
+{% block content %}
+    
+    <h2>{% trans "reports" %}</h2>
+    
+    <p>&nbsp;</p>
+    
+    {% if lines %}
+    <p>{{ lines.start_index }} - {{ lines.end_index }} {% trans "of" %} {{ lines.paginator.count }}</p>
+    <section id="no-more-tables">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>{% trans "report" %}</th>
+            </tr>
+            </thead>
+              {% for line in lines %}
+                <tr>
+                    <td data-title="{% trans "report" %}"><a href="?report={{ line.id }}">{{ line.name }}</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    
+        {{ lines|pagination }}
+    </section>
+    {% endif %}
+    {% if lines.paginator.count == 0 %}
+    {% trans "no reports found!" %}
+    {% endif %}
+{% endblock %}
