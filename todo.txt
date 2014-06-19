@@ -1,17 +1,14 @@
-- search
-
 - merge / dupplicate / Actions / workflow
 
-- missing Mail-Adress???
+- 2 X settinsg auslagern (form + searchfields)
 
-- version from master
-
-- default werte im Ticket
+- default werte im Ticket setzen
 - default and filtert customer in ticket
 - del default values at search
 
 - history
 
+- missing Mail-Adress???
 - check virus scan
 
 http://getbootstrap.com/2.3.2/base-css.html#buttons
