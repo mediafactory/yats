@@ -96,7 +96,7 @@ def action(request, mode, ticket):
             # If page is out of range (e.g. 9999), deliver last page of results.
             files_lines = paginator.page(paginator.num_pages)
         
-        comments = tickets_comments.objects.select_related('c_user').filter(ticket=ticket)
+        comments = tickets_comments.objects.select_related('c_user').filter(ticket=ticket).order_by('c_date')
         paginator = Paginator(comments, 10)
         page = request.GET.get('page')
         try:
@@ -216,6 +216,7 @@ def table(request, **kwargs):
                 search_params[field] = params[field]
         tic = tic.filter(**search_params)
     else:
+        tic = tic.filter(closed=False)
         is_search = False
 
     paginator = Paginator(tic, 10)
