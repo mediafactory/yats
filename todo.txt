@@ -4,14 +4,17 @@
 
 - missing Mail-Adress???
 
+- version from master
+
 - default werte im Ticket
 - default and filtert customer in ticket
+- del default values at search
 
-- hsiotrie
-- reports
+- history
 
 - check virus scan
 
 http://getbootstrap.com/2.3.2/base-css.html#buttons
 http://marcoceppi.github.io/bootstrap-glyphicons/
 http://www.bootply.com/106768
+http://jsfiddle.net/KyleMit/gDjtk/
