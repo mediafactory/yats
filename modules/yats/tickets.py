@@ -198,7 +198,7 @@ def table(request, **kwargs):
     return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search}, RequestContext(request))
 
 def search(request):
-    searchable_fields = ['c_user', 'priority', 'type', 'component', 'deadline', 'billing_needed']
+    searchable_fields = ['c_user', 'priority', 'type', 'component', 'deadline', 'billing_needed', 'billing_done']
     
     if request.method == 'POST' and 'reportname' in request.POST and request.POST['reportname']:
         rep = tickets_reports()
@@ -216,7 +216,8 @@ def search(request):
         
         return table(request, search=request.session['last_search'])
     else:
-        del request.session['last_search']
+        if 'last_search' in request.session:
+            del request.session['last_search']
         form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user)
     
     return render_to_response('tickets/search.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))
