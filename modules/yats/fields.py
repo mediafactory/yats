@@ -22,7 +22,7 @@ class yatsFileField(forms.FileField):
         elif not data and initial:
             return initial
         
-        if settings.FILE_UPLOAD_CIRUS_SCAN:
+        if settings.FILE_UPLOAD_VIRUS_SCAN:
             # virus scan
             try:
                 pyclamd.init_network_socket('localhost', 3310)
