@@ -14,7 +14,7 @@
             <thead>
             <tr>
                 <th>{% trans "ticket#" %}</th>
-                <th>{% trans "ts" %}</th>
+                <th>{% trans "created" %}</th>
                 <th>{% trans "type#" %}</th>
                 <th>{% trans "caption" %}</th>
             </tr>
@@ -22,7 +22,7 @@
               {% for line in lines %}
                 <tr>
                     <td data-title="{% trans "ticket#" %}"><a href="/tickets/view/{{ line.id }}/">{{ line.id }}</a></td>
-                    <td data-title="{% trans "ts" %}">{{ line.c_date }}</td>
+                    <td data-title="{% trans "created" %}">{{ line.c_date }}</td>
                     <td data-title="{% trans "type" %}">{{ line.type }}</td>
                     <td data-title="{% trans "caption" %}">{{ line.caption }}</td>
                 </tr>
