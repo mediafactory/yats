@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references
 import os
 import io
 try:
@@ -58,6 +58,8 @@ def action(request, mode, ticket):
                 com.ticket_id = ticket
                 com.save(user=request.user)
                 
+                check_references(request, com)
+                
                 touch_ticket(request.user, ticket)
                 
                 mail_comment(request, com.pk)
@@ -72,6 +74,8 @@ def action(request, mode, ticket):
                     com.comment = _('ticket closed - resolution: %s') % ticket_resolution.objects.get(pk=request.POST['resolution']).name
                     com.ticket_id = ticket
                     com.save(user=request.user)
+                    
+                    check_references(request, com)
                     
                     touch_ticket(request.user, ticket)
                     
@@ -120,6 +124,8 @@ def action(request, mode, ticket):
             com.comment = _('ticket reopend - resolution deleted')
             com.ticket_id = ticket
             com.save(user=request.user)
+            
+            check_references(request, com)
             
             touch_ticket(request.user, ticket)
             

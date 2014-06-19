@@ -8,6 +8,7 @@ from yats.models import tickets_participants, tickets_comments, tickets_files
 from PIL import Image#, ImageOps
 import sys
 import datetime
+import re
 
 def resize_image(filename, size=(200, 150), dpi=75):
     image = Image.open(filename)
@@ -113,3 +114,16 @@ def clean_search_values(search):
             if search[ele]:
                 result[ele] = search[ele].pk
     return result         
+
+def check_references(request, src_com):
+    refs = re.findall('#([0-9]+)', src_com.comment) 
+    for ref in refs:
+        com = tickets_comments()
+        com.comment = _('ticket mentioned by #%s' % src_com.ticket_id)
+        com.ticket_id = ref
+        com.save(user=request.user)
+        
+        touch_ticket(request.user, ref)
+        
+        #mail_comment(request, com.pk)
+    
