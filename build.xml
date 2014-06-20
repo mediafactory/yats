@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	see http://code.google.com/p/ant-deb-task/wiki/deb for deb packages
+-->
+<project name="YATS" default="nightly" basedir=".">
+	<description>YATS</description>
+	
+	<property name="yatsversion" value="1.28.1" />
+	
+	<tstamp>
+		<format property="TODAY"
+				pattern="dd.MM.yyyy"
+				locale="de,DE" />
+	</tstamp>
+	
+	<path id="classpath">
+		<fileset dir="${basedir}/build" includes="*.jar" />
+	</path>
+	
+	<taskdef resource="ant_deb_task.properties" classpathref="classpath"/>
+	<taskdef resource="pyAntTasks.properties" classpathref="classpath"/>
+	
+	<target name="clean" description="clean nightly">
+		<echo message="deleting old nightly" level="info" />
+		<delete verbose="false" includeemptydirs="true">
+			<fileset dir="${basedir}/distribution/nightly"
+				includes="**/*"
+				defaultexcludes="false">
+			</fileset>
+		</delete>
+
+		<echo message="deleting old static files" level="info" />
+		<delete verbose="false" includeemptydirs="true">
+			<fileset dir="${basedir}/sites/static"
+				includes="**/*"
+				defaultexcludes="false">
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="copydist" depends="clean" description="copy files etc">
+		<echo message="copy module yats" level="info" />
+		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/yats">
+			<fileset dir="${basedir}/modules/yats" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
+		</copy>
+		<replace file="${basedir}/distribution/nightly/modules/yats/__init__.py" token="@version@" value="${yatsversion}"/>
+		<echo message="copy module Django" level="info" />
+		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/django">
+			<fileset dir="${basedir}/modules/django" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
+		</copy>
+		<echo message="copy module south" level="info" />
+		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/south">
+			<fileset dir="${basedir}/modules/south" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
+		</copy>
+		<echo message="copy module bootstrap_toolkit" level="info" />
+		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/bootstrap_toolkit">
+			<fileset dir="${basedir}/modules/bootstrap_toolkit" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
+		</copy>
+
+		<echo message="copy sites setup" level="info" />
+		<copy verbose="false" todir="${basedir}/distribution/nightly/sites/static">
+			<fileset dir="${basedir}/sites/static" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*,**/celerybeat-schedule" />
+		</copy>
+		<copy verbose="false" todir="${basedir}/distribution/nightly/sites/web">
+			<fileset dir="${basedir}/sites/web" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*,**/celerybeat-schedule" />
+		</copy>
+		
+		<!-- <antcall target="i18n" />
+		<antcall target="ci18n" /> -->
+	</target>
+			
+	<target name="debian_app" description="make a debian package out of all" depends="static">
+		<echo message="modules deb" level="info" />
+		<deb todir="${basedir}/distribution/nightly" 
+			package="yats-modules" 
+			section="web" 
+			depends="memcached,python-memcache,python-httplib2,locales-all,python-pyclamd" 
+			preinst="debian/scripte/mod_preinst" 
+			postinst="debian/scripte/mod_postinst" 
+			prerm="debian/scripte/mod_prerm">
+				<version upstream="${yatsversion}"/>
+				<maintainer name="Henrik Genssen" email="hg@mediafactory.de"/>
+				<description synopsis="YATS modules">
+				installs YATS modules
+				</description>
+				<tarfileset dir="${basedir}/distribution/nightly/modules/yats" prefix="usr/share/yats/site-packages/yats" />
+				<tarfileset dir="${basedir}/distribution/nightly/modules/django" prefix="usr/share/yats/site-packages/django" />
+				<tarfileset dir="${basedir}/distribution/nightly/modules/south" prefix="usr/share/yats/site-packages/south" />
+				<tarfileset dir="${basedir}/distribution/nightly/modules/bootstrap_toolkit" prefix="usr/share/yats/site-packages/bootstrap_toolkit" />
+		</deb>
+   </target>
+
+	<target name="debian" depends="debian_app" description="make a debian package out of all">
+    </target>
+
+	<target name="i18n" depends="" description="create translations">
+		<echo message="createing i18n po files" level="error" />
+		<py-run script="${basedir}/modules/django/bin/django-admin.py" pythonpath="${basedir}/modules/" optimize="0" dir="${basedir}/modules/yats/">
+			<arg value="makemessages" />
+			<arg value="--locale=de" />
+			<arg value="--extension=html,xml" />
+		</py-run>
+	</target>
+	
+	<target name="ci18n" depends="" description="compile translations">
+		<echo message="compile i18n po files in source" level="error" />
+		<py-run script="${basedir}/modules/django/bin/django-admin.py" pythonpath="${basedir}/modules/" optimize="0" failonerror="false" dir="${basedir}/modules/yats/">
+			<arg value="compilemessages" />
+		</py-run>
+
+		<echo message="compile i18n po files in dest" level="error" />
+		<py-run script="${basedir}/modules/django/bin/django-admin.py" pythonpath="${basedir}/modules/" optimize="0" dir="${basedir}/distribution/nightly/modules/yats/">
+			<arg value="compilemessages" />
+		</py-run>
+	</target>
+	
+	<target name="static" depends="" description="collectstatic files">
+		<echo message="collect static files" level="error" />
+		<py-run script="${basedir}/sites/web/manage.py" pythonpath="${basedir}/modules/" optimize="0" failonerror="true" dir="${basedir}/sites/web/">
+			<arg value="collectstatic" />
+			<arg value="--noinput" />
+		</py-run>
+		<copy verbose="false" todir="${basedir}/distribution/nightly/sites/static">
+			<fileset dir="${basedir}/sites/static" excludes="" />
+		</copy>
+	</target>
+
+	<target name="nightly" depends="" description="just build it all the time">
+		<mkdir dir="${basedir}/distribution/nightly/"/>
+		<mkdir dir="${basedir}/sites/static/"/>
+		<sound>
+			<success source="${basedir}/build/SOUND1.WAV" />
+			<fail source="${basedir}/build/SOUND108.WAV" />
+		</sound>
+		<echo message="super cow pwoer" level="info" />
+		<antcall target="copydist" />
+		<antcall target="debian" />
+	</target>
+</project>

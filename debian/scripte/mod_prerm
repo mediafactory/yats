@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#set -e
+
+if [ "$1" = "remove" ] ; then
+    rm -r /usr/share/yats/site-packages/django 2>/dev/null
+    
+    rm -r /usr/share/yats/site-packages/yats 2>/dev/null
+    rm -r /usr/share/yats/site-packages/south 2>/dev/null
+    rm -r /usr/share/schiwago/site-packages/bootstrap_toolkit 2>/dev/null
+    
+elif [ "$1" = "upgrade" ]; then
+    rm -r /usr/share/yats/site-packages/django 2>/dev/null
+    
+    rm -r /usr/share/yats/site-packages/yats 2>/dev/null
+    rm -r /usr/share/yats/site-packages/south 2>/dev/null
+    rm -r /usr/share/schiwago/site-packages/bootstrap_toolkit 2>/dev/null
+    
+fi
+
+exit 0
