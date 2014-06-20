@@ -110,9 +110,10 @@ def clean_search_values(search):
     result = {}
     for ele in search:
         if type(search[ele]) not in [bool, int, str, unicode, long, None, datetime.date]:
-            print type(search[ele])
             if search[ele]:
                 result[ele] = search[ele].pk
+        else:
+            result[ele] = search[ele]
     return result         
 
 def check_references(request, src_com):
