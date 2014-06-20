@@ -42,10 +42,16 @@ def getGibthubTags():
     if user:
         headers['Authorization'] = 'Basic %s' % base64.b64encode('%s:%s' % (user, password))
     
-    h = httplib2.Http()
-    header, content = h.request('https://api.github.com/repos/%s/%s/tags' % (owner, repo), 'GET', headers=headers)
-    if header['status'] != '200':
-        raise Exception(content)
+    try:
+        h = httplib2.Http()
+        header, content = h.request('https://api.github.com/repos/%s/%s/tags' % (owner, repo), 'GET', headers=headers)
+        if header['status'] != '200':
+            print 'ERROR fetching data from GitHub: %s' % content
+            return []
+    
+    except:
+        print 'ERROR fetching data from GitHub'
+        return [] 
     
     tags = json.loads(content)
     
