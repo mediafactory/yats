@@ -1,8 +1,9 @@
 *.log
 *.pyc
 *.mo
-yats/distribution/
+distribution/
 files/
+sites/static/
 .settings/
 .project
 .pydevproject
