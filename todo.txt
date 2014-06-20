@@ -1,14 +1,18 @@
-- translation
 - wiki integration
-- Breadcrumbs of last tickets
 - translation
+- about
 
 - html-head-title
 - history
+- change password
+- admin mit in toolbar
+- list tickets red/green
 
 - missing Mail-Adress???
 - mail templates
 - rights
+- workflows
+- webdav oder neue Version für files
 
 http://getbootstrap.com/2.3.2/base-css.html#buttons
 http://marcoceppi.github.io/bootstrap-glyphicons/
