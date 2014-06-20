@@ -1,8 +1,12 @@
+- translation
+- wiki integration
+- Breadcrumbs of last tickets
+- translation
+
 - html-head-title
 - history
-- Breadcrumbs of last tickets
+
 - missing Mail-Adress???
-- check virus scan
 - mail templates
 - rights
 
