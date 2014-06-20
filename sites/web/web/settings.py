@@ -65,6 +65,8 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = ''
 
+STATIC_ROOT = config.get('folder', 'STATIC_ROOT')
+
 # Absolute path to the directory temp files should be saved to.
 # used for reports
 TEMP_ROOT = '/tmp/'
