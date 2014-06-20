@@ -7,13 +7,14 @@ config.read('/usr/local/yats/config/web.ini')
 DEBUG = config.getboolean('debug','DEBUG')
 TEMPLATE_DEBUG = DEBUG
 #DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
-EMAIL_SUBJECT_PREFIX = 'yats-dev'
+ALLOWED_HOSTS = ['*']
 
 TESTSYTEM = config.getboolean('debug','TESTSYTEM')
 
 ADMINS = tuple(config.items('admins'))
 MANAGERS = ADMINS
 
+EMAIL_SUBJECT_PREFIX = 'yats-dev'
 EMAIL_HOST = config.get('mail', 'EMAIL_HOST')
 EMAIL_PORT = config.get('mail', 'EMAIL_PORT')
 SERVER_EMAIL = config.get('mail', 'SERVER_EMAIL')
