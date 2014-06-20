@@ -35,7 +35,11 @@ class UserProfile(models.Model):
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        UserProfile.objects.get_or_create(user=instance)
+        # try/except just for syncdb / south
+        try:
+            UserProfile.objects.get_or_create(user=instance)
+        except:
+            pass
 
 post_save.connect(create_user_profile, sender=User)
 
