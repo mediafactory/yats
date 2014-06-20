@@ -36,6 +36,11 @@
     </div>
 </div>
 
+<ul class="breadcrumb">
+    {% for bread in request.session.breadcrumbs %}<li><a href="/tickets/view/{{ bread }}/">#{{ bread }}</a> <span class="divider">/</span></li>
+    {% endfor %}
+</ul>
+
 <div class="container">
 
     {% bootstrap_messages %}

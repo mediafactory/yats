@@ -85,7 +85,7 @@ def action(request, mode, ticket):
                 else:
                     messages.add_message(request, messages.ERROR, _('comment invalid'))
         
-        excludes = []        
+        excludes = []
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
         close = TicketCloseForm()
         
@@ -113,6 +113,12 @@ def action(request, mode, ticket):
             # If page is out of range (e.g. 9999), deliver last page of results.
             comments_lines = paginator.page(paginator.num_pages)
 
+        breadcrumbs = request.session.get('breadcrumbs', [])
+        breadcrumbs.append(long(ticket))
+        while len(breadcrumbs) > 10:
+            breadcrumbs.pop(0)
+        request.session['breadcrumbs'] = breadcrumbs
+        
         return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'files': files_lines, 'comments': comments_lines}, RequestContext(request))
 
     elif mode == 'reopen':
