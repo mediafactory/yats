@@ -71,7 +71,7 @@ def action(request, mode, ticket):
                     tic.save(user=request.user)
                     
                     com = tickets_comments()
-                    com.comment = _('ticket closed - resolution: %s\n\n%s') % (ticket_resolution.objects.get(pk=request.POST['resolution']).name, request.POST.get('close_comment', ''))
+                    com.comment = _('ticket closed - resolution: %(resolution)s\n\n%(comment)s') % {'resolution': ticket_resolution.objects.get(pk=request.POST['resolution']).name, 'comment': request.POST.get('close_comment', '')}
                     com.ticket_id = ticket
                     com.action = 1
                     com.save(user=request.user)
