@@ -2,6 +2,19 @@ body {
     padding-top: 60px;
 }
 
+.required input[type="text"] {
+	background-color: #dcd8ff;
+}
+.required select {
+	background-color: #dcd8ff;
+}
+.required textarea {
+	background-color: #dcd8ff;	
+}
+.required input[type="checkbox"] {
+	background-color: #dcd8ff;		
+}
+
 textarea {
 	width: 500px;
 	height: 100px;

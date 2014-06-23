@@ -56,6 +56,8 @@ def save_instance(form, instance, fields=None, fail_message='saved',
     return instance
 
 class TicketsForm(forms.ModelForm):
+    required_css_class = 'required'
+
     file_addition = forms.BooleanField(required=False)
        
     def __init__(self, *args, **kwargs):
@@ -111,6 +113,8 @@ class TicketsForm(forms.ModelForm):
         exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed']
         
 class SearchForm(forms.ModelForm):
+    required_css_class = 'required'
+
     def __init__(self, *args, **kwargs):
         if not 'user' in kwargs:
             raise Exception('missing user')
