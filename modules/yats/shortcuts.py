@@ -75,7 +75,7 @@ def mail_ticket(request, ticket_id, **kwargs):
     tic = get_ticket_model().objects.get(pk=ticket_id)
 
     try:    
-        send_mail('#%s - %s' % (tic.id, tic.caption), '%s\n\n%s' % (tic.description, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, rcpt, False)
+        send_mail('%s#%s - %s' % (tic.id, tic.caption), '%s\n\n%s' % (settings.EMAIL_SUBJECT_PREFIX, tic.description, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, rcpt, False)
     except:
         messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])  
         
@@ -88,7 +88,7 @@ def mail_comment(request, comment_id):
     tic = get_ticket_model().objects.get(pk=ticket_id)
     
     try:    
-        send_mail('#%s: %s - %s' % (tic.id, _('new comment'), tic.caption), '%s\n\n%s' % (com.comment, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, rcpt, False)
+        send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new comment'), tic.caption), '%s\n\n%s' % (com.comment, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, rcpt, False)
     except:
         messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])        
 
@@ -102,7 +102,7 @@ def mail_file(request, file_id):
     body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
 
     try:    
-        send_mail('#%s: %s - %s' % (tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, rcpt, False)
+        send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, rcpt, False)
     except:
         messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
         
