@@ -9,6 +9,7 @@
 - admin mit in toolbar
 - list tickets red/green
 - del attachments
+- del reports
 
 - missing Mail-Adress???
 - mail templates
