@@ -5,7 +5,7 @@
 <project name="YATS" default="nightly" basedir=".">
 	<description>YATS</description>
 	
-	<property name="yatsversion" value="1.0.0" />
+	<property name="yatsversion" value="1.0.1" />
 	
 	<tstamp>
 		<format property="TODAY"
