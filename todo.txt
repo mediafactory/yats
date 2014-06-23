@@ -1,3 +1,4 @@
+- mail add prefix EMAIL_SUBJECT_PREFIX to subject
 - wiki integration
 - translation
 - about
@@ -7,6 +8,7 @@
 - change password
 - admin mit in toolbar
 - list tickets red/green
+- del attachments
 
 - missing Mail-Adress???
 - mail templates
