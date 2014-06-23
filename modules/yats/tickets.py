@@ -145,7 +145,7 @@ def action(request, mode, ticket):
     elif mode == 'edit':
         excludes = ['resolution']
         if request.method == 'POST':
-            form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic)
+            form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
             if form.is_valid():
                 tic = form.save()
                 
@@ -160,7 +160,7 @@ def action(request, mode, ticket):
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
         
         else:
-            form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic)
+            form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
         
         return render_to_response('tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form}, RequestContext(request))    
 
