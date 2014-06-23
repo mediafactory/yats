@@ -1,7 +1,7 @@
 YATS
 ====
 
-yet another ticket system base on Python Django
+yet another (trouble) ticket system base on Python Django
 
 DEMO
 -----
