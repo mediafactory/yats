@@ -1,7 +1,6 @@
 - mail add prefix EMAIL_SUBJECT_PREFIX to subject
 - wiki integration
 - translation
-- about
 
 - html-head-title
 - history
