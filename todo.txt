@@ -1,20 +1,16 @@
-- mail add prefix EMAIL_SUBJECT_PREFIX to subject
 - wiki integration
 - translation
 
-- html-head-title
 - history
 - change password
-- admin mit in toolbar
-- list tickets red/green
 - del attachments
 - del reports
 
-- missing Mail-Adress???
 - mail templates
 - rights
 - workflows
 - webdav oder neue Version für files
+- admin mit in toolbar
 
 http://getbootstrap.com/2.3.2/base-css.html#buttons
 http://marcoceppi.github.io/bootstrap-glyphicons/
