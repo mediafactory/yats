@@ -6,7 +6,7 @@ from django.forms.models import construct_instance
 from bootstrap_toolkit.widgets import BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
-from yats.models import YES_NO_DONT_KNOW, ticket_resolution
+from yats.models import ticket_resolution
 
 mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
 mod = importlib.import_module(mod_path)
@@ -57,7 +57,7 @@ def save_instance(form, instance, fields=None, fail_message='saved',
 
 class TicketsForm(forms.ModelForm):
     required_css_class = 'required'
-
+    
     file_addition = forms.BooleanField(required=False)
        
     def __init__(self, *args, **kwargs):
@@ -113,7 +113,7 @@ class TicketsForm(forms.ModelForm):
         exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed']
         
 class SearchForm(forms.ModelForm):
-    required_css_class = 'required'
+    required_css_class = 'do_not_require'
 
     def __init__(self, *args, **kwargs):
         if not 'user' in kwargs:
@@ -154,7 +154,7 @@ class SearchForm(forms.ModelForm):
                 self.fields[field].widget = BootstrapDateInput()
                 
             if type(self.fields[field]) is forms.fields.BooleanField:
-                self.fields[field].widget = forms.fields.Select(choices=YES_NO_DONT_KNOW)
+                self.fields[field] = forms.NullBooleanField()
                                     
     def save(self, commit=True):
         """
