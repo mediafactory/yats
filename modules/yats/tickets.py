@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm
-from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution
+from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references
 import os
 import io
@@ -89,6 +89,8 @@ def action(request, mode, ticket):
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
         close = TicketCloseForm()
         
+        participants = tickets_participants.objects.select_related('user').filter(ticket=ticket)
+
         files = tickets_files.objects.filter(ticket=ticket)
         paginator = Paginator(files, 10)
         page = request.GET.get('page')
@@ -119,7 +121,7 @@ def action(request, mode, ticket):
             breadcrumbs.pop(0)
         request.session['breadcrumbs'] = breadcrumbs
         
-        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'files': files_lines, 'comments': comments_lines}, RequestContext(request))
+        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'files': files_lines, 'comments': comments_lines, 'participants': participants}, RequestContext(request))
 
     elif mode == 'reopen':
         if tic.closed:

@@ -22,6 +22,10 @@
         	<td>{{ field|display_value|linebreaksbr }}</td>
         </tr>
     {% endif %}{% endfor %}
+        <tr>
+            <td>{% trans "Participants" %}:</td>
+            <td>{% for p in participants %}{{ p.user }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+        </tr>
     </table>
     
     <h3>{% trans "files" %}</h3>
