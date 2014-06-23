@@ -57,8 +57,18 @@ def get_ticket_model():
 def touch_ticket(user, ticket_id):
     tickets_participants.objects.get_or_create(ticket_id=ticket_id, user=user)
     
-def get_recipient_list(ticket_id):
-    return tickets_participants.objects.select_related('user').filter(ticket=ticket_id).exclude(user__email=None).exclude(user__email='').values_list('user__email', flat=True)
+def get_recipient_list(request, ticket_id):
+    result = []
+    error = []
+    rcpts = tickets_participants.objects.select_related('user').filter(ticket=ticket_id)
+    for rcpt in rcpts:
+        if rcpt.user.email:
+            result.append(rcpt.user.email)
+        else:
+            error.append(unicode(rcpt.user))
+    if len(error) > 0:
+        messages.add_message(request, messages.ERROR, _('the following participants could not be reached by mail (address missing): %s') % ', '.join(error))
+    return result
     
 def get_ticket_url(request, ticket_id):
     if request.is_secure():
@@ -67,7 +77,7 @@ def get_ticket_url(request, ticket_id):
         return 'http://%s/tickets/view/%s/' % (request.get_host(), ticket_id)
 
 def mail_ticket(request, ticket_id, **kwargs):
-    rcpt = list(get_recipient_list(ticket_id))
+    rcpt = list(get_recipient_list(request, ticket_id))
     if 'rcpt' in kwargs and kwargs['rcpt']:
         rcpt.append(kwargs['rcpt'])
     if len(rcpt) == 0:
@@ -75,14 +85,14 @@ def mail_ticket(request, ticket_id, **kwargs):
     tic = get_ticket_model().objects.get(pk=ticket_id)
 
     try:    
-        send_mail('%s#%s - %s' % (tic.id, tic.caption), '%s\n\n%s' % (settings.EMAIL_SUBJECT_PREFIX, tic.description, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, rcpt, False)
+        send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (tic.description, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, rcpt, False)
     except:
         messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])  
         
 def mail_comment(request, comment_id):
     com = tickets_comments.objects.get(pk=comment_id)
     ticket_id = com.ticket_id
-    rcpt = get_recipient_list(ticket_id)
+    rcpt = get_recipient_list(request, ticket_id)
     if len(rcpt) == 0:
         return
     tic = get_ticket_model().objects.get(pk=ticket_id)
@@ -95,7 +105,7 @@ def mail_comment(request, comment_id):
 def mail_file(request, file_id):
     io = tickets_files.objects.get(pk=file_id)
     ticket_id = io.ticket_id
-    rcpt = get_recipient_list(ticket_id)
+    rcpt = get_recipient_list(request, ticket_id)
     if len(rcpt) == 0:
         return
     tic = get_ticket_model().objects.get(pk=ticket_id)
