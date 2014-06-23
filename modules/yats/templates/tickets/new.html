@@ -2,6 +2,10 @@
 
 {% load bootstrap_toolkit i18n %}
 
+{% block title %}
+    {% trans "new ticket" %}
+{% endblock %}
+
 {% block extra_head %}
     {{ form.media }}
 {% endblock %}

@@ -2,6 +2,10 @@
 
 {% load bootstrap_toolkit i18n forms strings comments %}
 
+{% block title %}
+    {% trans "ticket" %} #{{ ticket.id }}
+{% endblock %}
+
 {% block extra_head %}
     {{ form.media }}
     <link href="{{ STATIC_URL }}timeline.css" type="text/css" rel="stylesheet" media="all">
