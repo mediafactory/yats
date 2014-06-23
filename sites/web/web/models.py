@@ -26,12 +26,12 @@ def getGibthubTags():
     password = settings.GITHUB_PASS
     
     if not owner or not repo:
-        return []
+        return ()
 
     cache_name = 'yats.%s.%s.tags.github' % (owner, repo)
     tags = cache.get(cache_name)
     if tags:
-        return tags
+        return set(reversed(sorted(tags)))
     
     # https://developer.github.com/v3/repos/#list-tags
     result = []
@@ -47,11 +47,11 @@ def getGibthubTags():
         header, content = h.request('https://api.github.com/repos/%s/%s/tags' % (owner, repo), 'GET', headers=headers)
         if header['status'] != '200':
             print 'ERROR fetching data from GitHub: %s' % content
-            return []
+            return ()
     
     except:
         print 'ERROR fetching data from GitHub'
-        return [] 
+        return ()
     
     tags = json.loads(content)
     
@@ -59,16 +59,16 @@ def getGibthubTags():
         result.append((tag['name'], tag['name'],))
     
     cache.set(cache_name, result, 60 * 10)
-    return reversed(sorted(result))
+    return set(reversed(sorted(result)))
 
 class test(tickets):
     component = models.ForeignKey(ticket_component)
-    version = models.CharField(max_length=255, choices=lazy(getGibthubTags, list)())
+    version = models.CharField(max_length=255, choices=lazy(getGibthubTags, set)())
     keywords = models.CharField(max_length=255, blank=True)
     reproduction = models.TextField(null=True)
     billing_needed = models.NullBooleanField(default=None)
     billing_reason = models.TextField(null=True, blank=True)
     billing_done = models.NullBooleanField(default=None)
     solution = models.TextField(null=True, blank=True)
-    fixed_in_version = models.CharField(max_length=255, choices=lazy(getGibthubTags, list)(), blank=True)
+    fixed_in_version = models.CharField(max_length=255, choices=lazy(getGibthubTags, set)(), blank=True)
     deadline = models.DateField(null=True, blank=True)
