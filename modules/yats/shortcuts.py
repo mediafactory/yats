@@ -63,17 +63,23 @@ def touch_ticket(user, ticket_id):
     tickets_participants.objects.get_or_create(ticket_id=ticket_id, user=user)
     
 def get_recipient_list(request, ticket_id):
-    result = []
+    pub_result = []
+    int_result = []
     error = []
     rcpts = tickets_participants.objects.select_related('user').filter(ticket=ticket_id)
     for rcpt in rcpts:
-        if rcpt.user.email:
-            result.append(rcpt.user.email)
-        else:
-            error.append(unicode(rcpt.user))
+        # leave out myself
+        if rcpt.user != request.user:
+            if rcpt.user.email:
+                if rcpt.user.is_staff:
+                    int_result.append(rcpt.user.email)
+                else:
+                    pub_result.append(rcpt.user.email)
+            else:
+                error.append(unicode(rcpt.user))
     if len(error) > 0:
         messages.add_message(request, messages.ERROR, _('the following participants could not be reached by mail (address missing): %s') % ', '.join(error))
-    return result
+    return int_result, pub_result
     
 def get_ticket_url(request, ticket_id):
     if request.is_secure():
@@ -81,25 +87,80 @@ def get_ticket_url(request, ticket_id):
     else:
         return 'http://%s/tickets/view/%s/' % (request.get_host(), ticket_id)
 
-def mail_ticket(request, ticket_id, **kwargs):
-    rcpt = list(get_recipient_list(request, ticket_id))
+def getNameOfModelValue(field, value):
+    cls_name = field.__class__.__name__
+    mod_path = field.__class__.__module__
+    mod_path = mod_path.split('.').pop(0)
+    try:
+        return unicode(get_model(mod_path, cls_name).objects.get(pk=value))
+    except:
+        return u''
+
+def field_changes(form):
+    new = {}
+    old = {}
+    cd = form.cleaned_data
+    
+    for field in form.changed_data:
+        if type(cd.get(field)) not in [bool, int, str, unicode, long, None, datetime.date]:
+            if cd.get(field):
+                new[field] = unicode(cd.get(field))
+                old[field] = getNameOfModelValue(cd.get(field), form.initial.get(field))
+            else:
+                new[field] = unicode(cd.get(field))
+                if type(form.initial.get(field)) != None:
+                    old[field] = unicode(form.initial.get(field))
+                else:
+                    old[field] = unicode(None)
+        else:
+            new[field] = unicode(cd.get(field))
+            old[field] = unicode(form.initial.get(field))
+            
+    return new, old
+
+def has_public_fields(data):
+    for field in data:
+        if field not in settings.TICKET_NON_PUBLIC_FIELDS:
+            return True
+    return False
+
+def format_chanes(new, is_staff):
+    result = []
+    for field in new:
+        if not is_staff and field in settings.TICKET_NON_PUBLIC_FIELDS:
+            continue
+        result.append('%s: %s' % (field, new[field]))
+        
+    return '\n'.join(result)
+
+def mail_ticket(request, ticket_id, form, **kwargs):
+    int_rcpt, pub_rcpt = list(get_recipient_list(request, ticket_id))
     if 'rcpt' in kwargs and kwargs['rcpt']:
-        rcpt.append(kwargs['rcpt'])
-    if len(rcpt) == 0:
-        return
+        int_rcpt.append(kwargs['rcpt'])
     tic = get_ticket_model().objects.get(pk=ticket_id)
 
-    try:    
-        send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (tic.description, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, rcpt, False)
-    except:
-        messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])  
+    new, old = field_changes(form)
+
+    if len(int_rcpt) > 0:
+        try:
+            send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, True), get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, int_rcpt, False)
+        except:
+            messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
+            
+    if len(pub_rcpt) > 0 and has_public_fields(new):
+        try:
+            send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, False), get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, pub_rcpt, False)
+        except:
+            messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
         
 def mail_comment(request, comment_id):
     com = tickets_comments.objects.get(pk=comment_id)
     ticket_id = com.ticket_id
-    rcpt = get_recipient_list(request, ticket_id)
+    int_rcpt, pub_rcpt = get_recipient_list(request, ticket_id)
+    rcpt = int_rcpt + pub_rcpt
     if len(rcpt) == 0:
         return
+    
     tic = get_ticket_model().objects.get(pk=ticket_id)
     
     try:    
@@ -110,7 +171,8 @@ def mail_comment(request, comment_id):
 def mail_file(request, file_id):
     io = tickets_files.objects.get(pk=file_id)
     ticket_id = io.ticket_id
-    rcpt = get_recipient_list(request, ticket_id)
+    int_rcpt, pub_rcpt = get_recipient_list(request, ticket_id)
+    rcpt = int_rcpt + pub_rcpt
     if len(rcpt) == 0:
         return
     tic = get_ticket_model().objects.get(pk=ticket_id)
@@ -144,31 +206,8 @@ def check_references(request, src_com):
         
         #mail_comment(request, com.pk)
 
-def getNameOfModelValue(field, value):
-    cls_name = field.__class__.__name__
-    mod_path = field.__class__.__module__
-    mod_path = mod_path.split('.').pop(0)
-    return unicode(get_model(mod_path, cls_name).objects.get(pk=value))
-
 def remember_changes(request, form, ticket):
-    new = {}
-    old = {}
-    cd = form.cleaned_data
-    
-    for field in form.changed_data:
-        if type(cd.get(field)) not in [bool, int, str, unicode, long, None, datetime.date]:
-            if cd.get(field):
-                new[field] = unicode(cd.get(field))
-                old[field] = getNameOfModelValue(cd.get(field), form.initial.get(field))
-            else:
-                new[field] = unicode(cd.get(field))
-                if type(form.initial.get(field)) != None:
-                    old[field] = unicode(form.initial.get(field))
-                else:
-                    old[field] = unicode(None)
-        else:
-            new[field] = unicode(cd.get(field))
-            old[field] = unicode(form.initial.get(field))
+    new, old = field_changes(form)
             
     h = tickets_history()
     h.ticket = ticket
@@ -200,9 +239,3 @@ def add_history(request, ticket, typ, data):
     h.old = json.dumps(old)
     h.action = typ
     h.save(user=request.user)    
-    
-def has_public_fields(list):
-    for field in list:
-        if field not in settings.TICKET_NON_PUBLIC_FIELDS:
-            return True
-    return False

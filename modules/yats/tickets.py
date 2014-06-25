@@ -32,7 +32,7 @@ def new(request):
             
             touch_ticket(request.user, tic.pk)
             
-            mail_ticket(request, tic.pk, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+            mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
             
             if form.cleaned_data.get('file_addition', False):
                 return HttpResponseRedirect('/tickets/upload/%s/' % tic.pk)
@@ -175,7 +175,7 @@ def action(request, mode, ticket):
                     
                 touch_ticket(request.user, tic.pk)
                 
-                mail_ticket(request, tic.pk)
+                mail_ticket(request, tic.pk, form)
                 
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
         
