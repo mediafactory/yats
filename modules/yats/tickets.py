@@ -9,9 +9,8 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm
-from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants,\
-    tickets_history
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes
+from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history
 import os
 import io
 try:
@@ -57,11 +56,14 @@ def action(request, mode, ticket):
                 com = tickets_comments()
                 com.comment = form.cleaned_data['comment']
                 com.ticket_id = ticket
+                com.action = 6
                 com.save(user=request.user)
                 
                 check_references(request, com)
                 
                 touch_ticket(request.user, ticket)
+                
+                add_history(request, tic, 6, com.comment)
                 
                 mail_comment(request, com.pk)
 
@@ -81,6 +83,8 @@ def action(request, mode, ticket):
                     
                     touch_ticket(request.user, ticket)
                     
+                    add_history(request, tic, 1, None)
+
                     mail_comment(request, com.pk)
                     
                 else:
@@ -142,13 +146,15 @@ def action(request, mode, ticket):
             com = tickets_comments()
             com.comment = _('ticket reopend - resolution deleted')
             com.ticket_id = ticket
-            com.action = 1
+            com.action = 2
             com.save(user=request.user)
             
             check_references(request, com)
             
             touch_ticket(request.user, ticket)
             
+            add_history(request, tic, 2, None)
+
             mail_comment(request, com.pk)
             
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
@@ -209,6 +215,8 @@ def action(request, mode, ticket):
                 
                 touch_ticket(request.user, ticket)
                 
+                add_history(request, tic, 5, request.FILES['file'].name)
+
                 mail_file(request, f.pk)
 
                 dest = settings.FILE_UPLOAD_PATH
@@ -269,7 +277,7 @@ def search(request):
         rep.search = json.dumps(request.session['last_search'])
         rep.save(user=request.user)
     
-    if request.session.get('last_search') and not 'new' in request.GET:
+    if request.session.get('last_search') and (not 'new' in request.GET or 'page' in request.GET):
         return table(request, search=request.session['last_search'])
     
     if request.method == 'POST':

@@ -26,7 +26,7 @@
         {% diff line %}
         {% if elements %}
         <li{% cycle '' ' class="timeline-inverted"' %}>
-          <div class="timeline-badge"><i class="icon-tag icon-white"></i></div>
+          <div class="timeline-badge {{ line.action|comment_color }}"><i class="icon-tag icon-white"></i></div>
           <div class="timeline-panel">
             <div class="timeline-heading">
               <p><small class="text-muted">{{ line.c_user }} <i class="icon-time"></i> {{ line.c_date }}</small></p>
@@ -36,7 +36,7 @@
               	<table>
                 {% for key, value in elements.items  %}
                 <tr>
-                	<td>{{ key }}:</td>
+                	<td valign="top">{{ key }}:</td>
                     <td>{{ value|safe }}</td>
                 </tr>
                 {% endfor %}

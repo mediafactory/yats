@@ -174,7 +174,32 @@ def remember_changes(request, form, ticket):
     h.ticket = ticket
     h.new = json.dumps(new)
     h.old = json.dumps(old)
+    h.action = 4
     h.save(user=request.user)
+    
+def add_history(request, ticket, typ, data):
+    if typ == 5: 
+        old = {'file': ''}
+        new = {'file': data}
+    elif typ == 6:
+        old = {'comment': ''}
+        new = {'comment': data}
+    elif typ == 3:
+        old = {'reference': ''}
+        new = {'reference': '#%s' % data}
+    elif typ == 2:
+        old = {'closed': unicode(True)}
+        new = {'closed': unicode(False)}
+    elif typ == 1:
+        old = {'closed': unicode(False)}
+        new = {'closed': unicode(True)}
+        
+    h = tickets_history()
+    h.ticket = ticket
+    h.new = json.dumps(new)
+    h.old = json.dumps(old)
+    h.action = typ
+    h.save(user=request.user)    
     
 def has_public_fields(list):
     for field in list:
