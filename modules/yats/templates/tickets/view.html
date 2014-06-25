@@ -15,12 +15,12 @@
 
 {% block content %}
 
-    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/edit/{{ ticket.id }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small" href="/tickets/upload/{{ ticket.id }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small" href="#add_comment">{% trans "add comment" %}</a>&nbsp;&nbsp;{% endif %}{% if ticket.closed %}<a class="btn btn-small" href="/tickets/reopen/{{ ticket.id }}/">{% trans "reopen" %}</a>{% else %}<a role="button" data-toggle="modal" class="btn btn-small" href="#closeDlg">{% trans "close" %}</a>{% endif %}</h2>
+    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/history/{{ ticket.id }}/">{% trans "history" %}</a>&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/edit/{{ ticket.id }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small" href="/tickets/upload/{{ ticket.id }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small" href="#add_comment">{% trans "add comment" %}</a>&nbsp;&nbsp;{% endif %}{% if ticket.closed %}<a class="btn btn-small" href="/tickets/reopen/{{ ticket.id }}/">{% trans "reopen" %}</a>{% else %}<a role="button" data-toggle="modal" class="btn btn-small" href="#closeDlg">{% trans "close" %}</a>{% endif %}</h2>
     <p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} by {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}</small></p>
     <p>&nbsp;</p>
 
     <table class="table table-striped table-hover">
-    {% for field in form %}{% if field.value %}
+    {% for field in form %}{% if field.value != None and field.value != '' %}
         <tr>
         	<td>{{ field.label_tag }}</td>
         	<td>{{ field|display_value|linebreaksbr }}</td>

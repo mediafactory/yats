@@ -1,7 +1,13 @@
-from django.template import Library
-import re
+from django import template
+from yats.diff import generate_patch_html
 
-register = Library()
+import re
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
+    
+register = template.Library()
 
 def contains(value, search):
     if not value or not search:
@@ -12,3 +18,29 @@ register.filter('contains', contains)
 def numberToTicketURL(value):
     return re.sub('#([0-9]+)', r'<a href="/tickets/view/\1/">#\1</a>', value)
 register.filter('numberToTicketURL', numberToTicketURL)
+
+class Diffs(template.Node):
+    def __init__(self, line):
+        self.line = line
+        
+    def render(self, context):
+        line = context.get(self.line)
+        result = {}
+        old = json.loads(line.old)
+        new = json.loads(line.new)
+        
+        for ele in old:
+            result[ele] = generate_patch_html(old[ele], new[ele], ele, 'semantic')
+        
+        context['elements'] = result
+        return ''
+    
+def do_diff(parser, token):
+    try:
+        # split_contents() knows not to split quoted strings.
+        tag_name, line = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
+    return Diffs(line)
+
+register.tag('diff', do_diff)

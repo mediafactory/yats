@@ -150,7 +150,6 @@ def getNameOfModelValue(field, value):
     mod_path = mod_path.split('.').pop(0)
     return unicode(get_model(mod_path, cls_name).objects.get(pk=value))
 
-
 def remember_changes(request, form, ticket):
     new = {}
     old = {}
@@ -158,12 +157,35 @@ def remember_changes(request, form, ticket):
     
     for field in form.changed_data:
         if type(cd.get(field)) not in [bool, int, str, unicode, long, None, datetime.date]:
-            new[field] = unicode(cd.get(field))
-            old[field] = getNameOfModelValue(cd.get(field), form.initial.get(field))
+            if cd.get(field):
+                new[field] = unicode(cd.get(field))
+                old[field] = getNameOfModelValue(cd.get(field), form.initial.get(field))
+            else:
+                new[field] = unicode(cd.get(field))
+                if type(form.initial.get(field)) != None:
+                    old[field] = unicode(form.initial.get(field))
+                else:
+                    old[field] = unicode(None)
         else:
-            new[field] = cd.get(field)
-            old[field] = form.initial.get(field)
+            new[field] = unicode(cd.get(field))
+            old[field] = unicode(form.initial.get(field))
+            
+    for field in form.changed_data:
+        if new[field] == 'None':
+            new[field] = _('unknown')
+        if old[field] == 'None':
+            old[field] = _('unknown')
         
+        if new[field] == 'True':
+            new[field] = _('yes')
+        if old[field] == 'True':
+            old[field] = _('yes')
+
+        if new[field] == 'False':
+            new[field] = _('no')
+        if old[field] == 'False':
+            old[field] = _('no')
+
     h = tickets_history()
     h.ticket = ticket
     h.new = json.dumps(new)

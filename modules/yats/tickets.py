@@ -9,7 +9,8 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm
-from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants
+from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants,\
+    tickets_history
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes
 import os
 import io
@@ -122,6 +123,10 @@ def action(request, mode, ticket):
         request.session['breadcrumbs'] = breadcrumbs
         
         return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'files': files_lines, 'comments': comments_lines, 'participants': participants}, RequestContext(request))
+
+    elif mode == 'history':
+        history = tickets_history.objects.filter(ticket=ticket)
+        return render_to_response('tickets/history.html', {'layout': 'horizontal', 'ticket': tic, 'history': history}, RequestContext(request))
 
     elif mode == 'reopen':
         if tic.closed:

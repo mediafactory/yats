@@ -24,6 +24,7 @@ pil or pillow
 httplib2 (if using tags from github)  
 django-dashing
 django-wiki
+diff-match-patch
 
 should need:  
 pyclamd (add TCPSocket 3310 and TCPAddr 127.0.0.1 to its config and restart)  

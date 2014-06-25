@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n forms strings comments %}
+
+{% block title %}
+    {% trans "ticket" %} #{{ ticket.id }}
+{% endblock %}
+
+{% block extra_head %}
+    {{ form.media }}
+    <link href="{{ STATIC_URL }}timeline.css" type="text/css" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+{% endblock %}
+
+{% block content %}
+
+    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/view/{{ ticket.id }}/">{% trans "view" %}</a>&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/edit/{{ ticket.id }}/">{% trans "edit" %}</a>{% endif %}</h2>
+    <p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} by {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}</small></p>
+    <p>&nbsp;</p>
+    
+    <h3>{% trans "history" %}</h3>
+    <hr />
+    <ul class="timeline">
+        {% for line in history %}
+        <li{% cycle '' ' class="timeline-inverted"' %}>
+          <div class="timeline-badge"><i class="icon-tag icon-white"></i></div>
+          <div class="timeline-panel">
+            <div class="timeline-heading">
+              <p><small class="text-muted">{{ line.c_user }} <i class="icon-time"></i> {{ line.c_date }}</small></p>
+            </div>
+            <div class="timeline-body">
+              <p>{% diff line %}
+              	<table>
+                {% for key, value in elements.items  %}
+                <tr>
+                	<td>{{ key }}:</td>
+                    <td>{{ value|safe }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+              </p>
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
