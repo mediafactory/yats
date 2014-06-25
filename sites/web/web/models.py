@@ -67,7 +67,7 @@ class test(tickets):
     version = models.CharField(max_length=255, choices=lazy(getGibthubTags, list)())
     keywords = models.CharField(max_length=255, blank=True)
     reproduction = models.TextField(null=True)
-    billing_needed = models.NullBooleanField(default=None)
+    billing_needed = models.NullBooleanField(default=True)
     billing_reason = models.TextField(null=True, blank=True)
     billing_done = models.NullBooleanField(default=None)
     solution = models.TextField(null=True, blank=True)
