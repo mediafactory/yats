@@ -1,8 +1,10 @@
+- close fields too big
+- unset default values in search
+- change password
+
 - wiki integration
 - translation
 
-- history
-- change password
 - del attachments
 - del reports
 
