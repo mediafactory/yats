@@ -1,6 +1,8 @@
 from django import template
+from django.conf import settings
 from django.utils.translation import ugettext as _
 from yats.diff import generate_patch_html
+from yats.shortcuts import has_public_fields
 
 import re
 try:
@@ -26,11 +28,20 @@ class Diffs(template.Node):
         
     def render(self, context):
         line = context.get(self.line)
+        user = context.get('request').user
+        
         result = {}
         old = json.loads(line.old)
         new = json.loads(line.new)
         
+        if not has_public_fields(old) and not user.is_staff:
+            context['elements'] = []
+            return ''
+        
         for ele in old:
+            if not user.is_staff and ele in settings.TICKET_NON_PUBLIC_FIELDS:
+                continue
+            
             if new[ele] == 'None':
                 new[ele] = _('unknown')
             if old[ele] == 'None':

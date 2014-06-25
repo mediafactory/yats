@@ -175,3 +175,9 @@ def remember_changes(request, form, ticket):
     h.new = json.dumps(new)
     h.old = json.dumps(old)
     h.save(user=request.user)
+    
+def has_public_fields(list):
+    for field in list:
+        if field not in settings.TICKET_NON_PUBLIC_FIELDS:
+            return True
+    return False
