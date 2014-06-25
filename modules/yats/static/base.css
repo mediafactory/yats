@@ -24,6 +24,10 @@ input {
 	width: 500px;
 }
 
+select {
+	width: 510px;
+}
+
 .typeahead,
 .tt-query,
 .tt-hint {
