@@ -28,6 +28,18 @@ select {
 	width: 510px;
 }
 
+.modal select {
+	width: 220px;
+}
+
+.modal textarea {
+	width: 220px;
+}
+
+.modal input {
+	width: 220px;
+}
+
 .typeahead,
 .tt-query,
 .tt-hint {
@@ -107,6 +119,19 @@ h4 { font-weight: bold; text-align: left; font-size: 18px; color:darkgrey;}
 @media only screen and (max-width: 800px) {
 	/* http://elvery.net/demo/responsive-tables/ */
   	caption { font-weight: bold; text-align: left; font-size: 18px; color: darkgrey; white-space: nowrap;}
+
+	textarea {
+		width: 220px;
+		height: auto;
+	}
+	
+	input {
+		width: 220px;
+	}
+	
+	select {
+		width: 220px;
+	}
   
 	/* Force table to not be like tables anymore */
 	#no-more-tables table, 
