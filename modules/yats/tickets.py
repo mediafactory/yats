@@ -117,7 +117,12 @@ def action(request, mode, ticket):
             comments_lines = paginator.page(paginator.num_pages)
 
         breadcrumbs = request.session.get('breadcrumbs', [])
-        breadcrumbs.append(long(ticket))
+        # ignore dupplicates at the end of list
+        if len(breadcrumbs) > 0:
+            if breadcrumbs[-1] != long(ticket):
+                breadcrumbs.append(long(ticket))
+        else:
+            breadcrumbs.append(long(ticket))
         while len(breadcrumbs) > 10:
             breadcrumbs.pop(0)
         request.session['breadcrumbs'] = breadcrumbs
