@@ -170,22 +170,6 @@ def remember_changes(request, form, ticket):
             new[field] = unicode(cd.get(field))
             old[field] = unicode(form.initial.get(field))
             
-    for field in form.changed_data:
-        if new[field] == 'None':
-            new[field] = _('unknown')
-        if old[field] == 'None':
-            old[field] = _('unknown')
-        
-        if new[field] == 'True':
-            new[field] = _('yes')
-        if old[field] == 'True':
-            old[field] = _('yes')
-
-        if new[field] == 'False':
-            new[field] = _('no')
-        if old[field] == 'False':
-            old[field] = _('no')
-
     h = tickets_history()
     h.ticket = ticket
     h.new = json.dumps(new)

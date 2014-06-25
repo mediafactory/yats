@@ -1,4 +1,5 @@
 from django import template
+from django.utils.translation import ugettext as _
 from yats.diff import generate_patch_html
 
 import re
@@ -30,6 +31,21 @@ class Diffs(template.Node):
         new = json.loads(line.new)
         
         for ele in old:
+            if new[ele] == 'None':
+                new[ele] = _('unknown')
+            if old[ele] == 'None':
+                old[ele] = _('unknown')
+            
+            if new[ele] == 'True':
+                new[ele] = _('yes')
+            if old[ele] == 'True':
+                old[ele] = _('yes')
+    
+            if new[ele] == 'False':
+                new[ele] = _('no')
+            if old[ele] == 'False':
+                old[ele] = _('no')
+
             result[ele] = generate_patch_html(old[ele], new[ele], ele, 'semantic')
         
         context['elements'] = result
