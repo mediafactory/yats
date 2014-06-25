@@ -69,23 +69,27 @@ def action(request, mode, ticket):
 
             else:
                 if 'resolution' in request.POST:
-                    tic.resolution_id = request.POST['resolution']
-                    tic.closed = True
-                    tic.save(user=request.user)
+                    if request.POST['resolution'] and int(request.POST['resolution']) > 0:
+                        tic.resolution_id = request.POST['resolution']
+                        tic.closed = True
+                        tic.save(user=request.user)
+                        
+                        com = tickets_comments()
+                        com.comment = _('ticket closed - resolution: %(resolution)s\n\n%(comment)s') % {'resolution': ticket_resolution.objects.get(pk=request.POST['resolution']).name, 'comment': request.POST.get('close_comment', '')}
+                        com.ticket_id = ticket
+                        com.action = 1
+                        com.save(user=request.user)
+                        
+                        check_references(request, com)
+                        
+                        touch_ticket(request.user, ticket)
+                        
+                        add_history(request, tic, 1, None)
+    
+                        mail_comment(request, com.pk)
                     
-                    com = tickets_comments()
-                    com.comment = _('ticket closed - resolution: %(resolution)s\n\n%(comment)s') % {'resolution': ticket_resolution.objects.get(pk=request.POST['resolution']).name, 'comment': request.POST.get('close_comment', '')}
-                    com.ticket_id = ticket
-                    com.action = 1
-                    com.save(user=request.user)
-                    
-                    check_references(request, com)
-                    
-                    touch_ticket(request.user, ticket)
-                    
-                    add_history(request, tic, 1, None)
-
-                    mail_comment(request, com.pk)
+                    else:
+                        messages.add_message(request, messages.ERROR, _('no resolution selected'))
                     
                 else:
                     messages.add_message(request, messages.ERROR, _('comment invalid'))
@@ -158,7 +162,6 @@ def action(request, mode, ticket):
             mail_comment(request, com.pk)
             
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
-            
 
     elif mode == 'edit':
         excludes = ['resolution']
@@ -177,7 +180,7 @@ def action(request, mode, ticket):
                 
                 mail_ticket(request, tic.pk, form)
                 
-                return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
+                return HttpResponseRedirect('/tickets/view/%s/' % ticket)
         
         else:
             form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
