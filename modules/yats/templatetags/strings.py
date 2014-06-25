@@ -1,6 +1,7 @@
 from django import template
 from django.conf import settings
 from django.utils.translation import ugettext as _
+from django.forms.forms import pretty_name
 from yats.diff import generate_patch_html
 from yats.shortcuts import has_public_fields
 
@@ -11,6 +12,10 @@ except ImportError:
     from django.utils import simplejson as json
     
 register = template.Library()
+
+def prettify(value):
+    return pretty_name(value)
+register.filter('prettify', prettify)
 
 def contains(value, search):
     if not value or not search:

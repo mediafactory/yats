@@ -36,7 +36,7 @@
               	<table>
                 {% for key, value in elements.items  %}
                 <tr>
-                	<td valign="top">{{ key }}:</td>
+                	<td valign="top">{{ key|prettify }}:</td>
                     <td>{{ value|safe }}</td>
                 </tr>
                 {% endfor %}
