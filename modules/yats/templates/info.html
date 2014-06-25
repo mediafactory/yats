@@ -7,8 +7,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="menu_content">
-    <table>
+    <h2>{% trans "system info" %}</h2>
+	<p>&nbsp;</p>
+	
+    <table class="table table-striped table-hover">
         <tr>
             <td>YATS:</td>
             <td>{{ version }}</td>
@@ -42,5 +44,4 @@
             <td>{{ request.organisation.name }}</td>
         </tr>
     </table>
-</div>
 {% endblock %}
