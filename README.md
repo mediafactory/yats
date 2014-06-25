@@ -22,6 +22,8 @@ no pypi package yet!
 needs:  
 pil or pillow  
 httplib2 (if using tags from github)  
+django-dashing
+django-wiki
 
 should need:  
 pyclamd (add TCPSocket 3310 and TCPAddr 127.0.0.1 to its config and restart)  
@@ -37,3 +39,7 @@ The project is splited into 2 parts:
 
 Customization is done in the web module - e.g. add more ticket fields (models.py in web) besides the settings itself (settings.py and ini file).
 So far the app needs 2 folders (for logging and attachments as defined in the inifile). Make sure the webserver has write access to those folders.
+
+OTHER PAGACKES:
+-----
+https://www.djangopackages.com/grids/g/ticketing/
