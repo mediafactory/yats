@@ -74,7 +74,7 @@
 		<deb todir="${basedir}/distribution/nightly" 
 			package="yats-modules" 
 			section="web" 
-			depends="memcached,python-memcache,python-httplib2,locales-all,python-pyclamd,python-imaging" 
+			depends="memcached,python-memcache,python-httplib2,locales-all,python-pyclamd,python-imaging,libjpeg8,libjpeg-dev,libpng,libpng-dev" 
 			preinst="debian/scripte/mod_preinst" 
 			postinst="debian/scripte/mod_postinst" 
 			prerm="debian/scripte/mod_prerm">
