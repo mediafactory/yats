@@ -138,4 +138,9 @@ class tickets_files(base):
 class tickets_reports(base):
     name = models.CharField(max_length=255)
     search = models.TextField()
+
+class tickets_history(base):
+    ticket = models.ForeignKey(tickets)
+    old = models.TextField()
+    new = models.TextField()
     

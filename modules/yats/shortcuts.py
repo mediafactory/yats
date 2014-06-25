@@ -3,13 +3,18 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.utils.translation import ugettext as _
-from yats.models import tickets_participants, tickets_comments, tickets_files
+from yats.models import tickets_participants, tickets_comments, tickets_files, tickets_history
 
 from PIL import Image#, ImageOps
 import sys
 import datetime
 import re
 
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
+    
 def resize_image(filename, size=(200, 150), dpi=75):
     image = Image.open(filename)
     pw = image.size[0]
@@ -138,4 +143,29 @@ def check_references(request, src_com):
         touch_ticket(request.user, ref)
         
         #mail_comment(request, com.pk)
+
+def getNameOfModelValue(field, value):
+    cls_name = field.__class__.__name__
+    mod_path = field.__class__.__module__
+    mod_path = mod_path.split('.').pop(0)
+    return unicode(get_model(mod_path, cls_name).objects.get(pk=value))
+
+
+def remember_changes(request, form, ticket):
+    new = {}
+    old = {}
+    cd = form.cleaned_data
     
+    for field in form.changed_data:
+        if type(cd.get(field)) not in [bool, int, str, unicode, long, None, datetime.date]:
+            new[field] = unicode(cd.get(field))
+            old[field] = getNameOfModelValue(cd.get(field), form.initial.get(field))
+        else:
+            new[field] = cd.get(field)
+            old[field] = form.initial.get(field)
+        
+    h = tickets_history()
+    h.ticket = ticket
+    h.new = json.dumps(new)
+    h.old = json.dumps(old)
+    h.save(user=request.user)

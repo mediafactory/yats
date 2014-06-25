@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes
 import os
 import io
 try:
@@ -154,6 +154,8 @@ def action(request, mode, ticket):
                 assigned = form.cleaned_data.get('assigned')
                 if assigned:
                     touch_ticket(assigned, tic.pk)
+                    
+                remember_changes(request, form, tic)
                     
                 touch_ticket(request.user, tic.pk)
                 
