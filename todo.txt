@@ -1,4 +1,3 @@
-- close fields too big
 - unset default values in search
 - change password
 
@@ -9,6 +8,7 @@
 - del reports
 
 - mail templates
+- mail html diff of ticket changes
 - rights
 - workflows
 - webdav oder neue Version für files
