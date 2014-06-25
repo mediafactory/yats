@@ -9,3 +9,4 @@ sites/static/
 .pydevproject
 .DS_Store
 *.pot
+sites/web/wiki/
