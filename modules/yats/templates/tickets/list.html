@@ -28,7 +28,7 @@
               {% for line in lines %}
                 <tr>
                 	<td data-title="{% trans "state" %}"><button type="button" class="btn {% if line.closed %}btn-danger{% else %}btn-success{% endif %}" disabled></td>
-                    <td data-title="{% trans "ticket#" %}"><a href="/tickets/view/{{ line.id }}/">{{ line.id }}</a></td>
+                    <td data-title="{% trans "ticket#" %}"><a href="/tickets/history/{{ line.id }}/"><i class="icon-time"></i></a>&nbsp;&nbsp;<a href="/tickets/view/{{ line.id }}/">#{{ line.id }}</a></td>
                     <td data-title="{% trans "created" %}">{{ line.c_date }}</td>
                     <td data-title="{% trans "type" %}">{{ line.type }}</td>
                     <td data-title="{% trans "caption" %}">{{ line.caption }}</td>
@@ -43,7 +43,7 @@
     {% trans "no tickets found!" %}
     {% endif %}
     
-    <p><small class="text-muted">{% trans "You search for:" %} {% for key, value in pretty.iteritems %}
+    <p><small class="text-muted">{% trans "You searched for:" %} {% for key, value in pretty.iteritems %}
         {{ key|prettify }}: {{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}</small></p>
     
     {% if is_search %}
