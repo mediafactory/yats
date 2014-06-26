@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues
 import os
 import io
 try:
@@ -258,6 +258,8 @@ def table(request, **kwargs):
         tic = tic.filter(closed=False)
         is_search = False
 
+    pretty = prettyValues(search_params)
+    
     paginator = Paginator(tic, 10)
     page = request.GET.get('page')
     try:
@@ -269,7 +271,7 @@ def table(request, **kwargs):
         # If page is out of range (e.g. 9999), deliver last page of results.
         tic_lines = paginator.page(paginator.num_pages)
 
-    return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search}, RequestContext(request))
+    return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty}, RequestContext(request))
 
 def search(request):
     searchable_fields = settings.TICKET_SEARCH_FIELDS

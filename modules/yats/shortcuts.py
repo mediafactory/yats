@@ -2,6 +2,7 @@ from django.db.models import get_model
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from yats.models import tickets_participants, tickets_comments, tickets_files, tickets_history
 
@@ -242,3 +243,12 @@ def add_history(request, ticket, typ, data):
     h.old = json.dumps(old)
     h.action = typ
     h.save(user=request.user)
+    
+def prettyValues(data):
+    result = {}
+    for ele in data:
+        if ele == 'c_user':
+            result['creator'] = User.objects.get(pk=data[ele])
+        else:
+            result[ele] = data[ele]
+    return result

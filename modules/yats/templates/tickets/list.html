@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load bootstrap_toolkit i18n %}
+{% load bootstrap_toolkit i18n strings %}
 
 {% block title %}
     {% trans "ticket list" %}
@@ -42,6 +42,9 @@
     {% if lines.paginator.count == 0 %}
     {% trans "no tickets found!" %}
     {% endif %}
+    
+    <p><small class="text-muted">{% trans "You search for:" %} {% for key, value in pretty.iteritems %}
+        {{ key|prettify }}: {{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}</small></p>
     
     {% if is_search %}
     <div id="saveDlg" class="modal hide fade">
