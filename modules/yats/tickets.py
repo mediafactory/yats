@@ -237,6 +237,7 @@ def action(request, mode, ticket):
         return render_to_response('tickets/file.html', {'ticketid': ticket, 'layout': 'horizontal', 'form': form}, RequestContext(request))    
 
 def table(request, **kwargs):
+    search_params = {}
     mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
     mod_path = mod_path.split('.').pop(0)
     tic = get_model(mod_path, cls_name).objects.select_related('type').all()
@@ -246,8 +247,6 @@ def table(request, **kwargs):
         
     if 'search' in kwargs:
         is_search = True
-
-        search_params = {}
     
         params = kwargs['search']
         for field in params:
