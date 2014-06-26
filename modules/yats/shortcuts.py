@@ -229,6 +229,9 @@ def add_history(request, ticket, typ, data):
     elif typ == 2:
         old = {'closed': unicode(True)}
         new = {'closed': unicode(False)}
+        if data:
+            old['comment'] = ''
+            new['comment'] = data
     elif typ == 1:
         old = {'closed': unicode(False)}
         new = {'closed': unicode(True)}
@@ -238,4 +241,4 @@ def add_history(request, ticket, typ, data):
     h.new = json.dumps(new)
     h.old = json.dumps(old)
     h.action = typ
-    h.save(user=request.user)    
+    h.save(user=request.user)

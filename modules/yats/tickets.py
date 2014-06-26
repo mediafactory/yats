@@ -84,7 +84,7 @@ def action(request, mode, ticket):
                         
                         touch_ticket(request.user, ticket)
                         
-                        add_history(request, tic, 1, None)
+                        add_history(request, tic, 1, request.POST.get('close_comment', ''))
     
                         mail_comment(request, com.pk)
                     
@@ -280,19 +280,17 @@ def search(request):
         rep.search = json.dumps(request.session['last_search'])
         rep.save(user=request.user)
     
-    if request.session.get('last_search') and (not 'new' in request.GET or 'page' in request.GET):
-        return table(request, search=request.session['last_search'])
-    
     if request.method == 'POST':
         form = SearchForm(request.POST, include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
         form.is_valid()
         request.session['last_search'] = clean_search_values(form.cleaned_data)
         
         return table(request, search=request.session['last_search'])
-    else:
-        if 'last_search' in request.session:
-            del request.session['last_search']
-        form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
+
+    if 'last_search' in request.session and not 'new' in request.GET:
+        return table(request, search=request.session['last_search'])
+    
+    form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
     
     return render_to_response('tickets/search.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))
 
