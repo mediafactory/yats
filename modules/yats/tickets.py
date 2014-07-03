@@ -11,7 +11,7 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs
 import os
 import io
 try:
@@ -126,16 +126,7 @@ def action(request, mode, ticket):
             # If page is out of range (e.g. 9999), deliver last page of results.
             comments_lines = paginator.page(paginator.num_pages)
 
-        breadcrumbs = request.session.get('breadcrumbs', [])
-        # ignore dupplicates at the end of list
-        if len(breadcrumbs) > 0:
-            if breadcrumbs[-1] != long(ticket):
-                breadcrumbs.append(long(ticket))
-        else:
-            breadcrumbs.append(long(ticket))
-        while len(breadcrumbs) > 10:
-            breadcrumbs.pop(0)
-        request.session['breadcrumbs'] = breadcrumbs
+        add_breadcrumbs(request, ticket, '#')
         
         return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments_lines, 'participants': participants}, RequestContext(request))
 
@@ -328,6 +319,7 @@ def search(request):
 def reports(request):
     if 'report' in request.GET:
         rep = tickets_reports.objects.get(pk=request.GET['report'])
+        add_breadcrumbs(request, request.GET['report'], '@')
         request.session['last_search'] = json.loads(rep.search) 
         return table(request, search=request.session['last_search'])
     
