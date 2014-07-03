@@ -1,8 +1,9 @@
+- change password
+- unset default values in search
 - last generell action user and dt
 
 - search sort order
-- unset default values in search
-- change password
+- search + not, contains, etc....
 - convert uploads docs2img
 - reportman
 
