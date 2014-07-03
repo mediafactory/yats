@@ -25,6 +25,7 @@ KEY FEATURES
 - ticket history
 - file attachments (optionally virus scanned)
 - twitter bootstrapp 2 - responsive layout
+- git TAGS from Github as versions example
 
 INSTALLATION
 -----
