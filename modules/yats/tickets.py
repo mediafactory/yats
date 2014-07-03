@@ -279,6 +279,7 @@ def table(request, **kwargs):
         is_search = False
 
     pretty = prettyValues(search_params)
+    list_caption = kwargs.get('list_caption')
     
     paginator = Paginator(tic, 10)
     page = request.GET.get('page')
@@ -291,7 +292,7 @@ def table(request, **kwargs):
         # If page is out of range (e.g. 9999), deliver last page of results.
         tic_lines = paginator.page(paginator.num_pages)
 
-    return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty}, RequestContext(request))
+    return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption}, RequestContext(request))
 
 def search(request):
     searchable_fields = settings.TICKET_SEARCH_FIELDS
@@ -301,16 +302,22 @@ def search(request):
         rep.name = request.POST['reportname']
         rep.search = json.dumps(request.session['last_search'])
         rep.save(user=request.user)
+        
+        request.session['last_search'] = clean_search_values(request.session['last_search'])
+        request.session['last_search_caption'] = request.POST['reportname']
+        
+        return table(request, search=request.session['last_search'], list_caption=request.session['last_search_caption'])
     
     if request.method == 'POST':
         form = SearchForm(request.POST, include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
         form.is_valid()
         request.session['last_search'] = clean_search_values(form.cleaned_data)
+        request.session['last_search_caption'] = ''
         
         return table(request, search=request.session['last_search'])
 
     if 'last_search' in request.session and not 'new' in request.GET:
-        return table(request, search=request.session['last_search'])
+        return table(request, search=request.session['last_search'], list_caption=request.session.get('last_search_caption', ''))
     
     form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
     
@@ -321,7 +328,7 @@ def reports(request):
         rep = tickets_reports.objects.get(pk=request.GET['report'])
         add_breadcrumbs(request, request.GET['report'], '@')
         request.session['last_search'] = json.loads(rep.search) 
-        return table(request, search=request.session['last_search'])
+        return table(request, search=request.session['last_search'], list_caption=rep.name)
     
     if 'delReport' in request.GET:
         tickets_reports.objects.filter(c_user=request.user, pk=request.GET['delReport']).delete()

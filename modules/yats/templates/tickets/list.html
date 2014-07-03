@@ -9,7 +9,7 @@
 {% block content %}
     
     <h2>{% if is_search %}{% trans "search results for tickets" %}&nbsp;<a class="btn btn-small" href="/tickets/search/?new=1">{% trans "new search" %}</a>&nbsp;<a role="button" data-toggle="modal" class="btn btn-small" href="#saveDlg">{% trans "save search" %}</a>{% else %}{% trans "tickets" %}{% endif %}</h2>
-    
+    <p><small class="text-muted">{% if list_caption %}{% trans "report" %}: {{ list_caption }}{% endif %}</small></p>
     <p>&nbsp;</p>
     
     {% if lines %}
