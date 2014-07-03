@@ -1,5 +1,3 @@
-- reports öffnen sollte auch suche setzen
-- del reports
 - last generell action user and dt
 
 - search sort order

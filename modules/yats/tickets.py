@@ -301,6 +301,10 @@ def reports(request):
         request.session['last_search'] = json.loads(rep.search) 
         return table(request, search=request.session['last_search'])
     
+    if 'delReport' in request.GET:
+        tickets_reports.objects.filter(c_user=request.user, pk=request.GET['delReport']).delete()
+        return HttpResponseRedirect('/reports/')
+    
     reps = tickets_reports.objects.filter(c_user=request.user)
 
     paginator = Paginator(reps, 10)
