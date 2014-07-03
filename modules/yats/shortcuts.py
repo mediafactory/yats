@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
+from django.forms.forms import pretty_name
 from yats.models import tickets_participants, tickets_comments, tickets_files, tickets_history
 
 from PIL import Image#, ImageOps
@@ -130,7 +131,7 @@ def format_chanes(new, is_staff):
     for field in new:
         if not is_staff and field in settings.TICKET_NON_PUBLIC_FIELDS:
             continue
-        result.append('%s: %s' % (field, new[field]))
+        result.append('%s: %s' % (pretty_name(field), new[field]))
         
     return '\n'.join(result)
 
@@ -144,12 +145,14 @@ def mail_ticket(request, ticket_id, form, **kwargs):
 
     if len(int_rcpt) > 0:
         try:
+            new['created_by'] = tic.c_user
             send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, True), get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, int_rcpt, False)
         except:
             messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
             
     if len(pub_rcpt) > 0 and has_public_fields(new):
         try:
+            new['changed_by'] = tic.u_user
             send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, False), get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, pub_rcpt, False)
         except:
             messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
@@ -249,6 +252,8 @@ def prettyValues(data):
     for ele in data:
         if ele == 'c_user':
             result['creator'] = User.objects.get(pk=data[ele])
+        if ele == 'assigned':
+            result['assigned'] = User.objects.get(pk=data[ele])
         else:
             result[ele] = data[ele]
     return result
