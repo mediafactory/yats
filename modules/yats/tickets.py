@@ -298,7 +298,8 @@ def search(request):
 def reports(request):
     if 'report' in request.GET:
         rep = tickets_reports.objects.get(pk=request.GET['report'])
-        return table(request, search=json.loads(rep.search))
+        request.session['last_search'] = json.loads(rep.search) 
+        return table(request, search=request.session['last_search'])
     
     reps = tickets_reports.objects.filter(c_user=request.user)
 
