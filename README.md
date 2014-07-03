@@ -15,6 +15,17 @@ Customer User:
 Login: customer.user  
 Password: qwertz  
 
+KEY FEATURES
+-----
+- custom fields (mandatory fields and default values configurable)
+- different view of tickets for customers - fields hideable from customers (even in emails)
+- mails for ticket changes, comments, close, reopen, reassign
+- searchable fields configurable
+- searches saveable as reports
+- ticket history
+- file attachments (optionally virus scanned)
+- twitter bootstrapp 2 - responsive layout
+
 INSTALLATION
 -----
 no pypi package yet!
