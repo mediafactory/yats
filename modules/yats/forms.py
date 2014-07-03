@@ -64,6 +64,7 @@ class TicketsForm(forms.ModelForm):
         if not 'user' in kwargs:
             raise Exception('missing user')
         self.user = kwargs.pop('user')
+        self.view_only = kwargs.pop('view_only', False)
 
         if not 'customer' in kwargs:
             raise Exception('missing customer')
@@ -90,7 +91,16 @@ class TicketsForm(forms.ModelForm):
         for field in self.fields:
             if type(self.fields[field]) is forms.fields.DateField:
                 self.fields[field].widget = BootstrapDateInput()
-
+                
+        # remove fields after close
+        if not self.instance.pk is None and self.instance.closed and not self.view_only:
+            available_fields = []
+            for field in self.fields:
+                available_fields.append(str(field))
+                
+            for field in available_fields:
+                if str(field) not in settings.TICKET_EDITABLE_FIELDS_AFTER_CLOSE:
+                    del self.fields[str(field)]
                     
     def save(self, commit=True):
         """

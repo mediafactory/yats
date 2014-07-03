@@ -95,7 +95,7 @@ def action(request, mode, ticket):
                     messages.add_message(request, messages.ERROR, _('comment invalid'))
         
         excludes = []
-        form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
+        form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id, view_only=True)
         close = TicketCloseForm()
         
         participants = tickets_participants.objects.select_related('user').filter(ticket=ticket)
