@@ -1,20 +1,33 @@
+- reports öffnen sollte auch suche setzen
+- del reports
+- last generell action user and dt
+
+- search sort order
 - unset default values in search
 - change password
+- convert uploads docs2img
+- reportman
+
+- RPC => like TRAC
+- import from TRAC
 
 - wiki integration
 - translation
 
 - del attachments
-- del reports
 
 - mail templates
 - mail html diff of ticket changes
 - rights
 - workflows
-- webdav oder neue Version für files
-- admin mit in toolbar
+- webdav oder new version for files
 
 http://getbootstrap.com/2.3.2/base-css.html#buttons
 http://marcoceppi.github.io/bootstrap-glyphicons/
 http://www.bootply.com/106768
 http://jsfiddle.net/KyleMit/gDjtk/
+
+http://askubuntu.com/questions/396825/convert-docx-to-pdf
+http://wiki.ubuntuusers.de/unoconv
+sudo apt-get install unoconv
+doc2pdf respondus-docx-sample-file.docx
