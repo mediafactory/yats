@@ -126,7 +126,7 @@ class tickets_participants(models.Model):
 class tickets_comments(base):
     ticket = models.ForeignKey(tickets)
     comment = models.TextField()
-    action = models.SmallIntegerField(default=0) # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 6 = comment
+    action = models.SmallIntegerField(default=0) # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 6 = comment, 7 = reassign
 
 class tickets_files(base):
     ticket = models.ForeignKey(tickets)
@@ -143,4 +143,4 @@ class tickets_history(base):
     ticket = models.ForeignKey(tickets)
     old = models.TextField()
     new = models.TextField()
-    action = models.SmallIntegerField(default=0) # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 4 = ticket changed, 5 = file added, 6 = comment added
+    action = models.SmallIntegerField(default=0) # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 4 = ticket changed, 5 = file added, 6 = comment added, 7 = reassign

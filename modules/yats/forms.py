@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*- 
 from django import forms
+from django.contrib.auth.models import User
 from django.utils import importlib
 from django.conf import settings
 from django.forms.models import construct_instance
@@ -202,3 +203,7 @@ class UploadFileForm(forms.Form):
 class TicketCloseForm(forms.Form):
     resolution = forms.ModelChoiceField(queryset=ticket_resolution.objects.filter(active_record=True), label=_('resolution'))
     close_comment = forms.CharField(widget=forms.Textarea(), label=_('comment'))
+    
+class TicketReassignForm(forms.Form):
+    assigned = forms.ModelChoiceField(queryset=User.objects.filter(is_active=True), label=_('assigned'))
+    reassign_comment = forms.CharField(widget=forms.Textarea(), label=_('comment'))

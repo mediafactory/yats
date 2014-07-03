@@ -227,6 +227,11 @@ def add_history(request, ticket, typ, data):
     elif typ == 6:
         old = {'comment': ''}
         new = {'comment': data}
+    elif typ == 7:
+        old = {'comment': '',
+               'assigned': data['old']['assigned']}
+        new = {'comment': data['new']['comment'],
+               'assigned': data['new']['assigned']}
     elif typ == 3:
         old = {'reference': ''}
         new = {'reference': '#%s' % data}

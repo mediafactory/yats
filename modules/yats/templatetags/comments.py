@@ -11,6 +11,7 @@ def comment_color(value):
       4: lambda : 'warning',
       5: lambda : '',
       6: lambda : 'primary',
+      7: lambda : 'warning',
     }[value]()
     return result
 

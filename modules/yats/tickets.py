@@ -8,7 +8,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
-from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm
+from django.contrib.auth.models import User
+from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues
 import os
@@ -97,6 +98,7 @@ def action(request, mode, ticket):
         excludes = []
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id, view_only=True)
         close = TicketCloseForm()
+        reassign = TicketReassignForm(initial={'assigned': tic.assigned_id})
         
         participants = tickets_participants.objects.select_related('user').filter(ticket=ticket)
 
@@ -135,7 +137,7 @@ def action(request, mode, ticket):
             breadcrumbs.pop(0)
         request.session['breadcrumbs'] = breadcrumbs
         
-        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'files': files_lines, 'comments': comments_lines, 'participants': participants}, RequestContext(request))
+        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments_lines, 'participants': participants}, RequestContext(request))
 
     elif mode == 'history':
         history = tickets_history.objects.filter(ticket=ticket)
@@ -160,6 +162,34 @@ def action(request, mode, ticket):
             add_history(request, tic, 2, None)
 
             mail_comment(request, com.pk)
+            
+        return HttpResponseRedirect('/tickets/view/%s/' % ticket)
+
+    elif mode == 'reassign':
+        if not tic.closed:
+            if 'assigned' in request.POST:
+                if request.POST['assigned'] and int(request.POST['assigned']) > 0:
+                    old_assigned_user = tic.assigned
+                    
+                    tic.assigned_id = request.POST['assigned']
+                    tic.save(user=request.user)
+            
+                    com = tickets_comments()
+                    com.comment = _('ticket reassigned to %(user)s\n\n%(comment)s') % {'user': User.objects.get(pk=request.POST['assigned']), 'comment': request.POST.get('reassign_comment', '')}
+                    com.ticket_id = ticket
+                    com.action = 7
+                    com.save(user=request.user)
+                    
+                    check_references(request, com)
+                    
+                    touch_ticket(request.user, ticket)
+                    history_data = {
+                                    'old': {'comment': '', 'assigned': str(old_assigned_user)},
+                                    'new': {'comment': request.POST.get('reassign_comment', ''), 'assigned': str(User.objects.get(pk=request.POST['assigned']))}
+                                    }
+                    add_history(request, tic, 7, history_data)
+
+                    mail_comment(request, com.pk)
             
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 
@@ -305,7 +335,7 @@ def reports(request):
         tickets_reports.objects.filter(c_user=request.user, pk=request.GET['delReport']).delete()
         return HttpResponseRedirect('/reports/')
     
-    reps = tickets_reports.objects.filter(c_user=request.user)
+    reps = tickets_reports.objects.filter(c_user=request.user).order_by('name')
 
     paginator = Paginator(reps, 10)
     page = request.GET.get('page')

@@ -15,7 +15,7 @@
 
 {% block content %}
 
-    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/history/{{ ticket.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/tickets/edit/{{ ticket.id }}/">{% trans "edit" %}</a>&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/upload/{{ ticket.id }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small" href="#add_comment">{% trans "add comment" %}</a>&nbsp;&nbsp;{% endif %}{% if ticket.closed %}<a class="btn btn-small" href="/tickets/reopen/{{ ticket.id }}/">{% trans "reopen" %}</a>{% else %}<a role="button" data-toggle="modal" class="btn btn-small" href="#closeDlg">{% trans "close" %}</a>{% endif %}</h2>
+    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/history/{{ ticket.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/tickets/edit/{{ ticket.id }}/">{% trans "edit" %}</a>&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/upload/{{ ticket.id }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small" href="#add_comment">{% trans "add comment" %}</a>&nbsp;&nbsp;{% endif %}{% if ticket.closed %}<a class="btn btn-small" href="/tickets/reopen/{{ ticket.id }}/">{% trans "reopen" %}</a>{% else %}<a role="button" data-toggle="modal" class="btn btn-small btn-warning" href="#reassignDlg">{% trans "reassign" %}</a>&nbsp;&nbsp;<a role="button" data-toggle="modal" class="btn btn-small btn-danger" href="#closeDlg">{% trans "close" %}</a>{% endif %}</h2>
     <p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} by {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}</small></p>
     <p>&nbsp;</p>
 
@@ -107,7 +107,27 @@
         
         <div class="modal-footer">
             <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-            <input type="submit" value="{% trans "close" %}" class="btn btn-primary">
+            <input type="submit" value="{% trans "close" %}" class="btn btn-danger">
+        </div>
+        </form>
+    </div>
+
+    <div id="reassignDlg" class="modal hide fade">
+        
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>{% trans "reassign ticket" %}</h3>
+        </div>
+        
+        <form class="form-{{ layout }}" action="/tickets/reassign/{{ticket.id }}/" method="post">
+        <div class="modal-body">
+            {% csrf_token %}
+            {{ reassign|as_bootstrap:layout }}
+        </div>
+        
+        <div class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
+            <input type="submit" value="{% trans "reassign" %}" class="btn btn-warning">
         </div>
         </form>
     </div>
