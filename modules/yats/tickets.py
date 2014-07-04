@@ -101,6 +101,7 @@ def action(request, mode, ticket):
         reassign = TicketReassignForm(initial={'assigned': tic.assigned_id})
         
         participants = tickets_participants.objects.select_related('user').filter(ticket=ticket)
+        comments = tickets_comments.objects.select_related('c_user').filter(ticket=ticket).order_by('c_date')
 
         files = tickets_files.objects.filter(ticket=ticket)
         paginator = Paginator(files, 10)
@@ -114,21 +115,9 @@ def action(request, mode, ticket):
             # If page is out of range (e.g. 9999), deliver last page of results.
             files_lines = paginator.page(paginator.num_pages)
         
-        comments = tickets_comments.objects.select_related('c_user').filter(ticket=ticket).order_by('c_date')
-        paginator = Paginator(comments, 10)
-        page = request.GET.get('page')
-        try:
-            comments_lines = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            comments_lines = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            comments_lines = paginator.page(paginator.num_pages)
-
         add_breadcrumbs(request, ticket, '#')
         
-        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments_lines, 'participants': participants}, RequestContext(request))
+        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants}, RequestContext(request))
 
     elif mode == 'history':
         history = tickets_history.objects.filter(ticket=ticket)
