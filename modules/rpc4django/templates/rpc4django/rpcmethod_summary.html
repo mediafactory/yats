@@ -1,0 +1,140 @@
+{% load rpctags %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>RPC Method Summary</title>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+		<meta name="generator" content="RPC4Django {{ version }}: http://www.davidfischer.name/rpc4django" />
+		<style type='text/css'>
+		.rpcmethods {
+			border: 1px solid black;
+			border-collapse:collapse;
+			width: 100%;
+		}		
+		
+		.rpcmethods td {
+			vertical-align: top;
+			border: 1px solid black;
+			padding: 5px 5px 5px 5px;
+		}
+		
+		.rpcmethods td.header {
+			background-color: #487858;
+			color: white;
+			text-align: left;
+			font-size: 1.2em;
+			font-weight: bold;
+		}
+		
+		.rpcmethods td.left {
+			text-align: right;
+			width: 80px;
+			font-size: 0.8em;
+			font-family: monospace;
+		}
+		
+		.methodsig {
+			font-family: monospace;
+			margin-bottom: 10px;
+			font-weight: bold;
+		}
+		
+		.methodhelp {
+			font-size: 0.8em;
+		}
+		
+		a, a:visited {
+			color: #487858;
+		}
+		
+		a:active, a:hover {
+			color: red
+		}
+		</style>
+		<script type='text/javascript'>
+			var xmlhttp;
+			try {
+				xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+			} catch(e1) {
+				try {
+					xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+				} catch(e2) {
+					xmlhttp = (typeof(XMLHttpRequest) != undefined) ? new XMLHttpRequest() : false;
+				}
+			}
+			
+			function toggle_testarea(divid) {
+				mydiv = document.getElementById(divid);
+				if(mydiv.style.visibility == "hidden") {
+					mydiv.style.visibility = "visible";
+					mydiv.style.display = "block";
+				} else {
+					mydiv.style.visibility = "hidden";
+					mydiv.style.display = "none";
+				}
+			}
+			
+			function do_ajaxrpc(divid) {
+				url = "{{ url }}";
+				
+				if(url.length == 0) {
+					alert("There's a problem getting the RPC url.");
+					return;
+				}
+			
+				if(xmlhttp) {
+					// get request data
+					mydiv = document.getElementById(divid);
+					data = mydiv.value;
+					
+					xmlhttp.open("POST", url, false);
+					xmlhttp.setRequestHeader("Content-Type", "application/json");
+					xmlhttp.send(data);
+					if(xmlhttp.status == 200)
+						alert(xmlhttp.responseText);
+					else
+						alert("Error status "+xmlhttp.status);
+				} else {
+					alert("Browser does not support ajax");
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<table class='rpcmethods'>
+			<tr>
+				<td class='header' colspan='2'>RPC Method Summary</td>
+			</tr>
+			{% for method in methods|dictsort:"name" %}
+			<tr>
+				<td class='left'>{{ method.get_returnvalue }}</td>
+				<td class='right'>
+					<div class='methodsig'>
+						{% if not restrict_rpctest %}
+							<a href='javascript:toggle_testarea("d{{ forloop.counter }}")'>{{ method.name }}</a>
+						{% else %}
+							{{ method.name }}
+						{% endif %}
+							(
+							{% for param in method.get_params %}
+								{{ param.rpctype }} {{ param.name }}
+								{% if not forloop.last %}, {% endif %}
+							{% endfor %})
+					</div>
+					<div class='methodhelp'>
+						{{ method.help|resttext }}
+					</div>
+					{% if not restrict_rpctest %}
+					<div id="d{{ forloop.counter }}" style='visibility: hidden; display: none'>
+						<textarea id="t{{ forloop.counter }}" rows="8" cols="50">{{ method.get_stub }}</textarea><br />
+						<input type='button' value='Test Method' onclick='do_ajaxrpc("t{{ forloop.counter }}")' />
+					</div>
+					{% endif %}
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</body>
+</html>

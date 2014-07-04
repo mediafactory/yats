@@ -4,8 +4,9 @@ from yats.views import root, info
 from yats.tickets import new, action, table, search, reports
 
 urlpatterns = patterns('',
+    (r'^RPC2/$', 'rpc4django.views.serve_rpc_request'),
    url(r'^$',
-        view=table,
+        view=root,
         name='view_root'),
    
    # tickets

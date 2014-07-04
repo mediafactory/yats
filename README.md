@@ -26,6 +26,7 @@ KEY FEATURES
 - file attachments (optionally virus scanned)
 - twitter bootstrapp 2 - responsive layout
 - git TAGS from Github as versions example
+- simple, but yet powerful! No real magic :-) 2 sourcefiles besides the dajango stuff (tickets.py and shortcuts.py)
 
 INSTALLATION
 -----
@@ -33,6 +34,7 @@ no pypi package yet!
 
 needs:  
 pil or pillow  
+rpc4django
 httplib2 (if using tags from github)  
 django-dashing  
 django-wiki  
