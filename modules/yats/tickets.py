@@ -31,6 +31,10 @@ def new(request):
             if assigned:
                 touch_ticket(assigned, tic.pk)
             
+            for ele in form.changed_data:
+                form.initial[ele] = ''
+            remember_changes(request, form, tic)
+                    
             touch_ticket(request.user, tic.pk)
             
             mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
