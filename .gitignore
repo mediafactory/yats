@@ -10,3 +10,4 @@ sites/static/
 .DS_Store
 *.pot
 sites/web/wiki/
+external/
