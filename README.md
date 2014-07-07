@@ -26,7 +26,7 @@ KEY FEATURES
 - file attachments (optionally virus scanned)
 - twitter bootstrapp 2 - responsive layout
 - git TAGS from Github as versions example
-- simple, but yet powerful! No real magic :-) 2 sourcefiles besides the dajango stuff (tickets.py and shortcuts.py)
+- simple, but yet powerful! No real magic :-) 2 sourcefiles besides the django stuff (tickets.py and shortcuts.py)
 
 INSTALLATION
 -----
