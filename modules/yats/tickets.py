@@ -6,6 +6,7 @@ from django.http.response import HttpResponseRedirect, StreamingHttpResponse,\
 from django.db.models import get_model
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
@@ -302,7 +303,7 @@ def search(request):
     if request.method == 'POST' and 'reportname' in request.POST and request.POST['reportname']:
         rep = tickets_reports()
         rep.name = request.POST['reportname']
-        rep.search = json.dumps(request.session['last_search'])
+        rep.search = json.dumps(request.session['last_search'], cls=DjangoJSONEncoder)
         rep.save(user=request.user)
         
         request.session['last_search'] = clean_search_values(request.session['last_search'])
@@ -329,7 +330,7 @@ def reports(request):
     if 'report' in request.GET:
         rep = tickets_reports.objects.get(pk=request.GET['report'])
         add_breadcrumbs(request, request.GET['report'], '@')
-        request.session['last_search'] = json.loads(rep.search) 
+        request.session['last_search'] = json.loads(rep.search)
         return table(request, search=request.session['last_search'], list_caption=rep.name)
     
     if 'delReport' in request.GET:
