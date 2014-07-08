@@ -61,6 +61,7 @@ jsPlumb.ready(function() {
     });
 
     instance.bind("beforeDetach", function (conn) {
+    	{% if not request.user.is_staff %}return false;{% endif %}
         result = confirm("{% trans "Are you sure you want to disconnect these nodes?" %}");
         if (result) {
 			$.ajax({
@@ -76,6 +77,7 @@ jsPlumb.ready(function() {
     });
 
     instance.bind("beforeDrop", function (info) {
+        {% if not request.user.is_staff %}return false;{% endif %}
         $.ajax({
           type: "POST",
           url: '.',
