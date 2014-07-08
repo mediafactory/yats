@@ -20,6 +20,7 @@ class Migration(DataMigration):
         ticket_resolution(name=_('dupplicate')).save(user=user)
         ticket_resolution(name=_('fixed')).save(user=user)
         ticket_resolution(name=_('won\'t fix')).save(user=user)
+        ticket_resolution(name=_('invalid')).save(user=user)
         
         ticket_type(name=_('undefined')).save(user=user)
         ticket_type(name=_('bug')).save(user=user)
