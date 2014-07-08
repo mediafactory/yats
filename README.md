@@ -61,6 +61,6 @@ So far the app needs 2 folders (for logging and attachments as defined in the in
 ./manage.py syncdb  
 ./manage.py migrate  
 
-OTHER PAGACKES:
+ALTERNATIVE PACKAGES
 -----
 https://www.djangopackages.com/grids/g/ticketing/
