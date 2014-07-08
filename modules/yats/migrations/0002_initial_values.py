@@ -9,7 +9,6 @@ from yats.models import ticket_priority, ticket_resolution, ticket_type
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        "Write your forwards methods here."
         user = User.objects.all()[0]
         
         ticket_priority(name=_('trivial')).save(user=user)
