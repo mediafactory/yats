@@ -20,7 +20,7 @@
     <p>{% trans "add new states in the admin interface" %}</p>
     
     <div class="demo statemachine-demo" id="statemachine-demo">{% for flow in flows %}
-        <div class="w{% if flow.type == 1 %} start{% endif %}{% if flow.type == 2 %} end{% endif %}" id="flw{{ flow.pk }}">{{ flow.name }}<div class="ep"></div></div>{% endfor %}
+        <div class="w{% if flow.type == 1 %} start{% endif %}{% if flow.type == 2 %} end{% endif %}" id="flw{{ flow.pk }}">{{ flow.name }}&nbsp;&nbsp;<div class="ep"></div></div>{% endfor %}
     </div>
                 
 <script type="text/javascript">
