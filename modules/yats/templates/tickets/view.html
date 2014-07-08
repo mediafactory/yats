@@ -23,7 +23,7 @@
     {% for field in form %}{% if field.value != None and field.value != '' %}
         <tr>
         	<td>{{ field.label_tag }}</td>
-        	<td>{{ field|display_value|linebreaksbr }}</td>
+        	<td>{% if field.id_for_label == 'id_description' %}{{ field|display_value|numberToTicketURL|safe|linebreaksbr }}{% else %}{{ field|display_value|linebreaksbr }}{% endif %}</td>
         </tr>
     {% endif %}{% endfor %}
         <tr>
