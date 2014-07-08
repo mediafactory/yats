@@ -51,6 +51,7 @@ def new(request):
     
     else:
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
+    form.fields['state'].queryset = form.fields['state'].queryset.exclude(type=2)
     
     return render_to_response('tickets/new.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))    
 
@@ -206,7 +207,8 @@ def action(request, mode, ticket):
         
         else:
             form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
-        
+        if 'state' in form.fields: 
+            form.fields['state'].queryset = form.fields['state'].queryset.exclude(type=2)
         return render_to_response('tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form}, RequestContext(request))    
 
     elif mode == 'download':
