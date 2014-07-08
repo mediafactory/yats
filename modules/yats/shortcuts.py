@@ -89,14 +89,17 @@ def get_ticket_url(request, ticket_id):
     else:
         return 'http://%s/tickets/view/%s/' % (request.get_host(), ticket_id)
 
-def getNameOfModelValue(field, value):
-    cls_name = field.__class__.__name__
-    mod_path = field.__class__.__module__
+def getModelValue(mod_path, cls_name, value):
     mod_path = mod_path.split('.').pop(0)
     try:
         return unicode(get_model(mod_path, cls_name).objects.get(pk=value))
     except:
         return u''
+
+def getNameOfModelValue(field, value):
+    cls_name = field.__class__.__name__
+    mod_path = field.__class__.__module__
+    return getModelValue(mod_path, cls_name, value)
 
 def field_changes(form):
     new = {}
@@ -252,13 +255,25 @@ def add_history(request, ticket, typ, data):
     h.action = typ
     h.save(user=request.user)
     
+def getTicketField(field):
+    tickets = get_ticket_model()
+    m = tickets()
+    try:
+        return m._meta.get_field(field)
+    except:
+        return None
+    
 def prettyValues(data):
     result = {}
     for ele in data:
-        if ele == 'c_user':
-            result['creator'] = User.objects.get(pk=data[ele])
-        if ele == 'assigned':
-            result['assigned'] = User.objects.get(pk=data[ele])
+        ticket_field = getTicketField(ele)
+        if type(ticket_field).__name__ == 'ForeignKey':
+            if ele == 'c_user':
+                result['creator'] = User.objects.get(pk=data[ele])
+            elif ele == 'assigned':
+                result['assigned'] = User.objects.get(pk=data[ele])
+            else:
+                result[ele] = getModelValue(ticket_field.rel.to.__module__, ticket_field.rel.to.__name__, data[ele])
         else:
             result[ele] = data[ele]
     return result
