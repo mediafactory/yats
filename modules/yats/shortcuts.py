@@ -275,6 +275,3 @@ def add_breadcrumbs(request, pk, typ):
     while len(breadcrumbs) > 10:
         breadcrumbs.pop(0)
     request.session['breadcrumbs'] = breadcrumbs
-    
-def get_flow_start():
-    return ticket_flow.objects.filter(active_record=True, type=1)[:1][0]

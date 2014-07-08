@@ -12,6 +12,9 @@ YES_NO_DONT_KNOW = (
     (False, _('no')),
 )
 
+def get_flow_start():
+    return ticket_flow.objects.filter(active_record=True, type=1)[:1][0]
+
 # user profiles
 class UserProfile(models.Model):
     user = models.OneToOneField(User, null=True)
@@ -129,7 +132,7 @@ class tickets(base):
     assigned = models.ForeignKey(User, related_name='+', null=True, blank=True)
     resolution = models.ForeignKey(ticket_resolution, null=True)
     closed = models.BooleanField(default=False)
-    state = models.ForeignKey(ticket_flow, null=True)
+    state = models.ForeignKey(ticket_flow, null=True, default=get_flow_start)
     
 class tickets_participants(models.Model):
     ticket = models.ForeignKey(tickets)
