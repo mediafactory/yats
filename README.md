@@ -38,7 +38,8 @@ rpc4django
 httplib2 (if using tags from github)  
 django-dashing  
 django-wiki  
-diff-match-patch  
+diff-match-patch
+http://nodebox.net/code/index.php/Graph#loading_the_library
 
 should need:  
 pyclamd (add TCPSocket 3310 and TCPAddr 127.0.0.1 to its config and restart)  
