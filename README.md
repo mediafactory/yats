@@ -23,6 +23,7 @@ KEY FEATURES
 - searchable fields configurable
 - searches saveable as reports
 - ticket history
+- ticket references
 - complex workflows
 - file attachments (optionally virus scanned)
 - twitter bootstrapp 2 - responsive layout
