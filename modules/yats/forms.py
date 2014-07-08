@@ -7,7 +7,7 @@ from django.forms.models import construct_instance
 from bootstrap_toolkit.widgets import BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
-from yats.models import ticket_resolution, ticket_flow
+from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges
 
 mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
 mod = importlib.import_module(mod_path)
@@ -105,6 +105,12 @@ class TicketsForm(forms.ModelForm):
             
         # disallow non state
         self.fields['state'].empty_label = None
+        
+        # only allow possible states
+        if not self.instance.pk is None and not self.view_only:
+            flows = list(ticket_flow_edges.objects.select_related('next').filter(now=self.instance.state).exclude(next__type=2).values_list('next', flat=True))
+            flows.append(self.instance.state_id)
+            self.fields['state'].queryset = self.fields['state'].queryset.filter(id__in=flows)
                     
     def save(self, commit=True):
         """
