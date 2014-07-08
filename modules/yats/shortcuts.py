@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from django.forms.forms import pretty_name
-from yats.models import tickets_participants, tickets_comments, tickets_files, tickets_history
+from yats.models import tickets_participants, tickets_comments, tickets_files, tickets_history, ticket_flow
 
 from PIL import Image#, ImageOps
 import sys
@@ -275,3 +275,6 @@ def add_breadcrumbs(request, pk, typ):
     while len(breadcrumbs) > 10:
         breadcrumbs.pop(0)
     request.session['breadcrumbs'] = breadcrumbs
+    
+def get_flow_start():
+    return ticket_flow.objects.filter(active_record=True, type=1)[:1][0]

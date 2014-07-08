@@ -109,6 +109,17 @@ class ticket_resolution(base):
     def __unicode__(self):
         return self.name
 
+class ticket_flow(base):
+    name = models.CharField(max_length=255)
+    type = models.SmallIntegerField(default=0) # 1 = open, 2 = close, 0 = all nodes in between
+    
+    def __unicode__(self):
+        return self.name
+    
+class ticket_flow_edges(base):
+    now = models.ForeignKey(ticket_flow, related_name='now')
+    next = models.ForeignKey(ticket_flow, related_name='next')
+
 class tickets(base):
     caption = models.CharField(max_length=255)
     description = models.TextField()
@@ -118,6 +129,7 @@ class tickets(base):
     assigned = models.ForeignKey(User, related_name='+', null=True, blank=True)
     resolution = models.ForeignKey(ticket_resolution, null=True)
     closed = models.BooleanField(default=False)
+    state = models.ForeignKey(ticket_flow, null=True)
     
 class tickets_participants(models.Model):
     ticket = models.ForeignKey(tickets)

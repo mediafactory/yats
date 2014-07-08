@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*- 
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.http.response import HttpResponseRedirect, StreamingHttpResponse
+from django.http.response import HttpResponseRedirect, StreamingHttpResponse,\
+    HttpResponse
 from django.db.models import get_model
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -10,10 +11,11 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm
-from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs
+from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_flow_start
 import os
 import io
+import graph
 try:
     import json
 except ImportError:
@@ -25,7 +27,10 @@ def new(request):
     if request.method == 'POST':
         form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
         if form.is_valid():
+            init = get_flow_start()
             tic = form.save()
+            tic.state = init
+            tic.save(user=request.user)
 
             assigned = form.cleaned_data.get('assigned')
             if assigned:
@@ -102,7 +107,10 @@ def action(request, mode, ticket):
         excludes = []
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id, view_only=True)
         close = TicketCloseForm()
-        reassign = TicketReassignForm(initial={'assigned': tic.assigned_id})
+        reassign = TicketReassignForm(initial={'assigned': tic.assigned_id, 'state': tic.state})
+        flows = list(ticket_flow_edges.objects.select_related('next').filter(now=tic.state).exclude(next__type=2).values_list('next', flat=True))
+        flows.append(tic.state_id)
+        reassign.fields['state'].queryset = reassign.fields['state'].queryset.filter(id__in=flows)
         
         participants = tickets_participants.objects.select_related('user').filter(ticket=ticket)
         comments = tickets_comments.objects.select_related('c_user').filter(ticket=ticket).order_by('c_date')
@@ -341,3 +349,63 @@ def reports(request):
         rep_lines = paginator.page(paginator.num_pages)
 
     return render_to_response('tickets/reports.html', {'lines': rep_lines}, RequestContext(request))
+
+def workflow(request):
+    if request.method == 'POST':
+        if 'method' in request.POST:
+            this = int(request.POST['next'].replace('flw', ''))
+            now = int(request.POST['now'].replace('flw', ''))
+            if request.POST['method'] == 'add':
+                try:
+                    ticket_flow_edges.objects.get(now=now, next=this)
+                except:
+                    ticket_flow_edges(now_id=now, next_id=this).save(user=request.user)
+                return HttpResponse('OK')
+            
+            elif request.POST['method'] == 'del':
+                ticket_flow_edges.objects.filter(now=now, next=this).delete()
+                return HttpResponse('OK')
+    
+    flows = ticket_flow.objects.all()
+    edges = ticket_flow_edges.objects.all()
+    nodes = {}
+    
+    offset_x = 30
+    offset_y = 30
+    
+    min_x = 0
+    min_y = 0
+    max_x = 0
+    max_y = 0
+    
+    g = graph.create()
+
+    for flow in flows:
+        g.add_node('flw%s' % flow.pk)
+
+    for edge in edges:
+        g.add_edge('flw%s' % edge.now_id, 'flw%s' % edge.next_id)
+    g.solve()
+    
+    for id in g:
+        #print '%s => %s,%s' % (id, g[id].x, g[id].y)
+        nodes[id] = (g[id].x, g[id].y)
+        min_x = min(min_x, g[id].x)
+        min_y = min(min_y, g[id].y)
+        max_x = max(max_x, g[id].x)
+        max_y = max(max_y, g[id].y)
+        
+    if min_x < 0:
+        min_x = min_x * (-1)
+    if min_y < 0:
+        min_y = min_y * (-1)
+        
+    for node in nodes:
+        (x, y) = nodes[node]
+        nodes[node] = (x + min_x + offset_x, y + min_y + offset_y)
+    print nodes
+
+    max_x = max_x + min_x + (offset_x * 2)
+    max_y = max_y + min_y + (offset_y * 2)
+    
+    return render_to_response('tickets/workflow.html', {'layout': 'horizontal', 'flows': flows, 'edges': edges, 'nodes': nodes, 'width': max_x, 'height': max_y}, RequestContext(request))    

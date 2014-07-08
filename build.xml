@@ -5,7 +5,7 @@
 <project name="YATS" default="nightly" basedir=".">
 	<description>YATS</description>
 	
-	<property name="yatsversion" value="1.1.4" />
+	<property name="yatsversion" value="1.1.6" />
 	
 	<tstamp>
 		<format property="TODAY"
@@ -60,6 +60,10 @@
 		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/rpc4django">
 			<fileset dir="${basedir}/modules/rpc4django" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
 		</copy>
+		<echo message="copy module graph" level="info" />
+		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/graph">
+			<fileset dir="${basedir}/modules/graph" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
+		</copy>
 
 		<echo message="copy sites setup" level="info" />
 		<copy verbose="false" todir="${basedir}/distribution/nightly/sites/static">
@@ -92,6 +96,7 @@
 				<tarfileset dir="${basedir}/distribution/nightly/modules/south" prefix="usr/share/yats/site-packages/south" />
 				<tarfileset dir="${basedir}/distribution/nightly/modules/bootstrap_toolkit" prefix="usr/share/yats/site-packages/bootstrap_toolkit" />
 				<tarfileset dir="${basedir}/distribution/nightly/modules/rpc4django" prefix="usr/share/yats/site-packages/rpc4django" />
+				<tarfileset dir="${basedir}/distribution/nightly/modules/graph" prefix="usr/share/yats/site-packages/graph" />
 		</deb>
    </target>
 

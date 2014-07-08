@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from yats.models import UserProfile, organisation, ticket_type, ticket_priority, ticket_resolution
+from yats.models import UserProfile, organisation, ticket_type, ticket_priority, ticket_resolution, ticket_flow
 
 class yatsAdmin(admin.ModelAdmin):
     exclude = ('c_date','c_user','u_user','u_date','d_user','d_date','active_record')
@@ -45,3 +45,4 @@ admin.site.register(organisation, yatsAdmin)
 admin.site.register(ticket_type, yatsAdmin)
 admin.site.register(ticket_priority, yatsAdmin)
 admin.site.register(ticket_resolution, yatsAdmin)
+admin.site.register(ticket_flow, yatsAdmin)

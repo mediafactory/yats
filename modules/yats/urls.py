@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 from django.conf.urls import patterns, url
 from yats.views import root, info
-from yats.tickets import new, action, table, search, reports
+from yats.tickets import new, action, table, search, reports, workflow
 
 urlpatterns = patterns('',
     (r'^RPC2/$', 'rpc4django.views.serve_rpc_request'),
@@ -30,6 +30,11 @@ urlpatterns = patterns('',
    url(r'^reports/$',
         view=reports,
         name='reports'),
+
+   # workflow
+   url(r'^workflow/$',
+        view=workflow,
+        name='workflow'),
 
    # info
    url(r'^info/$',
