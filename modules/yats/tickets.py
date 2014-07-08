@@ -114,6 +114,8 @@ def action(request, mode, ticket):
         
         participants = tickets_participants.objects.select_related('user').filter(ticket=ticket)
         comments = tickets_comments.objects.select_related('c_user').filter(ticket=ticket).order_by('c_date')
+        
+        close_allowed = ticket_flow_edges.objects.select_related('next').filter(now=tic.state, next__type=2).count() > 0
 
         files = tickets_files.objects.filter(ticket=ticket)
         paginator = Paginator(files, 10)
@@ -129,7 +131,7 @@ def action(request, mode, ticket):
         
         add_breadcrumbs(request, ticket, '#')
         
-        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants}, RequestContext(request))
+        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed}, RequestContext(request))
 
     elif mode == 'history':
         history = tickets_history.objects.filter(ticket=ticket)
