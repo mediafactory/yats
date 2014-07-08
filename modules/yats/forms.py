@@ -102,6 +102,9 @@ class TicketsForm(forms.ModelForm):
             for field in available_fields:
                 if str(field) not in settings.TICKET_EDITABLE_FIELDS_AFTER_CLOSE:
                     del self.fields[str(field)]
+            
+        # disallow non state
+        self.fields['state'].empty_label = None
                     
     def save(self, commit=True):
         """
