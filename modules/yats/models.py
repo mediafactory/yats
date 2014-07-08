@@ -15,6 +15,9 @@ YES_NO_DONT_KNOW = (
 def get_flow_start():
     return ticket_flow.objects.filter(active_record=True, type=1)[:1][0]
 
+def get_flow_end():
+    return ticket_flow.objects.filter(active_record=True, type=2)[:1][0]
+
 # user profiles
 class UserProfile(models.Model):
     user = models.OneToOneField(User, null=True)

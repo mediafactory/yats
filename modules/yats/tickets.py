@@ -11,7 +11,7 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm
-from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start
+from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs
 import os
 import io
@@ -27,10 +27,7 @@ def new(request):
     if request.method == 'POST':
         form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
         if form.is_valid():
-            #init = get_flow_start()
             tic = form.save()
-            #tic.state = init
-            #tic.save(user=request.user)
 
             assigned = form.cleaned_data.get('assigned')
             if assigned:
@@ -83,6 +80,7 @@ def action(request, mode, ticket):
                     if request.POST['resolution'] and int(request.POST['resolution']) > 0:
                         tic.resolution_id = request.POST['resolution']
                         tic.closed = True
+                        tic.state = get_flow_end()
                         tic.save(user=request.user)
                         
                         com = tickets_comments()
@@ -139,6 +137,7 @@ def action(request, mode, ticket):
     elif mode == 'reopen':
         if tic.closed:
             tic.closed = False
+            tic.state = get_flow_start()
             tic.resolution = None
             tic.save(user=request.user)
             
