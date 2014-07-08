@@ -127,6 +127,8 @@ class SearchForm(forms.ModelForm):
     required_css_class = 'do_not_require'
 
     def __init__(self, *args, **kwargs):
+        print kwargs.get('initial', {})
+
         if not 'user' in kwargs:
             raise Exception('missing user')
         self.user = kwargs.pop('user')
@@ -166,6 +168,10 @@ class SearchForm(forms.ModelForm):
                 
             if type(self.fields[field]) is forms.fields.BooleanField:
                 self.fields[field] = forms.NullBooleanField()
+                
+        # unset initial
+        for field in self.fields:
+            self.fields[field].initial = None
                                     
     def save(self, commit=True):
         """
