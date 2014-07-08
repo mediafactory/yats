@@ -1,12 +1,10 @@
 - versions not sorted
 - change password
 - last generell action user and dt
-- roadmap
-- timeline / gant
-- close btn only, if allowed by workflow
+- timeline / gant / roadmap
 
 - search sort order
-- search + not, contains, etc....
+- search + not, contains, > (datetime)
 - convert uploads docs2img
 - reportman
 
