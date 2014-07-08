@@ -10,6 +10,7 @@ if [ "$1" = "upgrade" ] ; then
     rm -r /usr/share/yats/site-packages/south 2>/dev/null
     rm -r /usr/share/schiwago/site-packages/bootstrap_toolkit 2>/dev/null
     rm -r /usr/share/schiwago/site-packages/rpc4django 2>/dev/null
+    rm -r /usr/share/schiwago/site-packages/graph 2>/dev/null
     
 fi
 

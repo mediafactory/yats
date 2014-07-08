@@ -13,6 +13,7 @@ if [ "$1" = "configure" ] ; then
     ln -s /usr/share/yats/site-packages/south $sites 2>/dev/null
     ln -s /usr/share/yats/site-packages/bootstrap_toolkit $sites 2>/dev/null
     ln -s /usr/share/yats/site-packages/rpc4django $sites 2>/dev/null
+    ln -s /usr/share/yats/site-packages/graph $sites 2>/dev/null
 
      ret=`grep -ir "TCPSocket" /etc/clamav/clamd.conf`
      if [ "" = "$ret" ]; then
