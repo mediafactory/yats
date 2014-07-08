@@ -73,7 +73,7 @@
               <p><small class="text-muted">{{ line.c_user }} <i class="icon-time"></i> {{ line.c_date }}</small></p>
             </div>
             <div class="timeline-body">
-              <p>{{ line.comment|numberToTicketURL|safe|linebreaksbr }}</p>
+              <p>{{ line.comment|force_escape|numberToTicketURL|safe|linebreaksbr }}</p>
             </div>
           </div>
         </li>
