@@ -19,56 +19,6 @@
  		url("OpenSans.woff") format('woff');
 }
 
-/** FB **/
-#like {
-    position: fixed;
-    width: 77px;
-    height: 70px;
-    border: 0;
-    right: 11px;
-    bottom: -40px;
-}
-
-#retweet_button {
-  position: fixed;
-  bottom: 30px;
-  right: -7px;
-}
-
-body {
-    padding:0;
-    margin:0;    
-    font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;    
-    background-color: whitesmoke;
-}
-
-#headerWrapper {
-	width:100%;
-	background-color:white;
-	position:fixed;
-	top:0;left:0;
-  z-index:100001;
-	height:44px;
-  padding:0;
-  opacity:0.8;
-  text-align: center;
-  border-bottom: 1px solid #e5e5e5;
-  box-shadow: 0px 1px #eee;
-}
-
-#header {
-	margin-top:0;
-  
-	height:44px;
-  font-size:13px;
-	margin-left:auto;
-	margin-right:auto;    
-  
-	line-height: 44px;
-  max-width:1000px;
-  width:80%;
-}
-
 @media screen and (max-width:1000px) {
 	#header {
 		width:100%;
