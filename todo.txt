@@ -1,6 +1,9 @@
+- versions not sorted
 - change password
-- unset default values in search
 - last generell action user and dt
+- roadmap
+- timeline / gant
+- close btn only, if allowed by workflow
 
 - search sort order
 - search + not, contains, etc....
@@ -18,7 +21,6 @@
 - mail templates
 - mail html diff of ticket changes
 - rights
-- workflows
 - webdav oder new version for files
 
 http://getbootstrap.com/2.3.2/base-css.html#buttons
