@@ -108,6 +108,10 @@ class ticket_priority(base):
     
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        verbose_name = _('ticket priority')
+        verbose_name_plural = _(u'ticket priorities')
     
 class ticket_resolution(base):
     name = models.CharField(max_length=255)
@@ -115,6 +119,10 @@ class ticket_resolution(base):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        verbose_name = _('ticket resolution')
+        verbose_name_plural = _(u'ticket resolutions')
+        
 class ticket_flow(base):
     name = models.CharField(max_length=255)
     type = models.SmallIntegerField(default=0) # 1 = open, 2 = close, 0 = all nodes in between
@@ -122,6 +130,10 @@ class ticket_flow(base):
     def __unicode__(self):
         return self.name
     
+    class Meta:
+        verbose_name = _('ticket state')
+        verbose_name_plural = _(u'ticket states')
+        
 class ticket_flow_edges(base):
     now = models.ForeignKey(ticket_flow, related_name='now')
     next = models.ForeignKey(ticket_flow, related_name='next')

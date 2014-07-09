@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.functional import lazy
 from django.core.cache import cache
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 from yats.models import tickets, organisation
 from yats.models import base
 
@@ -18,6 +19,10 @@ class ticket_component(base):
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        verbose_name = _('module')
+        verbose_name_plural = _(u'modules')
 
 def getGibthubTags():
     owner = settings.GITHUB_OWNER
