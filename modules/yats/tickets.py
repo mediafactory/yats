@@ -16,6 +16,7 @@ from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment
 import os
 import io
 import graph
+import datetime
 try:
     import json
 except ImportError:
@@ -80,6 +81,7 @@ def action(request, mode, ticket):
                     if request.POST['resolution'] and int(request.POST['resolution']) > 0:
                         tic.resolution_id = request.POST['resolution']
                         tic.closed = True
+                        tic.close_date = datetime.datetime.now()
                         tic.state = get_flow_end()
                         tic.save(user=request.user)
                         
@@ -419,4 +421,4 @@ def workflow(request):
     max_x = max_x + min_x + (offset_x * 2)
     max_y = max_y + min_y + (offset_y * 2)
     
-    return render_to_response('tickets/workflow.html', {'layout': 'horizontal', 'flows': flows, 'edges': edges, 'nodes': nodes, 'width': max_x, 'height': max_y}, RequestContext(request))    
+    return render_to_response('tickets/workflow.html', {'layout': 'horizontal', 'flows': flows, 'edges': edges, 'nodes': nodes, 'width': max_x, 'height': max_y}, RequestContext(request))
