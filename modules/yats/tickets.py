@@ -164,12 +164,14 @@ def action(request, mode, ticket):
             if 'assigned' in request.POST:
                 if request.POST['assigned'] and int(request.POST['assigned']) > 0:
                     old_assigned_user = tic.assigned
+                    old_state = tic.state
                     
                     tic.assigned_id = request.POST['assigned']
+                    tic.state = ticket_flow.objects.get(pk=request.POST['state'])
                     tic.save(user=request.user)
             
                     com = tickets_comments()
-                    com.comment = _('ticket reassigned to %(user)s\n\n%(comment)s') % {'user': User.objects.get(pk=request.POST['assigned']), 'comment': request.POST.get('reassign_comment', '')}
+                    com.comment = _('ticket reassigned to %(user)s\nstate now: %(state)s\n\n%(comment)s') % {'user': User.objects.get(pk=request.POST['assigned']), 'comment': request.POST.get('reassign_comment', ''), 'state': tic.state}
                     com.ticket_id = ticket
                     com.action = 7
                     com.save(user=request.user)
@@ -178,12 +180,14 @@ def action(request, mode, ticket):
                     
                     touch_ticket(request.user, ticket)
                     history_data = {
-                                    'old': {'comment': '', 'assigned': str(old_assigned_user)},
-                                    'new': {'comment': request.POST.get('reassign_comment', ''), 'assigned': str(User.objects.get(pk=request.POST['assigned']))}
+                                    'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state)},
+                                    'new': {'comment': request.POST.get('reassign_comment', ''), 'assigned': str(User.objects.get(pk=request.POST['assigned'])), 'state': str(tic.state)}
                                     }
                     add_history(request, tic, 7, history_data)
 
                     mail_comment(request, com.pk)
+                else:
+                    messages.add_message(request, messages.ERROR, _('missing assigned user'))
             
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 
