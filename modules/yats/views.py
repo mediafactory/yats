@@ -113,12 +113,12 @@ def board(request, name):
         if 'extra_filter' in column and 'days' in column and column['extra_filter'] and column['days']:
             print type(column['extra_filter']) 
             if column['extra_filter'] == '1': # days since closed
-                column['query'] = column['query'].filter(close_date__gte=datetime.date.today() + datetime.timedelta(days=column['days'])).exclude(close_date=None)
+                column['query'] = column['query'].filter(close_date__gte=datetime.date.today() - datetime.timedelta(days=column['days'])).exclude(close_date=None)
             if column['extra_filter'] == '2': # days since created
-                column['query'] = column['query'].filter(c_date__gte=datetime.date.today() + datetime.timedelta(days=column['days']))
+                column['query'] = column['query'].filter(c_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
             if column['extra_filter'] == '3': # days since last changed
-                column['query'] = column['query'].filter(u_date__gte=datetime.date.today() + datetime.timedelta(days=column['days']))
+                column['query'] = column['query'].filter(u_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
             if column['extra_filter'] == '4': # days since last action
-                column['query'] = column['query'].filter(last_action_date__gte=datetime.date.today() + datetime.timedelta(days=column['days']))
+                column['query'] = column['query'].filter(last_action_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
         
     return render_to_response('board/view.html', {'columns': columns, 'board': board}, RequestContext(request))
