@@ -371,3 +371,8 @@ body {
 div.panel-body {
 	border:1px solid #428bca;
 }
+
+.container {
+	margin-left: 20px;
+	margin-right: 20px;
+}
