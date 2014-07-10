@@ -37,12 +37,12 @@ no pypi package yet!
 
 needs:  
 pil or pillow  
-rpc4django
-httplib2 (if using tags from github)  
-django-dashing  
-django-wiki  
-diff-match-patch
+rpc4django  
+diff-match-patch  
 http://nodebox.net/code/index.php/Graph#loading_the_library
+httplib2 (if using tags from github)    
+django-dashing (not yet used)  
+django-wiki (not yet used)  
 
 should need:  
 pyclamd (add TCPSocket 3310 and TCPAddr 127.0.0.1 to its config and restart)  
