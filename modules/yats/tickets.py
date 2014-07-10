@@ -141,6 +141,7 @@ def action(request, mode, ticket):
             tic.closed = False
             tic.state = get_flow_start()
             tic.resolution = None
+            tic.close_date = None
             tic.save(user=request.user)
             
             com = tickets_comments()

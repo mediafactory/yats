@@ -148,8 +148,8 @@ class tickets(base):
     resolution = models.ForeignKey(ticket_resolution, null=True)
     closed = models.BooleanField(default=False)
     state = models.ForeignKey(ticket_flow, null=True, blank=True, default=get_flow_start)
-    close_date = models.DateField(null=True)
-    last_action_date = models.DateField(null=True)
+    close_date = models.DateTimeField(null=True)
+    last_action_date = models.DateTimeField(null=True)
     
 class tickets_participants(models.Model):
     ticket = models.ForeignKey(tickets)
@@ -159,6 +159,11 @@ class tickets_comments(base):
     ticket = models.ForeignKey(tickets)
     comment = models.TextField()
     action = models.SmallIntegerField(default=0) # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 6 = comment, 7 = reassign
+    
+    def save(self, *args, **kwargs):
+        super(tickets_comments, self).save(*args, **kwargs)
+        
+        tickets.objects.filter(id=self.ticket.pk).update(last_action_date=datetime.datetime.now())
 
 class tickets_files(base):
     ticket = models.ForeignKey(tickets)
@@ -167,6 +172,11 @@ class tickets_files(base):
     size = models.PositiveIntegerField()
     public = models.BooleanField(default=False)
     
+    def save(self, *args, **kwargs):
+        super(tickets_files, self).save(*args, **kwargs)
+        
+        tickets.objects.filter(id=self.ticket.pk).update(last_action_date=datetime.datetime.now())
+
 class tickets_reports(base):
     name = models.CharField(max_length=255)
     search = models.TextField()
