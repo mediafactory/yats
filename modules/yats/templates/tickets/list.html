@@ -80,9 +80,9 @@
             <h3>{% trans "save to board" %}</h3>
         </div>
         
-        <form class="form-{{ layout }}" action="/board/change_board/" method="post">
+        <form class="form-horizontal" action="/board/change_board/" method="post">
         <div class="modal-body">
-            {{ board_form|as_bootstrap:"vertical" }}
+            {{ board_form|as_bootstrap:"horizontal" }}
         </div>
         
         <div class="modal-footer">
