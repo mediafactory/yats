@@ -1,14 +1,22 @@
+- del boards
+- csv export
+- schiwago.yats + billing_estimated_time + billing_time_taken + billing_type (service, developement) => south
+- customers are allowed to close tickets???
+- save and reassign without mail...
+- RPC => like TRAC
+
 - versions not sorted
 - change password
 - last generell action user and dt
 - timeline / gant / roadmap
+- followed by ticket (parent / ancestors)
+- rss feed
 
 - search sort order
 - search + not, contains, > (datetime)
 - convert uploads docs2img
 - reportman
 
-- RPC => like TRAC
 - import from TRAC
 
 - wiki integration
