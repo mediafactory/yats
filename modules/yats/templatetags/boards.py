@@ -6,7 +6,10 @@ register = template.Library()
 class board_list(template.Node):
     def render(self, context):
         user = context.get('request').user
-        context['boards'] = boards.objects.filter(c_user=user, active_record=True)
+        if user.is_authenticated():
+            context['boards'] = boards.objects.filter(c_user=user, active_record=True)
+        else:
+            context['boards'] = []
         return ''
     
 def do_board_list(parser, token):
