@@ -148,6 +148,8 @@ class tickets(base):
     resolution = models.ForeignKey(ticket_resolution, null=True)
     closed = models.BooleanField(default=False)
     state = models.ForeignKey(ticket_flow, null=True, blank=True, default=get_flow_start)
+    close_date = models.DateField(null=True)
+    last_action_date = models.DateField(null=True)
     
 class tickets_participants(models.Model):
     ticket = models.ForeignKey(tickets)
