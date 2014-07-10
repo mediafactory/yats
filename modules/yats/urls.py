@@ -37,7 +37,7 @@ urlpatterns = patterns('',
         name='workflow'),
 
    # boards
-   url(r'^board/(?P<name>\w+)/$',
+   url(r'^board/(?P<name>[\w|\W]+)/$',
         view=board,
         name='board'),
 

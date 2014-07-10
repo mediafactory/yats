@@ -228,3 +228,4 @@ class AddToBordForm(forms.Form):
     method = forms.CharField(widget=forms.HiddenInput(), initial='add')
     board = forms.ModelChoiceField(queryset=boards.objects.filter(active_record=True), label=_('board'), empty_label=None)
     column = forms.CharField(label=_('column'))
+    limit = forms.CharField(label=_('limit'), required=False)

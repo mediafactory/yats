@@ -297,6 +297,7 @@ def table(request, **kwargs):
         tic_lines = paginator.page(paginator.num_pages)
         
     board_form = AddToBordForm()
+    board_form.fields['board'].queryset = board_form.fields['board'].queryset.filter(c_user=request.user) 
 
     return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption, 'board_form': board_form}, RequestContext(request))
 

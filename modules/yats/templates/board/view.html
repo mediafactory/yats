@@ -9,18 +9,20 @@
 
 {% block content %}
 
+    <h2>{{ board.name }} {% trans "board" %}</h2>
+    
     <div class="container-fluid">
         <div id="sortableKanbanBoards" class="row">
 
-            {% for state, tickets in columns.items %}<div class="panel panel-primary kanban-col">
+            {% for column in columns %}<div class="panel panel-primary kanban-col">
                 <div class="panel-heading">
-                    <a href="javascript: delColumn('{{ state }}')"><i class="icon-trash icon-white"></i></a>&nbsp;&nbsp;{{ state }}
+                    <a href="javascript: delColumn('{{ column.column }}')"><i class="icon-trash icon-white"></i></a>&nbsp;&nbsp;{{ column.column }}
                     <i class="fa fa-2x fa-plus-circle pull-right"></i>
                 </div>
                 <div class="panel-body">
-                    <div id="{{ state }}" class="kanban-centered">
+                    <div id="{{ column.column }}" class="kanban-centered">
                         
-                        {% for ticket in tickets %}<article class="kanban-entry grab" id="item1">
+                        {% for ticket in column.query %}<article class="kanban-entry grab" id="item1">
                             <div class="kanban-entry-inner">
                                 <div class="kanban-label">
                                     <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> <span>{{ ticket.caption }}</span></h2>
@@ -54,7 +56,7 @@
     <script>
     	function delColumn(col) {
     		if (confirm('{% trans "Do you really want to delete this column?" %}') )
-                window.location.href = '/board/{{ board.name }}/?method=del&column=' + col;
+                window.location.href = '/board/{{ board.name }}/?method=del&column=' + encodeURIComponent(col);
     	}
     </script>
 {% endblock %}
