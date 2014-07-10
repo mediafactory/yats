@@ -130,7 +130,7 @@ class TicketsForm(forms.ModelForm):
 
     class Meta:
         model = mod_cls
-        exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed']
+        exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed', 'close_date', 'last_action_date']
         
 class SearchForm(forms.ModelForm):
     required_css_class = 'do_not_require'
@@ -224,8 +224,31 @@ class TicketReassignForm(forms.Form):
     state = forms.ModelChoiceField(queryset=ticket_flow.objects.all(), label=_('next'), empty_label=None)
     reassign_comment = forms.CharField(widget=forms.Textarea(), label=_('comment'))
 
+ORDER_BY_CHOICES = (
+    ('id', _('ticket number')),
+    ('close_date', _('closing date'))
+)
+
+ORDER_DIR_CHOICES = (
+    ('', _('ascending')),
+    ('-', _('descending'))
+)
+
+POST_FILTER_CHOICES = (
+    (0, '-------------'),
+    (1, _('days since closed')),
+    (2, _('days since created')),
+    (3, _('days since last changed')),
+    (4, _('days since last action')),
+)
+
 class AddToBordForm(forms.Form):
     method = forms.CharField(widget=forms.HiddenInput(), initial='add')
     board = forms.ModelChoiceField(queryset=boards.objects.filter(active_record=True), label=_('board'), empty_label=None)
     column = forms.CharField(label=_('column'))
-    limit = forms.CharField(label=_('limit'), required=False)
+    limit = forms.IntegerField(label=_('limit'), required=False)
+    extra_filter = forms.ChoiceField(choices=POST_FILTER_CHOICES, label=_('extra filter'), required=False)
+    days = forms.IntegerField(label=_('days'), required=False)
+    order_by = forms.ChoiceField(choices=ORDER_BY_CHOICES, label=_('order by'))
+    order_dir = forms.ChoiceField(choices=ORDER_DIR_CHOICES, label=_('order direction'), required=False)
+    
