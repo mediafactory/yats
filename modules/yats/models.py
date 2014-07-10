@@ -174,3 +174,10 @@ class tickets_history(base):
     old = models.TextField()
     new = models.TextField()
     action = models.SmallIntegerField(default=0) # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 4 = ticket changed, 5 = file added, 6 = comment added, 7 = reassign
+
+class boards(base):
+    name = models.CharField(max_length=255)
+    columns = models.TextField()
+
+    def __unicode__(self):
+        return self.name

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n %}
+
+{% block extra_head %}
+<script src="{{ STATIC_URL }}board.js"></script>
+<link rel="stylesheet" href="{{ STATIC_URL }}board.css">
+{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div id="sortableKanbanBoards" class="row">
+
+            {% for state, tickets in columns.items %}<div class="panel panel-primary kanban-col">
+                <div class="panel-heading">
+                    <a href="javascript: delColumn('{{ state }}')"><i class="icon-trash icon-white"></i></a>&nbsp;&nbsp;{{ state }}
+                    <i class="fa fa-2x fa-plus-circle pull-right"></i>
+                </div>
+                <div class="panel-body">
+                    <div id="{{ state }}" class="kanban-centered">
+                        
+                        {% for ticket in tickets %}<article class="kanban-entry grab" id="item1">
+                            <div class="kanban-entry-inner">
+                                <div class="kanban-label">
+                                    <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> <span>{{ ticket.caption }}</span></h2>
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>{% endfor %}
+
+        </div>
+    </div>
+
+
+    <!-- Static Modal -->
+    <div class="modal modal-static fade" id="processing-modal" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="text-center">
+                        <i class="fa fa-refresh fa-5x fa-spin"></i>
+                        <h4>Processing...</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    	function delColumn(col) {
+    		if (confirm('{% trans "Do you really want to delete this column?" %}') )
+                window.location.href = '/board/{{ board.name }}/?method=del&column=' + col;
+    	}
+    </script>
+{% endblock %}

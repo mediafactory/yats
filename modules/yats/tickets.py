@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*- 
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.http.response import HttpResponseRedirect, StreamingHttpResponse,\
-    HttpResponse
+from django.http.response import HttpResponseRedirect, StreamingHttpResponse, HttpResponse
 from django.db.models import get_model
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -11,7 +10,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
-from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm
+from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs
 import os
@@ -296,8 +295,10 @@ def table(request, **kwargs):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         tic_lines = paginator.page(paginator.num_pages)
+        
+    board_form = AddToBordForm()
 
-    return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption}, RequestContext(request))
+    return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption, 'board_form': board_form}, RequestContext(request))
 
 def search(request):
     searchable_fields = settings.TICKET_SEARCH_FIELDS

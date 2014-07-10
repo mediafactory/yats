@@ -7,7 +7,7 @@ from django.forms.models import construct_instance
 from bootstrap_toolkit.widgets import BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
-from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges
+from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards
 
 mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
 mod = importlib.import_module(mod_path)
@@ -223,3 +223,8 @@ class TicketReassignForm(forms.Form):
     assigned = forms.ModelChoiceField(queryset=User.objects.filter(is_active=True), label=_('assigned'))
     state = forms.ModelChoiceField(queryset=ticket_flow.objects.all(), label=_('next'), empty_label=None)
     reassign_comment = forms.CharField(widget=forms.Textarea(), label=_('comment'))
+
+class AddToBordForm(forms.Form):
+    method = forms.CharField(widget=forms.HiddenInput(), initial='add')
+    board = forms.ModelChoiceField(queryset=boards.objects.filter(active_record=True), label=_('board'), empty_label=None)
+    column = forms.CharField(label=_('column'))
