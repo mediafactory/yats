@@ -2,6 +2,10 @@
 
 {% load bootstrap_toolkit i18n %}
 
+{% block title %}
+    {{ board.name }} {% trans "board" %}
+{% endblock %}
+
 {% block extra_head %}
 <script src="{{ STATIC_URL }}board.js"></script>
 <link rel="stylesheet" href="{{ STATIC_URL }}board.css">
