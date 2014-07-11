@@ -104,13 +104,14 @@ class TicketsForm(forms.ModelForm):
                     del self.fields[str(field)]
             
         # disallow non state
-        self.fields['state'].empty_label = None
+        if 'state' in self.fields:
+            self.fields['state'].empty_label = None
         
-        # only allow possible states
-        if not self.instance.pk is None and not self.view_only:
-            flows = list(ticket_flow_edges.objects.select_related('next').filter(now=self.instance.state).exclude(next__type=2).values_list('next', flat=True))
-            flows.append(self.instance.state_id)
-            self.fields['state'].queryset = self.fields['state'].queryset.filter(id__in=flows)
+            # only allow possible states
+            if not self.instance.pk is None and not self.view_only:
+                flows = list(ticket_flow_edges.objects.select_related('next').filter(now=self.instance.state).exclude(next__type=2).values_list('next', flat=True))
+                flows.append(self.instance.state_id)
+                self.fields['state'].queryset = self.fields['state'].queryset.filter(id__in=flows)
                     
     def save(self, commit=True):
         """
