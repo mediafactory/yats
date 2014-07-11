@@ -243,6 +243,7 @@ img {
                 -webkit-border-radius: 3px;
                 -moz-border-radius: 3px;
                 border-radius: 3px;
+                font-weight: 500;
             }
 
                 /*.kanban-centered .kanban-entry .kanban-entry-inner .kanban-label:after {
@@ -275,10 +276,6 @@ img {
                     font-size: 16px;
                     margin-bottom: 10px;
                 }
-
-                    .kanban-centered .kanban-entry .kanban-entry-inner .kanban-label h2 a {
-                        color: #303641;
-                    }
 
                     .kanban-centered .kanban-entry .kanban-entry-inner .kanban-label h2 span {
                         -webkit-opacity: .6;
@@ -375,4 +372,8 @@ div.panel-body {
 .container {
 	margin-left: 20px;
 	margin-right: 20px;
+}
+
+h2 {
+    font-weight: 500;	
 }
