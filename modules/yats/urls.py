@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*- 
 from django.conf.urls import patterns, url
-from yats.views import root, info, board
+from yats.views import root, info, show_board, board_by_id
 from yats.tickets import new, action, table, search, reports, workflow
 
 urlpatterns = patterns('',
@@ -37,8 +37,12 @@ urlpatterns = patterns('',
         name='workflow'),
 
    # boards
+   url(r'^board/(?P<id>\d+)/$',
+        view=board_by_id,
+        name='board_by_id'),
+
    url(r'^board/(?P<name>[\w|\W]+)/$',
-        view=board,
+        view=show_board,
         name='board'),
 
    # info

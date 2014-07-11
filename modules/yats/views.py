@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from yats import get_version, get_python_version
 from yats.tickets import table
-from yats.shortcuts import get_ticket_model
+from yats.shortcuts import get_ticket_model, add_breadcrumbs
 from yats.models import boards
 from yats.forms import AddToBordForm
 
@@ -28,7 +28,7 @@ def info(request):
 
     return render_to_response('info.html', {'hostname': gethostname(), 'version': get_version(), 'date': datetime.datetime.now(), 'django': get_django_version(), 'python': get_python_version()}, RequestContext(request))
 
-def board(request, name):
+def show_board(request, name):
     # http://bootsnipp.com/snippets/featured/kanban-board
     
     """
@@ -121,4 +121,9 @@ def board(request, name):
             if column['extra_filter'] == '4': # days since last action
                 column['query'] = column['query'].filter(last_action_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
         
+    add_breadcrumbs(request, board.pk, '$')
     return render_to_response('board/view.html', {'columns': columns, 'board': board}, RequestContext(request))
+
+def board_by_id(request, id):
+    board = boards.objects.get(pk=id, c_user=request.user)
+    return show_board(request, board.name)
