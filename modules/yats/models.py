@@ -103,6 +103,10 @@ class ticket_type(base):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        verbose_name = _('ticket type')
+        verbose_name_plural = _(u'ticket types')
+
 class ticket_priority(base):
     name = models.CharField(max_length=255)
     color = models.CharField(max_length=255, default='transparent')
