@@ -1,6 +1,5 @@
 - del boards
 - csv export
-- schiwago.yats + billing_estimated_time + billing_time_taken + billing_type (service, developement) => south
 - customers are allowed to close tickets???
 - save and reassign without mail...
 - RPC => like TRAC
