@@ -28,7 +28,7 @@ KEY FEATURES
 - searchable fields configurable
 - searches saveable as reports
 - ticket history
-- ticket references
+- ticket references (including back references)
 - complex workflows
 - multiple kanban boards with columns saved from searches
 - file attachments (optionally virus scanned)
@@ -46,7 +46,6 @@ rpc4django
 diff-match-patch  
 http://nodebox.net/code/index.php/Graph#loading_the_library
 httplib2 (if using tags from github)    
-django-dashing (not yet used)  
 django-wiki (not yet used)  
 
 should need:  
