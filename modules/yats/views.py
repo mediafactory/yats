@@ -107,7 +107,7 @@ def show_board(request, name):
             return HttpResponseRedirect('/board/%s/' % urlquote_plus(name))
             
     for column in columns:
-        column['query'] = get_ticket_model().objects.filter(**column['query']).order_by('%s%s' % (column.get('order_dir', ''), column.get('order_by', 'id')))
+        column['query'] = get_ticket_model().objects.select_related('priority').filter(**column['query']).order_by('%s%s' % (column.get('order_dir', ''), column.get('order_by', 'id')))
         if column['limit']:
             column['query'] = column['query'][:column['limit']]
         if 'extra_filter' in column and 'days' in column and column['extra_filter'] and column['days']:

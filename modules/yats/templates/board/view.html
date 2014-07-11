@@ -28,7 +28,7 @@
                         
                         {% for ticket in column.query %}<article class="kanban-entry grab" id="item1">
                             <div class="kanban-entry-inner">
-                                <div class="kanban-label">
+                                <div class="kanban-label"{% if ticket.priority.color %} style="background-color:{{ ticket.priority.color }};"{% endif %}>
                                     <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> <span>{{ ticket.caption }}</span></h2>
                                 </div>
                             </div>

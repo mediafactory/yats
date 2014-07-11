@@ -105,6 +105,7 @@ class ticket_type(base):
 
 class ticket_priority(base):
     name = models.CharField(max_length=255)
+    color = models.CharField(max_length=255, default='transparent')
     
     def __unicode__(self):
         return self.name
