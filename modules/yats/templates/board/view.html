@@ -29,7 +29,8 @@
                         {% for ticket in column.query %}<article class="kanban-entry grab" id="item1">
                             <div class="kanban-entry-inner">
                                 <div class="kanban-label"{% if ticket.priority.color %} style="background-color:{{ ticket.priority.color }};"{% endif %}>
-                                    <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> <span>{{ ticket.caption }}</span></h2>
+                                    <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> {{ ticket.caption }}</h2>
+                                    {% if ticket.deadline and not ticket.closed %}<small class="text-muted"{% if ticket.is_late == 2 %} style="color: red;"{% endif %}{% if ticket.is_late == 1 %} style="color: orange;"{% endif %}><i class="icon-time"></i> {{ ticket.deadline }}</small>{% endif %}
                                 </div>
                             </div>
                         </article>

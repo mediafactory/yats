@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from yats.models import tickets, organisation
 from yats.models import base
 
+import datetime
 import base64
 import httplib2
 try:
@@ -79,9 +80,16 @@ class test(tickets):
     billing_needed = models.NullBooleanField(default=True)
     billing_done = models.NullBooleanField(default=None)
     billing_reason = models.TextField(null=True, blank=True)
-    #billing_estimated_time = models.IntegerField(null=True, blank=True)
-    #billing_time_taken = models.IntegerField(null=True, blank=True)
+    #billing_estimated_time = models.FloatField(null=True, blank=True)
+    #billing_time_taken = models.FloatField(null=True, blank=True)
     #billing_type = models.CharField(max_length=255, choices=BILLING_TYPE_CHOICES, null=True, blank=True)
     solution = models.TextField(null=True, blank=True)
     fixed_in_version = models.CharField(max_length=255, choices=lazy(getGibthubTags, tuple)(), blank=True)
     deadline = models.DateField(null=True, blank=True)
+    
+    def is_late(self):
+        if self.deadline < datetime.date.today():
+            return 2
+        if self.deadline < datetime.date.today() - datetime.timedelta(days, 7):
+            return 1
+        return 0
