@@ -1,3 +1,5 @@
+- move deadline to tickets => change to datetime...? + func - datetime
+- app name prefix in settings
 - del boards
 - csv export
 - customers are allowed to close tickets???
