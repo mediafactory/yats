@@ -17,8 +17,8 @@ Password: qwertz
 
 WHY JUST ANOTHER?
 -----
-We used to use TRAC for a long time and were quiet happy. But every time, we wanted to customize it, it too us a long time to rethink, the way, trac was developed or find a plugin.  
-Today all are web projects are build on top of django. So it is much easier to change things. And we are faster in adding new feateures. We think, we kept it simple in the backend, so it is still easy to modifie for people not familiar with the source (as long as you know django).
+We used to use TRAC for a long time and were quiet happy. But every time, we wanted to customize it, it took us a long to rethink the way, trac was developed or find a plugin working with our version.  
+Today all our web projects are build on top of django. So it is much easier to change YATS and we are faster in adding new feateures. We think, we kept it simple in the backend, so it is still easy to modifie for people not familiar with the YATS source (as long as you know django).
 
 KEY FEATURES
 -----
