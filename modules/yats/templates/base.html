@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load bootstrap_toolkit i18n %}
+{% load bootstrap_toolkit i18n boards %}
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -8,9 +8,9 @@
     <meta name="author" content="media factory">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link href="{{ STATIC_URL }}base.css" type="text/css" rel="stylesheet" media="all">
     {% bootstrap_stylesheet_tag %}
     {% bootstrap_stylesheet_tag "responsive" %}
+    <link href="{{ STATIC_URL }}base.css" type="text/css" rel="stylesheet" media="all">
     <!--[if lt IE 9]>
     <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -24,21 +24,79 @@
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner ">
         <div class="container pull-left">
-            <a class="brand " id="brand" href="/">YATS:</a>
+            <a class="brand " id="brand" href="/">&nbsp;&nbsp;&nbsp;YATS:</a>
             <ul class="nav">
-                <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>        
+            	{% if urlpath %}
+            	<li class="dropdown">
+	            	<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Wiki" %}<b class="caret"></b></a>
+	            	<ul class="dropdown-menu">
+				    {% for child in children_slice %}
+				        <li>
+				          <a href="{% url 'wiki:get' path=child.path %}">
+				            {{ child.article.current_revision.title }}
+				          </a>
+				        </li>
+				        {% empty %}
+				        <li><a href="#"><em>{% trans "No sub-articles" %}</em></a></li>
+				      {% endfor %}
+				      {% if children_slice_more %}
+				      <li><a href="#"><em>{% trans "...and more" %}</em></a></li>
+				      {% endif %}
+                      <li>
+                        <a href="{% url 'wiki:dir' path=urlpath.path %}">{% trans "Browse articles in this level" %} &raquo;</a>
+                      </li>
+				      <li>
+				        {% if urlpath.parent %}
+				        <a href="{% url 'wiki:create' path=urlpath.parent.path %}" style="padding: 7px;">
+				          <span class="icon-arrow-right"></span>
+				          {% trans "New article next to" %} {{ article.current_revision.title }}
+				        </a>
+				        {% endif %}
+				        <a href="{% url 'wiki:create' path=urlpath.path %}" style="padding: 7px;">
+				          <span class="icon-arrow-down"></span>
+				          {% trans "New article below" %} {{ article.current_revision.title }}
+				        </a>
+				      </li>
+	            		
+	            	</ul>
+	            </li>
+	            {% else %}
+	            <li><a href="/wiki/" class="">{% trans "Wiki" %}</a></li>
+            	{% endif %}
                 <li><a href="/reports/" class="">{% trans "Reports" %}</a></li>        
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Boards" %}<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    	<li><a data-toggle="modal" href="#newBoardDlg">{% trans "add new board" %}</a></li>
+                    {% board_list %}
+                    {% for board in boards %}
+                        <li><a href="/board/{{ board.name|urlencode }}/">{{ board.name }}</a></li>
+                    {% endfor %}
+                    </ul>
+                </li>
+                <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>        
                 <li><a href="/tickets/new/" class="">{% trans "New" %}</a></li>        
+                <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>        
                 <li><a href="/info/" class="">{% trans "Info" %}</a></li>        
             </ul>
         </div>
-        <p class="navbar-text pull-right">{% trans "logged in as" %}: {{ request.user }}@{{ request.organisation.name }}&nbsp;&nbsp;</p>
+        <p class="navbar-text pull-right">{% trans "logged in as" %}: <a data-toggle="modal" href="#pwdDlg">{{ request.user }}@{{ request.organisation.name }}</a>&nbsp;&nbsp;</p>
     </div>
 </div>
 
 <ul class="breadcrumb">
-    {% for bread in request.session.breadcrumbs %}<li><a href="/tickets/view/{{ bread }}/">#{{ bread }}</a> <span class="divider">/</span></li>
+    {% for bread in request.session.breadcrumbs %}<li>
+    	{% if bread.1 == '#' %}<a href="/tickets/view/{{ bread.0 }}/">#{{ bread.0 }}</a>{% endif %}
+    	{% if bread.1 == '@' %}<a href="/reports/?report={{ bread.0 }}">@{{ bread.0 }}</a>{% endif %}
+    	{% if bread.1 == '$' %}<a href="/board/{{ bread.0|urlencode }}/">${{ bread.0 }}</a>{% endif %}
+    	{% if not forloop.last %}<span class="divider">/</span>{% endif %}
+    </li>
     {% endfor %}
+    
+	{% for ancestor in urlpath.cached_ancestors %}
+	<li><a href="{% url 'wiki:get' path=ancestor.path %}">{{ ancestor.article.current_revision.title|truncatechars:25 }}</a></li>
+	{% endfor %}
+	<li class="active">{{ article.current_revision.title|truncatechars:25 }}</li>
 </ul>
 
 <div class="container">
@@ -57,12 +115,56 @@
     	</div>
         <div class="span6" style="text-align:right">
             <p>
-                &copy; <a href="http://www.mediafactory.de">media factory</a> 2012 - 2014
+                &copy; 2014 <a href="http://www.mediafactory.de">media factory</a>
             </p>
         </div>
     </footer>
 
 </div> <!-- container -->
 
+<div id="pwdDlg" class="modal hide fade">
+    
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>{% trans "change password" %}</h3>
+    </div>
+    
+    <form class="form-{{ layout }}" action="" method="post">
+    <div class="modal-body">
+    	Password Dialog
+    </div>
+    
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
+        <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+    </div>
+    </form>
+</div>
+
+<div id="newBoardDlg" class="modal hide fade">
+    
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>{% trans "new board" %}</h3>
+    </div>
+    
+    <form class="form-{{ layout }}" action="/board/to_add/" method="post">
+    <div class="modal-body">
+		<div class="control-group">
+		    <label class="control-label" for="id_deadline">{% trans "board name" %}</label>
+		    <div class="controls">
+		        <div class="input-append boardname">
+		            <input id="id_boardname" name="boardname" type="text" />
+		        </div>
+		    </div>
+		</div>   
+    </div>
+    
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
+        <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+    </div>
+    </form>
+</div>
 </body>
 </html>
