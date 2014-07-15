@@ -90,6 +90,6 @@ class test(tickets):
     def is_late(self):
         if self.deadline < datetime.date.today():
             return 2
-        if self.deadline < datetime.date.today() - datetime.timedelta(days, 7):
+        if self.deadline < datetime.date.today() + datetime.timedelta(days=7):
             return 1
         return 0
