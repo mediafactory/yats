@@ -182,6 +182,9 @@ def action(request, mode, ticket):
                     check_references(request, com)
                     
                     touch_ticket(request.user, ticket)
+                    if request.POST['assigned']:
+                        touch_ticket(request.POST['assigned'], ticket)
+                    
                     history_data = {
                                     'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state)},
                                     'new': {'comment': request.POST.get('reassign_comment', ''), 'assigned': str(User.objects.get(pk=request.POST['assigned'])), 'state': str(tic.state)}
