@@ -89,8 +89,13 @@ def get_ticket_url(request, ticket_id):
     else:
         return 'http://%s/tickets/view/%s/' % (request.get_host(), ticket_id)
 
+def modulePathToModuleName(mod_path):
+    path = mod_path.split('.')
+    path.pop()
+    return path.pop()
+    
 def getModelValue(mod_path, cls_name, value):
-    mod_path = mod_path.split('.').pop(0)
+    mod_path = modulePathToModuleName(mod_path)
     try:
         return unicode(get_model(mod_path, cls_name).objects.get(pk=value))
     except:
