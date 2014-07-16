@@ -46,7 +46,7 @@ needs:
 pil or pillow  
 rpc4django  
 diff-match-patch  
-http://nodebox.net/code/index.php/Graph
+http://nodebox.net/code/index.php/Graph  
 httplib2 (if using tags from github)    
 django-wiki (not yet used)  
 
