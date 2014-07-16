@@ -1,7 +1,8 @@
 YATS
 ====
 
-yet another (trouble) ticketing system base on Python Django
+yet another (trouble) ticketing system base on Python Django  
+&copy; media factory, Lübeck, Germany http://www.mediafactory.de
 
 DEMO
 -----
