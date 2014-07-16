@@ -2,6 +2,7 @@
 from django.conf import settings 
 from sys import version_info
 from south.signals import post_migrate
+from yats.api import *
 
 def update_permissions_after_migration(app,**kwargs):
     """
