@@ -419,7 +419,6 @@ def workflow(request):
     for node in nodes:
         (x, y) = nodes[node]
         nodes[node] = (x + min_x + offset_x, y + min_y + offset_y)
-    print nodes
 
     max_x = max_x + min_x + (offset_x * 2)
     max_y = max_y + min_y + (offset_y * 2)
