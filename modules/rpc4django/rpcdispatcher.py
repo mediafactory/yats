@@ -260,11 +260,16 @@ class RPCDispatcher(object):
         implements: http://mirrors.talideon.com/articles/multicall.html
         Returns a list of results of functions
         '''
+        from .views import is_xmlrpc_request
         
+        request = kwargs['request']
         result = []
+        
         for call in calls:
-            # TODO: JSONRPC
-            result.append(self.xmlrpcdispatcher._dispatch(call['methodName'], call['params'], **kwargs))
+            if is_xmlrpc_request(request):
+                result.append(self.xmlrpcdispatcher._dispatch(call['methodName'], call['params'], **kwargs))
+            else:
+                result.append(self.jsonrpcdispatcher._dispatch(call['methodName'], call['params'], **kwargs))
             
         return result
 
