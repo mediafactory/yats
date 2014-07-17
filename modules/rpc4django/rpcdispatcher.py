@@ -242,6 +242,7 @@ class RPCDispatcher(object):
         self.xmlrpcdispatcher = XMLRPCDispatcher()
 
         if not restrict_introspection:
+            self.register_method(self.system_multicall)
             self.register_method(self.system_listmethods)
             self.register_method(self.system_methodhelp)
             self.register_method(self.system_methodsignature)
@@ -252,6 +253,20 @@ class RPCDispatcher(object):
             self.register_method(self.system_logout)
 
         self.register_rpcmethods(apps)
+
+    @rpcmethod(name='system.multicall', signature=['array', 'array'])
+    def system_multicall(self, calls, **kwargs):
+        '''
+        implements: http://mirrors.talideon.com/articles/multicall.html
+        Returns a list of results of functions
+        '''
+        
+        result = []
+        for call in calls:
+            # TODO: JSONRPC
+            result.append(self.xmlrpcdispatcher._dispatch(call['methodName'], call['params'], **kwargs))
+            
+        return result
 
     @rpcmethod(name='system.describe', signature=['struct'])
     def system_describe(self):
