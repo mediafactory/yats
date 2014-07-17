@@ -91,7 +91,8 @@ def get_ticket_url(request, ticket_id):
 
 def modulePathToModuleName(mod_path):
     path = mod_path.split('.')
-    path.pop()
+    if len(path) > 1:
+        path.pop()
     return path.pop()
     
 def getModelValue(mod_path, cls_name, value):
