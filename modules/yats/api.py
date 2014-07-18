@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+from django.utils.translation import ugettext as _
+from django.contrib.auth.models import User
 from django.db.models import get_model
 from django.conf import settings
 from django.http import QueryDict
-from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_changes, mail_ticket
+from yats.models import tickets_comments
+from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_changes, mail_ticket, check_references
 from yats.forms import TicketsForm
 from rpc4django import rpcmethod
 #from xmlrpclib import Fault
@@ -219,7 +222,16 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
             
     touch_ticket(request.user, ticket.pk)
         
+    if comment:
+        com = tickets_comments()
+        com.comment = _('ticket changed by %(user)s\n\n%(comment)s') % {'user': request.user, 'comment': comment}
+        com.ticket = ticket
+        com.action = 4
+        com.save(user=request.user)
+
+        check_references(request, com)
+
     if notify:
-        mail_ticket(request, ticket.pk, form)
+        mail_ticket(request, ticket.pk, form, is_api=True)
 
     return get(id, **kwargs)
