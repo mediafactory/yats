@@ -154,17 +154,19 @@ def mail_ticket(request, ticket_id, form, **kwargs):
 
     if len(int_rcpt) > 0:
         try:
-            new['created_by'] = tic.c_user
+            new['author'] = tic.c_user
             send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, True), get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, int_rcpt, False)
         except:
-            messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
+            if not kwargs.get('is_api', False):
+                messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
             
     if len(pub_rcpt) > 0 and has_public_fields(new):
         try:
-            new['changed_by'] = tic.u_user
+            new['author'] = tic.u_user
             send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, False), get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, pub_rcpt, False)
         except:
-            messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
+            if not kwargs.get('is_api', False):
+                messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
         
 def mail_comment(request, comment_id):
     com = tickets_comments.objects.get(pk=comment_id)
