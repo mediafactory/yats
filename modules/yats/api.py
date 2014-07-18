@@ -7,6 +7,7 @@ from yats.forms import TicketsForm
 from rpc4django import rpcmethod
 #from xmlrpclib import Fault
 import datetime
+import re
 
 """
     http://code.google.com/p/tracker-for-trac/source/browse/trunk/%40source/trac_main.pas
@@ -34,9 +35,45 @@ def fieldNameToTracName(field):
 def TracNameTofieldName(field):
     return field
     
+def search_terms(q):
+    """
+    Break apart a search query into its various search terms.  Terms are
+    grouped implicitly by word boundary, or explicitly by (single or double)
+    quotes.
+    """
+    results = {}
+    elements = q.split('&')
+    for element in elements:
+        if '<=' in element:
+            parts = element.split('<=')
+            results['%s__lte' % parts[0]] = parts[1] 
+        elif '=>' in element:
+            parts = element.split('=>')
+            results['%s__gte' % parts[0]] = parts[1] 
+        elif '$=' in element:
+            parts = element.split('$=')
+            results['%s__iendswith' % parts[0]] = parts[1] 
+        elif '^=' in element:
+            parts = element.split('^=')
+            results['%s__istartswith' % parts[0]] = parts[1] 
+        elif '~=' in element:
+            parts = element.split('~=')
+            results['%s__icontains' % parts[0]] = parts[1] 
+        elif '>' in element:
+            parts = element.split('>')
+            results['%s__gt' % parts[0]] = parts[1] 
+        elif '<' in element:
+            parts = element.split('<')
+            results['%s__lt' % parts[0]] = parts[1] 
+        elif '=' in element:
+            parts = element.split('=')
+            results['%s__iexact' % parts[0]] = parts[1] 
+            
+    return results
+
 @rpcmethod(name='system.getAPIVersion', signature=['array']) 
 def getAPIVersion():
-    return [1,2,3]
+    return [-1,0,1]
 
 @rpcmethod(name='ticket.getTicketFields', signature=['array']) 
 def getTicketFields(**kwargs):
@@ -108,13 +145,17 @@ def getTicketFields(**kwargs):
     return result
 
 @rpcmethod(name='ticket.query', signature=['array'])
-def query(**kwargs):
+def query(*args, **kwargs):
     """
     array ticket.query(string qstr="status!=closed")
     """
     request = kwargs['request']
 
-    ids = get_ticket_model().objects.all().values_list('id', flat=True)
+    tickets = get_ticket_model().objects.all()
+    if len(args) > 0:
+        tickets =  tickets.filter(**search_terms(args[0]))
+    
+    ids = tickets.values_list('id', flat=True)
     return list(ids)
 
 @rpcmethod(name='ticket.get', signature=['array', 'int'])
@@ -125,12 +166,11 @@ def get(id, **kwargs):
     exclude_list = FIELD_EXCLUDE_LIST
     #exclude_list.pop(exclude_list.index('id'))
     
-    """
     request = kwargs['request']
     
     if not request.user.is_staff:
         exclude_list = list(set(exclude_list + settings.TICKET_NON_PUBLIC_FIELDS))
-    """
+
     ticket = get_ticket_model().objects.get(pk=id)
 
     attributes = {}
@@ -149,7 +189,7 @@ def get(id, **kwargs):
             attributes[fieldNameToTracName(field.name)] = unicode(getattr(ticket, field.name))
     return [id, ticket.c_date, ticket.last_action_date, attributes]
 
-@rpcmethod(name='ticket.update', signature=['array', 'int'])
+@rpcmethod(name='ticket.update', signature=['array', 'int', 'string', 'struct', 'bool'])
 def update(id, comment, attributes={}, notify=False, **kwargs):
     """
     array ticket.update(int id, string comment, struct attributes={}, boolean notify=False)
@@ -162,19 +202,19 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
 
     ticket = get_ticket_model().objects.get(pk=id)
     
+    fakePOST = QueryDict('', mutable=True)
+    fakePOST.update(params)
+    
+    form = TicketsForm(fakePOST, instance=ticket, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
+    form.cleaned_data = params
+    form._changed_data = [name for name in params]
+
     for key, value in params.iteritems():
         setattr(ticket, key, value)
         if key == 'assigned':
             touch_ticket(value, ticket.pk)
     ticket.save(user=request.user)
     
-    fakePOST = QueryDict('', mutable=True)
-    fakePOST.update(params)
-    
-    form = TicketsForm(fakePOST, instance=ticket, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
-    form.cleaned_data = params
-    #form.changed_data = params
-
     remember_changes(request, form, ticket)
             
     touch_ticket(request.user, ticket.pk)
