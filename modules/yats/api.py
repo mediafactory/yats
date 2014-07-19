@@ -8,7 +8,7 @@ from yats.models import tickets_comments
 from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_changes, mail_ticket, check_references
 from yats.forms import TicketsForm
 from rpc4django import rpcmethod
-#from xmlrpclib import Fault
+from xmlrpclib import Fault
 import datetime
 import re
 
@@ -19,7 +19,7 @@ import re
 """
 
 APPLICATION_ERROR = -32500
-FIELD_EXCLUDE_LIST = ['id', 'active_record', 'd_user', 'd_date', 'u_user', 'close_date', 'last_action_date', 'tickets_ptr']
+FIELD_EXCLUDE_LIST = ['id', 'active_record', 'd_user', 'd_date', 'u_user', 'close_date', 'last_action_date', 'tickets_ptr', 'closed']
 
 def fieldNameToTracName(field):
     if field == 'c_date':
@@ -32,12 +32,60 @@ def fieldNameToTracName(field):
         return 'owner'
     if field == 'caption':
         return 'summary'
+    if field == 'state':
+        return 'status'
     
     return field
+
+def buildFields(exclude_list):
+    TracFields = []
+    TicketFields = {}
+    tickets = get_ticket_model()
+    t = tickets()
+    for field in t._meta.fields:
+        if field.name in exclude_list:
+            continue
+        
+        if type(field).__name__ == 'ForeignKey':
+            typename = 'select'
+            options = []
+            opts = get_model(modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__).objects.all()
+            for opt in opts:
+                options.append(unicode(opt))
+                
+            TicketFields[field.name] = (modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__)
+            
+        else:
+            # print field.__class__.__name__
+            if field.__class__.__name__ == 'TextField':
+                typename = 'textarea'
+            else:
+                typename = 'text'
+                
+            # TODO: bool and boolnull and choices
+            options = None
+            
+            TicketFields[field.name] = None
+        
+        value = {
+                'name': field.name,
+                'label': fieldNameToTracName(field.name),
+                'type': typename
+               }
+        if options:
+            value['options'] = options
+        TracFields.append(value)
+    return (TracFields, TicketFields)
 
 def TracNameTofieldName(field):
     return field
     
+def add_search_terms(field_defs, parts, compare, results):
+    if field_defs[parts[0]] == None:
+        results['%s%s' % (parts[0], compare)] = parts[1]
+    else:
+        results[parts[0]] = get_model(field_defs[parts[0]][0], field_defs[parts[0]][1]).objects.get(name=parts[1]).pk
+        
 def search_terms(q):
     """
     Break apart a search query into its various search terms.  Terms are
@@ -45,32 +93,33 @@ def search_terms(q):
     quotes.
     """
     results = {}
+    fields = buildFields([])[1]
     elements = q.split('&')
     for element in elements:
         if '<=' in element:
             parts = element.split('<=')
-            results['%s__lte' % parts[0]] = parts[1] 
+            add_search_terms(fields, parts, '__lte', results)
         elif '=>' in element:
             parts = element.split('=>')
-            results['%s__gte' % parts[0]] = parts[1] 
+            add_search_terms(fields, parts, '__gte', results)
         elif '$=' in element:
             parts = element.split('$=')
-            results['%s__iendswith' % parts[0]] = parts[1] 
+            add_search_terms(fields, parts, '__iendswith', results)
         elif '^=' in element:
             parts = element.split('^=')
-            results['%s__istartswith' % parts[0]] = parts[1] 
+            add_search_terms(fields, parts, '__istartswith', results)
         elif '~=' in element:
             parts = element.split('~=')
-            results['%s__icontains' % parts[0]] = parts[1] 
+            add_search_terms(fields, parts, '__icontains', results)
         elif '>' in element:
             parts = element.split('>')
-            results['%s__gt' % parts[0]] = parts[1] 
+            add_search_terms(fields, parts, '__gt', results)
         elif '<' in element:
             parts = element.split('<')
-            results['%s__lt' % parts[0]] = parts[1] 
+            add_search_terms(fields, parts, '__lt', results)
         elif '=' in element:
             parts = element.split('=')
-            results['%s__iexact' % parts[0]] = parts[1] 
+            add_search_terms(fields, parts, '__iexact', results)
             
     return results
 
@@ -106,46 +155,22 @@ def getTicketFields(**kwargs):
                 'type': 'radio',
             },            
         ]
+        
+        cache ticket structur:
+        {
+            'caption': None,
+            'state': (modPath, modName, ),
+            ...
+        }
 
     """
     request = kwargs['request']
-    result = []
+    
     exclude_list = FIELD_EXCLUDE_LIST
     if not request.user.is_staff:
         exclude_list = list(set(exclude_list + settings.TICKET_NON_PUBLIC_FIELDS))
         
-    tickets = get_ticket_model()
-    t = tickets()
-    for field in t._meta.fields:
-        if field.name in exclude_list:
-            continue
-        
-        if type(field).__name__ == 'ForeignKey':
-            typename = 'select'
-            options = []
-            opts = get_model(modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__).objects.all()
-            for opt in opts:
-                options.append(unicode(opt))
-        else:
-            # print field.__class__.__name__
-            if field.__class__.__name__ == 'TextField':
-                typename = 'textarea'
-            else:
-                typename = 'text'
-                
-            # TODO: bool and boolnull and choices
-            options = None
-        
-        value = {
-                'name': field.name,
-                'label': fieldNameToTracName(field.name),
-                'type': typename
-               }
-        if options:
-            value['options'] = options
-        result.append(value)
-
-    return result
+    return buildFields(exclude_list)[0]
 
 @rpcmethod(name='ticket.query', signature=['array'])
 def query(*args, **kwargs):
@@ -156,6 +181,7 @@ def query(*args, **kwargs):
 
     tickets = get_ticket_model().objects.all()
     if len(args) > 0:
+        print search_terms(args[0])
         tickets =  tickets.filter(**search_terms(args[0]))
     
     ids = tickets.values_list('id', flat=True)
@@ -204,6 +230,8 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
         params[TracNameTofieldName(key)] = value
 
     ticket = get_ticket_model().objects.get(pk=id)
+    if ticket.closed:
+        return Fault(_('ticket already closed'))
     
     fakePOST = QueryDict('', mutable=True)
     fakePOST.update(params)
