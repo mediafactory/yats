@@ -172,9 +172,11 @@ def action(request, mode, ticket):
                     tic.assigned_id = request.POST['assigned']
                     tic.state = ticket_flow.objects.get(pk=request.POST['state'])
                     tic.save(user=request.user)
+                    
+                    newUser = User.objects.get(pk=request.POST['assigned'])
             
                     com = tickets_comments()
-                    com.comment = _('ticket reassigned to %(user)s\nstate now: %(state)s\n\n%(comment)s') % {'user': User.objects.get(pk=request.POST['assigned']), 'comment': request.POST.get('reassign_comment', ''), 'state': tic.state}
+                    com.comment = _('ticket reassigned to %(user)s\nstate now: %(state)s\n\n%(comment)s') % {'user': newUser, 'comment': request.POST.get('reassign_comment', ''), 'state': tic.state}
                     com.ticket_id = ticket
                     com.action = 7
                     com.save(user=request.user)
@@ -183,7 +185,7 @@ def action(request, mode, ticket):
                     
                     touch_ticket(request.user, ticket)
                     if request.POST['assigned']:
-                        touch_ticket(request.POST['assigned'], ticket)
+                        touch_ticket(newUser, ticket)
                     
                     history_data = {
                                     'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state)},
