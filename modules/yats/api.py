@@ -56,7 +56,6 @@ def buildFields(exclude_list):
             TicketFields[field.name] = (modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__)
             
         else:
-            # print field.__class__.__name__
             if field.__class__.__name__ == 'TextField':
                 typename = 'textarea'
             else:
@@ -181,7 +180,6 @@ def query(*args, **kwargs):
 
     tickets = get_ticket_model().objects.all()
     if len(args) > 0:
-        print search_terms(args[0])
         tickets =  tickets.filter(**search_terms(args[0]))
     
     ids = tickets.values_list('id', flat=True)
