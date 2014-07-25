@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load bootstrap_toolkit i18n %}
+{% load bootstrap_toolkit i18n boards %}
 
 {% block title %}
     {{ board.name }} {% trans "board" %}
@@ -32,6 +32,7 @@
                                     <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> {{ ticket.caption }}</h2>
                                     {% if ticket.deadline and not ticket.closed %}<small class="text-muted"{% if ticket.is_late == 2 %} style="color: red;"{% endif %}{% if ticket.is_late == 1 %} style="color: orange;"{% endif %}><i class="icon-time"></i> {{ ticket.deadline }}</small>{% endif %}
                                     {% if ticket.assigned %}<small class="text-muted"><i class="icon-user"></i> {{ ticket.assigned }}</small>{% endif %}
+                                    {% if ticket.customer and ticket.billing_estimated_time and ticket.customer.hourly_rate %}<small class="text-muted">€ {{ ticket.customer.hourly_rate|multiply:ticket.billing_estimated_time|floatformat:"0" }}</small>{% endif %}
                                 </div>
                             </div>
                         </article>
