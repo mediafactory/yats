@@ -93,6 +93,7 @@ class base(models.Model):
         
 class organisation(base):
     name = models.CharField(max_length=255)
+    hourly_rate = models.FloatField(null=True)
     
     def __unicode__(self):
         return self.name
