@@ -2,7 +2,7 @@
 *.pyc
 *.mo
 distribution/
-files/
+/files/
 sites/static/
 .settings/
 .project
