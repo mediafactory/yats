@@ -4,28 +4,27 @@ from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import DataMigration
 from django.db import models
-from yats.models import ticket_priority, ticket_resolution, ticket_type
 
 class Migration(DataMigration):
 
     def forwards(self, orm):
         user = User.objects.all()[0]
         
-        ticket_priority(name=_('trivial')).save(user=user)
-        ticket_priority(name=_('minor')).save(user=user)
-        ticket_priority(name=_('major')).save(user=user)
-        ticket_priority(name=_('critical')).save(user=user)
-        ticket_priority(name=_('blocker')).save(user=user)
+        orm.ticket_priority(name=_('trivial'), c_user_id=user.pk, u_user_id=user.pk).save()
+        orm.ticket_priority(name=_('minor'), c_user_id=user.pk, u_user_id=user.pk).save()
+        orm.ticket_priority(name=_('major'), c_user_id=user.pk, u_user_id=user.pk).save()
+        orm.ticket_priority(name=_('critical'), c_user_id=user.pk, u_user_id=user.pk).save()
+        orm.ticket_priority(name=_('blocker'), c_user_id=user.pk, u_user_id=user.pk).save()
         
-        ticket_resolution(name=_('dupplicate')).save(user=user)
-        ticket_resolution(name=_('fixed')).save(user=user)
-        ticket_resolution(name=_('won\'t fix')).save(user=user)
-        ticket_resolution(name=_('invalid')).save(user=user)
+        orm.ticket_resolution(name=_('dupplicate'), c_user_id=user.pk, u_user_id=user.pk).save()
+        orm.ticket_resolution(name=_('fixed'), c_user_id=user.pk, u_user_id=user.pk).save()
+        orm.ticket_resolution(name=_('won\'t fix'), c_user_id=user.pk, u_user_id=user.pk).save()
+        orm.ticket_resolution(name=_('invalid'), c_user_id=user.pk, u_user_id=user.pk).save()
         
-        ticket_type(name=_('undefined')).save(user=user)
-        ticket_type(name=_('bug')).save(user=user)
-        ticket_type(name=_('feature request')).save(user=user)
-        ticket_type(name=_('enhancement')).save(user=user)
+        orm.ticket_type(name=_('undefined'), c_user_id=user.pk, u_user_id=user.pk).save()
+        orm.ticket_type(name=_('bug'), c_user_id=user.pk, u_user_id=user.pk).save()
+        orm.ticket_type(name=_('feature request'), c_user_id=user.pk, u_user_id=user.pk).save()
+        orm.ticket_type(name=_('enhancement'), c_user_id=user.pk, u_user_id=user.pk).save()
 
     def backwards(self, orm):
         "Write your backwards methods here."
