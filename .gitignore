@@ -1,13 +1,13 @@
 *.log
 *.pyc
 *.mo
-distribution/
+/distribution/
 /files/
-sites/static/
+/sites/static/
 .settings/
 .project
 .pydevproject
 .DS_Store
 *.pot
-sites/web/wiki/
-external/
+/sites/web/wiki/
+/external/
