@@ -16,3 +16,8 @@ def do_board_list(parser, token):
     return board_list()
 
 register.tag('board_list', do_board_list)
+
+def multiply(value, arg):
+    return value*arg
+
+register.filter('multiply', multiply)

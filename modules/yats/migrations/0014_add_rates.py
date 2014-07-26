@@ -1,33 +1,23 @@
 # -*- coding: utf-8 -*-
-from django.contrib.auth.models import User
 from south.utils import datetime_utils as datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-class Migration(DataMigration):
+
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        user = User.objects.all()[0]
-        
-        orm.ticket_priority(name=_('trivial'), c_user_id=user.pk, u_user_id=user.pk).save()
-        orm.ticket_priority(name=_('minor'), c_user_id=user.pk, u_user_id=user.pk).save()
-        orm.ticket_priority(name=_('major'), c_user_id=user.pk, u_user_id=user.pk).save()
-        orm.ticket_priority(name=_('critical'), c_user_id=user.pk, u_user_id=user.pk).save()
-        orm.ticket_priority(name=_('blocker'), c_user_id=user.pk, u_user_id=user.pk).save()
-        
-        orm.ticket_resolution(name=_('dupplicate'), c_user_id=user.pk, u_user_id=user.pk).save()
-        orm.ticket_resolution(name=_('fixed'), c_user_id=user.pk, u_user_id=user.pk).save()
-        orm.ticket_resolution(name=_('won\'t fix'), c_user_id=user.pk, u_user_id=user.pk).save()
-        orm.ticket_resolution(name=_('invalid'), c_user_id=user.pk, u_user_id=user.pk).save()
-        
-        orm.ticket_type(name=_('undefined'), c_user_id=user.pk, u_user_id=user.pk).save()
-        orm.ticket_type(name=_('bug'), c_user_id=user.pk, u_user_id=user.pk).save()
-        orm.ticket_type(name=_('feature request'), c_user_id=user.pk, u_user_id=user.pk).save()
-        orm.ticket_type(name=_('enhancement'), c_user_id=user.pk, u_user_id=user.pk).save()
+        # Adding field 'organisation.hourly_rate'
+        db.add_column(u'yats_organisation', 'hourly_rate',
+                      self.gf('django.db.models.fields.FloatField')(null=True),
+                      keep_default=False)
+
 
     def backwards(self, orm):
-        "Write your backwards methods here."
+        # Deleting field 'organisation.hourly_rate'
+        db.delete_column(u'yats_organisation', 'hourly_rate')
+
 
     models = {
         u'auth.group': {
@@ -66,6 +56,19 @@ class Migration(DataMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        u'yats.boards': {
+            'Meta': {'object_name': 'boards'},
+            'active_record': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'c_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'c_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"}),
+            'columns': ('django.db.models.fields.TextField', [], {}),
+            'd_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'd_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'u_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'u_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
+        },
         u'yats.organisation': {
             'Meta': {'object_name': 'organisation'},
             'active_record': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
@@ -73,8 +76,35 @@ class Migration(DataMigration):
             'c_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"}),
             'd_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'd_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"}),
+            'hourly_rate': ('django.db.models.fields.FloatField', [], {'null': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'u_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'u_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
+        },
+        u'yats.ticket_flow': {
+            'Meta': {'object_name': 'ticket_flow'},
+            'active_record': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'c_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'c_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"}),
+            'd_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'd_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'type': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
+            'u_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'u_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
+        },
+        u'yats.ticket_flow_edges': {
+            'Meta': {'object_name': 'ticket_flow_edges'},
+            'active_record': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'c_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'c_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"}),
+            'd_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'd_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'next': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'next'", 'to': u"orm['yats.ticket_flow']"}),
+            'now': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'now'", 'to': u"orm['yats.ticket_flow']"}),
             'u_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'u_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
         },
@@ -83,6 +113,7 @@ class Migration(DataMigration):
             'active_record': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'c_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'c_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"}),
+            'color': ('django.db.models.fields.CharField', [], {'default': "'transparent'", 'max_length': '255'}),
             'd_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'd_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -121,19 +152,24 @@ class Migration(DataMigration):
             'c_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'c_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"}),
             'caption': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'close_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'closed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'customer': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['yats.organisation']"}),
             'd_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'd_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"}),
             'description': ('django.db.models.fields.TextField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_action_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'priority': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['yats.ticket_priority']", 'null': 'True'}),
             'resolution': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['yats.ticket_resolution']", 'null': 'True'}),
+            'state': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['yats.ticket_flow']", 'null': 'True', 'blank': 'True'}),
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['yats.ticket_type']", 'null': 'True'}),
             'u_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'u_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
         },
         u'yats.tickets_comments': {
             'Meta': {'object_name': 'tickets_comments'},
+            'action': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
             'active_record': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'c_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'c_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"}),
@@ -161,6 +197,40 @@ class Migration(DataMigration):
             'u_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'u_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
         },
+        u'yats.tickets_history': {
+            'Meta': {'object_name': 'tickets_history'},
+            'action': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
+            'active_record': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'c_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'c_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"}),
+            'd_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'd_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'new': ('django.db.models.fields.TextField', [], {}),
+            'old': ('django.db.models.fields.TextField', [], {}),
+            'ticket': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['yats.tickets']"}),
+            'u_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'u_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
+        },
+        u'yats.tickets_participants': {
+            'Meta': {'object_name': 'tickets_participants'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'ticket': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['yats.tickets']"}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
+        },
+        u'yats.tickets_reports': {
+            'Meta': {'object_name': 'tickets_reports'},
+            'active_record': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'c_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'c_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"}),
+            'd_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'd_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'search': ('django.db.models.fields.TextField', [], {}),
+            'u_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'u_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['auth.User']"})
+        },
         u'yats.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -170,4 +240,3 @@ class Migration(DataMigration):
     }
 
     complete_apps = ['yats']
-    symmetrical = True
