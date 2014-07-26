@@ -11,3 +11,4 @@
 *.pot
 /sites/web/wiki/
 /external/
+/vagrant/.vagrant/
