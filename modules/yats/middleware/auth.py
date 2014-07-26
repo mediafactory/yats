@@ -20,6 +20,17 @@ class BasicAuthMiddleware(object):
             
         self.public_urls = tuple(public_urls)
     
+    def _checkUnicode(self, credentials):
+        try:
+            credentials[0].decode('utf-8')
+        except UnicodeDecodeError:
+            credentials[0] = credentials[0].decode('iso-8859-1').encode('utf8')
+        try:
+            credentials[1].decode('utf-8')
+        except UnicodeDecodeError:
+            credentials[1] = credentials[1].decode('iso-8859-1').encode('utf8')
+        return credentials
+
     def process_request(self, request):
         for url in self.public_urls:
             if url.match(request.path[1:]):
@@ -40,7 +51,7 @@ class BasicAuthMiddleware(object):
                 # NOTE: We only support basic authentication for now.
                 #
                 if auth[0].lower() == "basic":
-                    uname, passwd = base64.b64decode(auth[1]).split(':', 1)
+                    uname, passwd = self._checkUnicode(base64.b64decode(auth[1]).split(':', 1))
                     user = authenticate(username=uname, password=passwd)
                     if user:
                         if user.is_active:
