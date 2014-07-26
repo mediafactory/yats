@@ -1,0 +1,21 @@
+<VirtualHost *:80>
+    WSGIScriptAlias / /var/web/yats/web/web/wsgi.py
+    WSGIPassAuthorization on
+    WSGIDaemonProcess yats_demo.web python-path=/var/web/yats/web
+    WSGIProcessGroup yats_demo.web
+
+    <Directory "/var/web/yats/web/web">
+        AllowOverride AuthConfig
+        <Files "wsgi.py">
+            Order deny,allow
+            Allow from all
+        </Files>
+    </Directory>
+
+    Alias /static /var/web/yats/static
+    Alias /favicon.ico /var/web/yats/static/favicon.ico
+
+   CustomLog     /var/log/apache2/yats-demo-acces.log combined
+   ErrorLog      /var/log/apache2/yats-demo-error.log
+
+</VirtualHost>
