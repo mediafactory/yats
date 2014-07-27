@@ -16,6 +16,23 @@ Password: qwertz
 Customer User:  
 Login: customer.user  
 Password: qwertz  
+  
+Or use vagrant!  
+
+VAGRANT
+-----
+howto:
+cd vagrant  
+vagrant up  
+Wait! :-)  
+Point your browser at:  
+http://192.168.33.11  
+or for admin interface:
+http://192.168.33.11/admin  
+  
+Staff User:  
+Login: admin  
+Password: admin  
 
 WHY JUST ANOTHER?
 -----
