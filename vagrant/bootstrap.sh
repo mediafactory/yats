@@ -51,14 +51,14 @@ mkdir -p /var/web/yats/db
 chown root:vagrant /var/web/yats/db
 chmod go+w /var/web/yats/db
 
-chown root:vagrant /var/web/yats/db/yats2.sqlite
-chmod go+w /var/web/yats/db/yats2.sqlite
-
 cd /var/web/yats/web/
 python manage.py syncdb --noinput
 python manage.py createsuperuser --username root --email root@localhost --noinput
 python manage.py migrate
 python manage.py loaddata /vagrant/init_db.json
+
+chown root:vagrant /var/web/yats/db/yats2.sqlite
+chmod go+w /var/web/yats/db/yats2.sqlite
 
 # apache config
 cp /vagrant/yats.apache /etc/apache2/sites-available/yats
