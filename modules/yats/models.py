@@ -156,6 +156,11 @@ class tickets(base):
     state = models.ForeignKey(ticket_flow, null=True, blank=True, default=get_flow_start)
     close_date = models.DateTimeField(null=True)
     last_action_date = models.DateTimeField(null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.last_action_date:
+            self.last_action_date = self.c_date
+        super(tickets, self).save(*args, **kwargs)
     
 class tickets_participants(models.Model):
     ticket = models.ForeignKey(tickets)
