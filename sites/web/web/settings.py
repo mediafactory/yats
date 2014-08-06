@@ -29,7 +29,8 @@ DATABASES = {
         'USER': config.get('database', 'DATABASE_USER'),
         'PASSWORD': config.get('database', 'DATABASE_PASSWORD'),
         'HOST': config.get('database', 'DATABASE_HOST'),
-        'PORT': config.get('database', 'DATABASE_PORT')
+        'PORT': config.get('database', 'DATABASE_PORT'),
+        'ATOMIC_REQUESTS': config.get('database', 'ATOMIC_REQUESTS')
     }
 }
 
