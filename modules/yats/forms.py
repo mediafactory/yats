@@ -227,7 +227,8 @@ class TicketReassignForm(forms.Form):
 
 ORDER_BY_CHOICES = (
     ('id', _('ticket number')),
-    ('close_date', _('closing date'))
+    ('close_date', _('closing date')),
+    ('last_action_date', _('last changed'))
 )
 
 ORDER_DIR_CHOICES = (
