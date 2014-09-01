@@ -2,7 +2,6 @@
 
 # debian packages
 apt-get update
-#apt-get upgrade
 apt-get install -y memcached python-memcache python-httplib2 locales-all python-pyclamd python-imaging libjpeg8 libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi
 
 # python modules
