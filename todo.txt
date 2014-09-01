@@ -1,3 +1,6 @@
+- neuer Comment von wem in Mail
+- change collision..
+- api ticket change after close...
 - Lösung gelöscht: won&#39;t fix in comment
 - move deadline to tickets => change to datetime...? + func - datetime
 - app name prefix in settings
