@@ -1,3 +1,4 @@
+- gleichnamige boards = fehler!!!
 - neuer Comment von wem in Mail
 - change collision..
 - api ticket change after close...
