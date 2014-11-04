@@ -89,7 +89,7 @@
     	{% if bread.1 == '#' %}<a href="/tickets/view/{{ bread.0 }}/">#{{ bread.0 }}</a>{% endif %}
     	{% if bread.1 == '@' %}<a href="/reports/?report={{ bread.0 }}">@{{ bread.0 }}</a>{% endif %}
     	{% if bread.1 == '$' %}<a href="/board/{{ bread.0|urlencode }}/">${{ bread.0 }}</a>{% endif %}
-    	{% if not forloop.last %}<span class="divider">/</span>{% endif %}
+    	{% if not forloop.last %}<span class="divider">|</span>{% endif %}
     </li>
     {% endfor %}
     
