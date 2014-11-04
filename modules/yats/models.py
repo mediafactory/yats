@@ -75,6 +75,7 @@ class base(models.Model):
             if not self.pk:
                 self.c_user_id = kwargs['user_id']
             del kwargs['user_id']
+        self.u_date = datetime.datetime.now()
         super(base, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
@@ -156,6 +157,10 @@ class tickets(base):
     state = models.ForeignKey(ticket_flow, null=True, blank=True, default=get_flow_start)
     close_date = models.DateTimeField(null=True)
     last_action_date = models.DateTimeField(null=True)
+
+    def save(self, *args, **kwargs):
+        self.last_action_date = datetime.datetime.now()
+        super(tickets, self).save(*args, **kwargs)
     
 class tickets_participants(models.Model):
     ticket = models.ForeignKey(tickets)
@@ -169,7 +174,7 @@ class tickets_comments(base):
     def save(self, *args, **kwargs):
         super(tickets_comments, self).save(*args, **kwargs)
         
-        tickets.objects.filter(id=self.ticket.pk).update(last_action_date=datetime.datetime.now())
+        tickets.objects.filter(id=self.ticket_id).update(last_action_date=self.c_date)
 
 class tickets_files(base):
     ticket = models.ForeignKey(tickets)
@@ -181,7 +186,7 @@ class tickets_files(base):
     def save(self, *args, **kwargs):
         super(tickets_files, self).save(*args, **kwargs)
         
-        tickets.objects.filter(id=self.ticket.pk).update(last_action_date=datetime.datetime.now())
+        tickets.objects.filter(id=self.ticket_id).update(last_action_date=self.c_date)
 
 class tickets_reports(base):
     name = models.CharField(max_length=255)
