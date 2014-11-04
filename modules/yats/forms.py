@@ -137,8 +137,6 @@ class SearchForm(forms.ModelForm):
     required_css_class = 'do_not_require'
 
     def __init__(self, *args, **kwargs):
-        print kwargs.get('initial', {})
-
         if not 'user' in kwargs:
             raise Exception('missing user')
         self.user = kwargs.pop('user')
