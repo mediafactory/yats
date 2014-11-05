@@ -7,7 +7,11 @@ config.read('/usr/local/yats/config/web.ini')
 DEBUG = config.getboolean('debug','DEBUG')
 TEMPLATE_DEBUG = DEBUG
 #DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
+XMLRPC_DEBUG = False
 ALLOWED_HOSTS = ['*']
+
+USE_TZ = True
+SITE_ID = 1
 
 TESTSYTEM = config.getboolean('debug','TESTSYTEM')
 
@@ -29,7 +33,8 @@ DATABASES = {
         'USER': config.get('database', 'DATABASE_USER'),
         'PASSWORD': config.get('database', 'DATABASE_PASSWORD'),
         'HOST': config.get('database', 'DATABASE_HOST'),
-        'PORT': config.get('database', 'DATABASE_PORT')
+        'PORT': config.get('database', 'DATABASE_PORT'),
+        'ATOMIC_REQUESTS': config.get('database', 'ATOMIC_REQUESTS')
     }
 }
 
@@ -106,10 +111,12 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     # 'django.core.context_processors.debug',
     'django.core.context_processors.request',
     'django.core.context_processors.i18n',
+    'django.core.context_processors.debug', # for wiki
     'django.core.context_processors.media',
     'django.core.context_processors.static',
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
+    'sekizai.context_processors.sekizai', # for wiki
 )
 
 MIDDLEWARE_CLASSES = (
@@ -138,12 +145,33 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'rpc4django',
     'yats',
     'south',
     'bootstrap_toolkit',
     'web',
+# # for wiki
+'django.contrib.sites', # django 1.6.2
+'django.contrib.humanize',
+'django_nyt',
+'mptt',
+'sekizai',
+'sorl.thumbnail',
+'wiki',
+'wiki.plugins.attachments',
+'wiki.plugins.notifications',
+'wiki.plugins.images',
+'wiki.plugins.macros',
     #'devserver'
 )
+
+SOUTH_MIGRATION_MODULES = {
+    'django_nyt': 'django_nyt.south_migrations',
+    'wiki': 'wiki.south_migrations',
+    'images': 'wiki.plugins.images.south_migrations',
+    'notifications': 'wiki.plugins.notifications.south_migrations',
+    'attachments': 'wiki.plugins.attachments.south_migrations',
+}
 
 LOGGING = {
     'version': 1,
@@ -167,13 +195,19 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'rpc4django': {
+            'handlers': ['request_handler'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     }
 }
 
 TICKET_CLASS = 'web.models.test'
 TICKET_NEW_MAIL_RCPT = 'develope@mediafactory.de'
 TICKET_NON_PUBLIC_FIELDS = ['billing_needed', 'billing_reason', 'billing_done', 'fixed_in_version', 'solution', 'assigned', 'priority']
-TICKET_SEARCH_FIELDS = ['c_user', 'priority', 'type', 'customer', 'component', 'deadline', 'billing_needed', 'billing_done', 'closed']
+TICKET_SEARCH_FIELDS = ['c_user', 'priority', 'type', 'customer', 'component', 'deadline', 'billing_needed', 'billing_done', 'closed', 'assigned', 'state']
+TICKET_EDITABLE_FIELDS_AFTER_CLOSE = ['billing_done']
 
 GITHUB_REPO = config.get('github', 'GITHUB_REPO')
 GITHUB_OWNER = config.get('github', 'GITHUB_OWNER')
