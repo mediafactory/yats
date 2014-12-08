@@ -12,7 +12,7 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model
 import os
 import io
 import graph
@@ -284,11 +284,26 @@ def table(request, **kwargs):
         
     if 'search' in kwargs:
         is_search = True
-    
         params = kwargs['search']
+    
+        """
+        # this is for fulltext search
+        if not request.user.is_staff:
+            used_fields = []
+            for ele in settings.TICKET_SEARCH_FIELDS:
+                if not ele in settings.TICKET_NON_PUBLIC_FIELDS:
+                    used_fields.append(ele)
+        else:
+            used_fields = settings.TICKET_SEARCH_FIELDS
+        """
+        
         for field in params:
             if params[field] != None and params[field] != '':
-                search_params[field] = params[field]
+                if get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
+                    search_params['%s__icontains' % field] = params[field]
+                else:
+                    search_params[field] = params[field]
+                
         tic = tic.filter(**search_params)
     else:
         tic = tic.filter(closed=False)

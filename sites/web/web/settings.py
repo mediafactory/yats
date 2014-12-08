@@ -206,7 +206,7 @@ LOGGING = {
 TICKET_CLASS = 'web.models.test'
 TICKET_NEW_MAIL_RCPT = 'develope@mediafactory.de'
 TICKET_NON_PUBLIC_FIELDS = ['billing_needed', 'billing_reason', 'billing_done', 'fixed_in_version', 'solution', 'assigned', 'priority']
-TICKET_SEARCH_FIELDS = ['c_user', 'priority', 'type', 'customer', 'component', 'deadline', 'billing_needed', 'billing_done', 'closed', 'assigned', 'state']
+TICKET_SEARCH_FIELDS = ['caption', 'c_user', 'priority', 'type', 'customer', 'component', 'deadline', 'billing_needed', 'billing_done', 'closed', 'assigned', 'state']
 TICKET_EDITABLE_FIELDS_AFTER_CLOSE = ['billing_done']
 
 GITHUB_REPO = config.get('github', 'GITHUB_REPO')
