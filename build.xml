@@ -5,7 +5,7 @@
 <project name="YATS" default="nightly" basedir=".">
 	<description>YATS</description>
 	
-	<property name="yatsversion" value="1.3.4" />
+	<property name="yatsversion" value="1.3.7" />
 	
 	<tstamp>
 		<format property="TODAY"
@@ -82,7 +82,7 @@
 		<deb todir="${basedir}/distribution/nightly" 
 			package="yats-modules" 
 			section="web" 
-			depends="memcached,python-memcache,python-httplib2,locales-all,python-pyclamd,python-imaging,libjpeg8,libjpeg-dev,libpng-dev" 
+			depends="memcached,python-memcache,python-httplib2,locales-all,python-pyclamd,libjpeg8,libjpeg-dev,libpng-dev" 
 			preinst="debian/scripte/mod_preinst" 
 			postinst="debian/scripte/mod_postinst" 
 			prerm="debian/scripte/mod_prerm">
