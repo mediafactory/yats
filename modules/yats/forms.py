@@ -135,6 +135,8 @@ class TicketsForm(forms.ModelForm):
         
 class SearchForm(forms.ModelForm):
     required_css_class = 'do_not_require'
+    
+    #fulltext = forms.CharField(required=True, label=_('full text search'))
 
     def __init__(self, *args, **kwargs):
         if not 'user' in kwargs:
