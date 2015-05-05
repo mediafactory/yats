@@ -2,7 +2,7 @@
 
 # debian packages
 apt-get update
-apt-get install -y memcached python-memcache python-httplib2 locales-all python-pyclamd python-imaging libjpeg8 libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi
+apt-get install -y memcached python-memcache python-httplib2 locales-all python-pyclamd libjpeg8 libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev
 
 # python modules
 sites=`python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
