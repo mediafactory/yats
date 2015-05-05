@@ -1,3 +1,4 @@
+Django==1.6.10
 diff-match-patch
 Markdown>2.2.0
 django-sekizai>=0.7

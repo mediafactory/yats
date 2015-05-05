@@ -7,8 +7,6 @@ if [ "$1" = "configure" ] ; then
 	
 	sites=`python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
 	
-    ln -s /usr/share/yats/site-packages/django $sites 2>/dev/null
-    
     ln -s /usr/share/yats/site-packages/yats $sites 2>/dev/null
     ln -s /usr/share/yats/site-packages/south $sites 2>/dev/null
     ln -s /usr/share/yats/site-packages/bootstrap_toolkit $sites 2>/dev/null
