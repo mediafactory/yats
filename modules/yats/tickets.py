@@ -286,8 +286,6 @@ def table(request, **kwargs):
         is_search = True
         params = kwargs['search']
     
-        """
-        # this is for fulltext search
         if not request.user.is_staff:
             used_fields = []
             for ele in settings.TICKET_SEARCH_FIELDS:
@@ -295,14 +293,20 @@ def table(request, **kwargs):
                     used_fields.append(ele)
         else:
             used_fields = settings.TICKET_SEARCH_FIELDS
-        """
         
+        Qr = None
+        fulltext = {}
         for field in params:
-            if params[field] != None and params[field] != '':
-                if get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
-                    search_params['%s__icontains' % field] = params[field]
-                else:
-                    search_params[field] = params[field]
+            if field == 'fulltext':
+                if field in used_fields and get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
+                    fulltext['%s__icontains' % field] = params[field]
+            
+            else:
+                if params[field] != None and params[field] != '':
+                    if get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
+                        search_params['%s__icontains' % field] = params[field]
+                    else:
+                        search_params[field] = params[field]
                 
         tic = tic.filter(**search_params)
     else:
