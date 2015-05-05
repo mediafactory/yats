@@ -1,4 +1,5 @@
 from django.forms import ChoiceField, FileField
+from django.conf import settings
 
 from django import template
 register = template.Library()
@@ -32,3 +33,7 @@ def display_value(field):
             if val == value: 
                 return desc 
     return value
+
+@register.filter(name='field_is_public')
+def field_is_public(field): 
+    return not field.label.lower().replace(' ', '_') in settings.TICKET_NON_PUBLIC_FIELDS
