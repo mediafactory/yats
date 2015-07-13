@@ -18,13 +18,16 @@
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     {% bootstrap_javascript_tag %}
     {% block extra_head %}{% endblock %}
+    <style>
+      div.container.pull-left.yats-navi {width: auto;}
+    </style>
 </head>
 
 <body>
 
 <div class="navbar navbar-fixed-top">
-    <div class="navbar-inner ">
-        <div class="container pull-left">
+    <div class="navbar-inner">
+        <div class="container pull-left yats-navi">
             <a class="brand " id="brand" href="/">&nbsp;&nbsp;&nbsp;YATS:</a>
             <ul class="nav">
             	{% if urlpath %}
@@ -58,13 +61,13 @@
 				          {% trans "New article below" %} {{ article.current_revision.title }}
 				        </a>
 				      </li>
-	            		
+
 	            	</ul>
 	            </li>
 	            {% else %}
 	            <li><a href="/wiki/" class="">{% trans "Wiki" %}</a></li>
             	{% endif %}
-                <li><a href="/reports/" class="">{% trans "Reports" %}</a></li>        
+                <li><a href="/reports/" class="">{% trans "Reports" %}</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Boards" %}<b class="caret"></b></a>
                     <ul class="dropdown-menu">
@@ -75,10 +78,10 @@
                     {% endfor %}
                     </ul>
                 </li>
-                <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>        
-                <li><a href="/tickets/new/" class="">{% trans "New" %}</a></li>        
-                <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>        
-                <li><a href="/info/" class="">{% trans "Info" %}</a></li>        
+                <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>
+                <li><a href="/tickets/new/" class="">{% trans "New" %}</a></li>
+                <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>
+                <li><a href="/info/" class="">{% trans "Info" %}</a></li>
             </ul>
         </div>
         <p class="navbar-text pull-right">{% trans "logged in as" %}: <a data-toggle="modal" href="#pwdDlg">{{ request.user }}@{{ request.organisation.name }}</a>&nbsp;&nbsp;</p>
@@ -93,7 +96,7 @@
     	{% if not forloop.last %}<span class="divider">|</span>{% endif %}
     </li>
     {% endfor %}
-    
+
 	{% for ancestor in urlpath.cached_ancestors %}
 	<li><a href="{% url 'wiki:get' path=ancestor.path %}">{{ ancestor.article.current_revision.title|truncatechars:25 }}</a></li>
 	{% endfor %}
@@ -112,7 +115,7 @@
     	<div class="span6">
     		{{ SETTINGS.CUSTOMER }}<br />
     		{{ SETTINGS.TEL }}<br />
-    		{{ SETTINGS.MAIL }}<br />    		
+    		{{ SETTINGS.MAIL }}<br />
     	</div>
         <div class="span6" style="text-align:right">
             <p>
@@ -124,17 +127,17 @@
 </div> <!-- container -->
 
 <div id="pwdDlg" class="modal hide fade">
-    
+
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3>{% trans "change password" %}</h3>
     </div>
-    
+
     <form class="form-{{ layout }}" action="" method="post">
     <div class="modal-body">
     	Password Dialog
     </div>
-    
+
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
         <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
@@ -143,12 +146,12 @@
 </div>
 
 <div id="newBoardDlg" class="modal hide fade">
-    
+
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3>{% trans "new board" %}</h3>
     </div>
-    
+
     <form class="form-{{ layout }}" action="/board/to_add/" method="post">
     <div class="modal-body">
 		<div class="control-group">
@@ -158,9 +161,9 @@
 		            <input id="id_boardname" name="boardname" type="text" />
 		        </div>
 		    </div>
-		</div>   
+		</div>
     </div>
-    
+
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
         <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
