@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http.response import HttpResponseRedirect, StreamingHttpResponse, HttpResponse
@@ -24,7 +24,7 @@ except ImportError:
 
 def new(request):
     excludes = ['resolution']
-    
+
     if request.method == 'POST':
         form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
         if form.is_valid():
@@ -33,25 +33,25 @@ def new(request):
             assigned = form.cleaned_data.get('assigned')
             if assigned:
                 touch_ticket(assigned, tic.pk)
-            
+
             for ele in form.changed_data:
                 form.initial[ele] = ''
             remember_changes(request, form, tic)
-                    
+
             touch_ticket(request.user, tic.pk)
-            
+
             mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
-            
+
             if form.cleaned_data.get('file_addition', False):
                 return HttpResponseRedirect('/tickets/upload/%s/' % tic.pk)
             else:
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
-    
+
     else:
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
     form.fields['state'].queryset = form.fields['state'].queryset.exclude(type=2)
-    
-    return render_to_response('tickets/new.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))    
+
+    return render_to_response('tickets/new.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))
 
 def action(request, mode, ticket):
     mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
@@ -67,13 +67,13 @@ def action(request, mode, ticket):
                 com.ticket_id = ticket
                 com.action = 6
                 com.save(user=request.user)
-                
+
                 check_references(request, com)
-                
+
                 touch_ticket(request.user, ticket)
-                
+
                 add_history(request, tic, 6, com.comment)
-                
+
                 mail_comment(request, com.pk)
 
             else:
@@ -84,27 +84,27 @@ def action(request, mode, ticket):
                         tic.close_date = datetime.datetime.now()
                         tic.state = get_flow_end()
                         tic.save(user=request.user)
-                        
+
                         com = tickets_comments()
                         com.comment = _('ticket closed - resolution: %(resolution)s\n\n%(comment)s') % {'resolution': ticket_resolution.objects.get(pk=request.POST['resolution']).name, 'comment': request.POST.get('close_comment', '')}
                         com.ticket_id = ticket
                         com.action = 1
                         com.save(user=request.user)
-                        
+
                         check_references(request, com)
-                        
+
                         touch_ticket(request.user, ticket)
-                        
+
                         add_history(request, tic, 1, request.POST.get('close_comment', ''))
-    
+
                         mail_comment(request, com.pk)
-                    
+
                     else:
                         messages.add_message(request, messages.ERROR, _('no resolution selected'))
-                    
+
                 else:
                     messages.add_message(request, messages.ERROR, _('comment invalid'))
-        
+
         excludes = []
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id, view_only=True)
         close = TicketCloseForm()
@@ -112,10 +112,10 @@ def action(request, mode, ticket):
         flows = list(ticket_flow_edges.objects.select_related('next').filter(now=tic.state).exclude(next__type=2).values_list('next', flat=True))
         flows.append(tic.state_id)
         reassign.fields['state'].queryset = reassign.fields['state'].queryset.filter(id__in=flows)
-        
+
         participants = tickets_participants.objects.select_related('user').filter(ticket=ticket)
         comments = tickets_comments.objects.select_related('c_user').filter(ticket=ticket).order_by('c_date')
-        
+
         close_allowed = ticket_flow_edges.objects.select_related('next').filter(now=tic.state, next__type=2).count() > 0
 
         files = tickets_files.objects.filter(ticket=ticket)
@@ -129,9 +129,9 @@ def action(request, mode, ticket):
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             files_lines = paginator.page(paginator.num_pages)
-        
+
         add_breadcrumbs(request, ticket, '#')
-        
+
         return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed}, RequestContext(request))
 
     elif mode == 'history':
@@ -145,21 +145,21 @@ def action(request, mode, ticket):
             tic.resolution = None
             tic.close_date = None
             tic.save(user=request.user)
-            
+
             com = tickets_comments()
             com.comment = _('ticket reopend - resolution deleted')
             com.ticket_id = ticket
             com.action = 2
             com.save(user=request.user)
-            
+
             check_references(request, com)
-            
+
             touch_ticket(request.user, ticket)
-            
+
             add_history(request, tic, 2, None)
 
             mail_comment(request, com.pk)
-            
+
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 
     elif mode == 'reassign':
@@ -168,25 +168,25 @@ def action(request, mode, ticket):
                 if request.POST['assigned'] and int(request.POST['assigned']) > 0:
                     old_assigned_user = tic.assigned
                     old_state = tic.state
-                    
+
                     tic.assigned_id = request.POST['assigned']
                     tic.state = ticket_flow.objects.get(pk=request.POST['state'])
                     tic.save(user=request.user)
-                    
+
                     newUser = User.objects.get(pk=request.POST['assigned'])
-            
+
                     com = tickets_comments()
                     com.comment = _('ticket reassigned to %(user)s\nstate now: %(state)s\n\n%(comment)s') % {'user': newUser, 'comment': request.POST.get('reassign_comment', ''), 'state': tic.state}
                     com.ticket_id = ticket
                     com.action = 7
                     com.save(user=request.user)
-                    
+
                     check_references(request, com)
-                    
+
                     touch_ticket(request.user, ticket)
                     if request.POST['assigned']:
                         touch_ticket(newUser, ticket)
-                    
+
                     history_data = {
                                     'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state)},
                                     'new': {'comment': request.POST.get('reassign_comment', ''), 'assigned': str(User.objects.get(pk=request.POST['assigned'])), 'state': str(tic.state)}
@@ -196,7 +196,7 @@ def action(request, mode, ticket):
                     mail_comment(request, com.pk)
                 else:
                     messages.add_message(request, messages.ERROR, _('missing assigned user'))
-            
+
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 
     elif mode == 'edit':
@@ -205,42 +205,42 @@ def action(request, mode, ticket):
             form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
             if form.is_valid():
                 tic = form.save()
-                
+
                 assigned = form.cleaned_data.get('assigned')
                 if assigned:
                     touch_ticket(assigned, tic.pk)
-                    
+
                 remember_changes(request, form, tic)
-                    
+
                 touch_ticket(request.user, tic.pk)
-                
+
                 mail_ticket(request, tic.pk, form)
-                
+
                 return HttpResponseRedirect('/tickets/view/%s/' % ticket)
-        
+
         else:
             form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
-        if 'state' in form.fields: 
+        if 'state' in form.fields:
             form.fields['state'].queryset = form.fields['state'].queryset.exclude(type=2)
-        return render_to_response('tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form}, RequestContext(request))    
+        return render_to_response('tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form}, RequestContext(request))
 
     elif mode == 'download':
         fileid = request.GET.get('file', -1)
         file_data = tickets_files.objects.get(id=fileid, ticket=ticket)
         src = '%s%s.dat' % (settings.FILE_UPLOAD_PATH, fileid)
-        
+
         if request.GET.get('resize', 'no') == 'yes' and 'image' in file_data.content_type:
             img = resize_image('%s' % (src), (200, 150), 75)
             output = io.BytesIO()
             img.save(output, 'PNG')
             output.seek(0)
             response = StreamingHttpResponse(output, mimetype=smart_str(file_data.content_type))
-            
+
         else:
             response = StreamingHttpResponse(open('%s' % (src),"rb"), mimetype=smart_str(file_data.content_type))
         response['Content-Disposition'] = 'attachment;filename=%s' % smart_str(file_data.name)
         return response
-    
+
     elif mode == 'upload':
         if request.method == 'POST':
             form = UploadFileForm(request.POST, request.FILES)
@@ -252,9 +252,9 @@ def action(request, mode, ticket):
                 f.ticket_id = ticket
                 f.public = True
                 f.save(user=request.user)
-                
+
                 touch_ticket(request.user, ticket)
-                
+
                 add_history(request, tic, 5, request.FILES['file'].name)
 
                 mail_file(request, f.pk)
@@ -262,16 +262,16 @@ def action(request, mode, ticket):
                 dest = settings.FILE_UPLOAD_PATH
                 if not os.path.exists(dest):
                     os.makedirs(dest)
-    
+
                 with open('%s%s.dat' % (dest, f.id), 'wb+') as destination:
                     for chunk in request.FILES['file'].chunks():
                         destination.write(chunk)
-                        
-                return HttpResponseRedirect('/tickets/view/%s/' % tic.pk) 
+
+                return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
         else:
             form = UploadFileForm()
-        
-        return render_to_response('tickets/file.html', {'ticketid': ticket, 'layout': 'horizontal', 'form': form}, RequestContext(request))    
+
+        return render_to_response('tickets/file.html', {'ticketid': ticket, 'layout': 'horizontal', 'form': form}, RequestContext(request))
 
 def table(request, **kwargs):
     search_params = {}
@@ -281,11 +281,11 @@ def table(request, **kwargs):
 
     if not request.user.is_staff:
         tic = tic.filter(customer=request.organisation)
-        
+
     if 'search' in kwargs:
         is_search = True
         params = kwargs['search']
-    
+
         if not request.user.is_staff:
             used_fields = []
             for ele in settings.TICKET_SEARCH_FIELDS:
@@ -293,21 +293,21 @@ def table(request, **kwargs):
                     used_fields.append(ele)
         else:
             used_fields = settings.TICKET_SEARCH_FIELDS
-        
+
         Qr = None
         fulltext = {}
         for field in params:
             if field == 'fulltext':
                 if field in used_fields and get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
                     fulltext['%s__icontains' % field] = params[field]
-            
+
             else:
                 if params[field] != None and params[field] != '':
                     if get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
                         search_params['%s__icontains' % field] = params[field]
                     else:
                         search_params[field] = params[field]
-                
+
         tic = tic.filter(**search_params)
     else:
         tic = tic.filter(closed=False)
@@ -315,7 +315,9 @@ def table(request, **kwargs):
 
     pretty = prettyValues(search_params)
     list_caption = kwargs.get('list_caption')
-    
+    if 'report' in request.GET:
+        list_caption = tickets_reports.objects.get(pk=request.GET['report']).name
+
     paginator = Paginator(tic, 10)
     page = request.GET.get('page')
     try:
@@ -326,39 +328,39 @@ def table(request, **kwargs):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         tic_lines = paginator.page(paginator.num_pages)
-        
+
     board_form = AddToBordForm()
-    board_form.fields['board'].queryset = board_form.fields['board'].queryset.filter(c_user=request.user) 
+    board_form.fields['board'].queryset = board_form.fields['board'].queryset.filter(c_user=request.user)
 
     return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption, 'board_form': board_form}, RequestContext(request))
 
 def search(request):
     searchable_fields = settings.TICKET_SEARCH_FIELDS
-    
+
     if request.method == 'POST' and 'reportname' in request.POST and request.POST['reportname']:
         rep = tickets_reports()
         rep.name = request.POST['reportname']
         rep.search = json.dumps(request.session['last_search'], cls=DjangoJSONEncoder)
         rep.save(user=request.user)
-        
+
         request.session['last_search'] = clean_search_values(request.session['last_search'])
         request.session['last_search_caption'] = request.POST['reportname']
-        
+
         return table(request, search=request.session['last_search'], list_caption=request.session['last_search_caption'])
-    
+
     if request.method == 'POST':
         form = SearchForm(request.POST, include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
         form.is_valid()
         request.session['last_search'] = clean_search_values(form.cleaned_data)
         request.session['last_search_caption'] = ''
-        
+
         return table(request, search=request.session['last_search'])
 
     if 'last_search' in request.session and not 'new' in request.GET:
         return table(request, search=request.session['last_search'], list_caption=request.session.get('last_search_caption', ''))
-    
+
     form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
-    
+
     return render_to_response('tickets/search.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))
 
 def reports(request):
@@ -366,12 +368,12 @@ def reports(request):
         rep = tickets_reports.objects.get(pk=request.GET['report'])
         add_breadcrumbs(request, request.GET['report'], '@')
         request.session['last_search'] = json.loads(rep.search)
-        return table(request, search=request.session['last_search'], list_caption=rep.name)
-    
+        return HttpResponseRedirect('/tickets/search/?report=%s' % request.GET['report'])
+
     if 'delReport' in request.GET:
         tickets_reports.objects.filter(c_user=request.user, pk=request.GET['delReport']).delete()
         return HttpResponseRedirect('/reports/')
-    
+
     reps = tickets_reports.objects.filter(c_user=request.user).order_by('name')
 
     paginator = Paginator(reps, 10)
@@ -398,23 +400,23 @@ def workflow(request):
                 except:
                     ticket_flow_edges(now_id=now, next_id=this).save(user=request.user)
                 return HttpResponse('OK')
-            
+
             elif request.POST['method'] == 'del':
                 ticket_flow_edges.objects.filter(now=now, next=this).delete()
                 return HttpResponse('OK')
-    
+
     flows = ticket_flow.objects.all()
     edges = ticket_flow_edges.objects.all()
     nodes = {}
-    
+
     offset_x = 30
     offset_y = 30
-    
+
     min_x = 0
     min_y = 0
     max_x = 0
     max_y = 0
-    
+
     g = graph.create()
 
     for flow in flows:
@@ -423,7 +425,7 @@ def workflow(request):
     for edge in edges:
         g.add_edge('flw%s' % edge.now_id, 'flw%s' % edge.next_id)
     g.solve()
-    
+
     for id in g:
         #print '%s => %s,%s' % (id, g[id].x, g[id].y)
         nodes[id] = (g[id].x, g[id].y)
@@ -431,17 +433,17 @@ def workflow(request):
         min_y = min(min_y, g[id].y)
         max_x = max(max_x, g[id].x)
         max_y = max(max_y, g[id].y)
-        
+
     if min_x < 0:
         min_x = min_x * (-1)
     if min_y < 0:
         min_y = min_y * (-1)
-        
+
     for node in nodes:
         (x, y) = nodes[node]
         nodes[node] = (x + min_x + offset_x, y + min_y + offset_y)
 
     max_x = max_x + min_x + (offset_x * 2)
     max_y = max_y + min_y + (offset_y * 2)
-    
+
     return render_to_response('tickets/workflow.html', {'layout': 'horizontal', 'flows': flows, 'edges': edges, 'nodes': nodes, 'width': max_x, 'height': max_y}, RequestContext(request))
