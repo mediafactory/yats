@@ -318,7 +318,7 @@ def table(request, **kwargs):
     if 'report' in request.GET:
         list_caption = tickets_reports.objects.get(pk=request.GET['report']).name
 
-    paginator = Paginator(tic, 10)
+    paginator = Paginator(tic, 20)
     page = request.GET.get('page')
     try:
         tic_lines = paginator.page(page)
