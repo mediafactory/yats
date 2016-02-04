@@ -7,11 +7,11 @@
 {% endblock %}
 
 {% block content %}
-    
+
     <h2>{% if is_search %}{% trans "search results for tickets" %}&nbsp;<a class="btn btn-small" href="/tickets/search/?new=1">{% trans "new search" %}</a>&nbsp;<a role="button" data-toggle="modal" class="btn btn-small" href="#saveDlg">{% trans "save search" %}</a>&nbsp;<a role="button" data-toggle="modal" class="btn btn-small" href="#saveToBoardDlg">{% trans "save to board" %}</a>{% else %}{% trans "tickets" %}{% endif %}</h2>
     <p><small class="text-muted">{% if list_caption %}{% trans "report" %}: {{ list_caption }}{% endif %}</small></p>
     <p>&nbsp;</p>
-    
+
     {% if lines %}
     <p>{{ lines.start_index }} - {{ lines.end_index }} {% trans "of" %} {{ lines.paginator.count }}</p>
     <section id="no-more-tables">
@@ -22,6 +22,8 @@
                 <th>{% trans "ticket#" %}</th>
                 <th>{% trans "created" %}</th>
                 <th>{% trans "type" %}</th>
+                <th>{% trans "state" %}</th>
+                <th>{% trans "assigned" %}</th>
                 <th>{% trans "caption" %}</th>
             </tr>
             </thead>
@@ -31,31 +33,33 @@
                     <td data-title="{% trans "ticket#" %}"><a href="/tickets/history/{{ line.id }}/"><i class="icon-time"></i></a>&nbsp;&nbsp;<a href="/tickets/view/{{ line.id }}/">#{{ line.id }}</a></td>
                     <td data-title="{% trans "created" %}">{{ line.c_date }}</td>
                     <td data-title="{% trans "type" %}">{{ line.type }}</td>
+                    <td data-title="{% trans "state" %}">{{ line.state }}</td>
+                    <td data-title="{% trans "assigned" %}">{{ line.assigned }}</td>
                     <td data-title="{% trans "caption" %}">{{ line.caption }}</td>
                 </tr>
             {% endfor %}
         </table>
-    
+
         {{ lines|pagination }}
     </section>
     {% endif %}
     {% if lines.paginator.count == 0 %}
     {% trans "no tickets found!" %}
     {% endif %}
-    
+
     <p><small class="text-muted">{% trans "You searched for:" %} {% for key, value in pretty.iteritems %}
         {{ key|prettify }}: {{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}</small></p>
-    
+
     {% if is_search %}
     <div id="saveDlg" class="modal hide fade">
-        
+
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h3>{% trans "save as report" %}</h3>
         </div>
-        
+
         <form class="form-{{ layout }}" action="" method="post">
-        <div class="modal-body"> 
+        <div class="modal-body">
 				<div class="control-group">
 					<label class="control-label" for="id_deadline">{% trans "report name" %}</label>
 					<div class="controls">
@@ -63,34 +67,34 @@
     						<input id="id_reportname" name="reportname" type="text" />
 						</div>
 					</div>
-				</div>            	
+				</div>
 		</div>
-        
+
         <div class="modal-footer">
             <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
             <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
         </div>
         </form>
     </div>
-    
+
     <div id="saveToBoardDlg" class="modal hide fade">
-        
+
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h3>{% trans "save to board" %}</h3>
         </div>
-        
+
         <form class="form-horizontal" action="/board/change_board/" method="post">
         <div class="modal-body">
             {{ board_form|as_bootstrap:"horizontal" }}
         </div>
-        
+
         <div class="modal-footer">
             <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
             <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
         </div>
         </form>
     </div>
-    
+
     {% endif %}
 {% endblock %}
