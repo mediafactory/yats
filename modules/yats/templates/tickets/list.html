@@ -34,7 +34,7 @@
                     <td data-title="{% trans "created" %}">{{ line.c_date }}</td>
                     <td data-title="{% trans "type" %}">{{ line.type }}</td>
                     <td data-title="{% trans "state" %}">{{ line.state }}</td>
-                    <td data-title="{% trans "assigned" %}">{{ line.assigned }}</td>
+                    <td data-title="{% trans "assigned" %}">{{ line.assigned|default:"" }}</td>
                     <td data-title="{% trans "caption" %}">{{ line.caption }}</td>
                 </tr>
             {% endfor %}
