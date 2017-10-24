@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 from django.http.response import HttpResponseRedirect
 from django import get_version as get_django_version
 from django.shortcuts import render_to_response
@@ -18,7 +18,7 @@ try:
     import json
 except ImportError:
     from django.utils import simplejson as json
-    
+
 def root(request):
     return table(request)
     #return render_to_response('home.html', {}, RequestContext(request))
@@ -30,10 +30,10 @@ def info(request):
 
 def show_board(request, name):
     # http://bootsnipp.com/snippets/featured/kanban-board
-    
+
     """
         board structure
-        
+
         [
             {
                 'column': 'closed',
@@ -46,7 +46,7 @@ def show_board(request, name):
             }
         ]
     """
-    
+
     if request.method == 'POST':
         if 'method' in request.POST:
             board = boards.objects.get(pk=request.POST['board'], c_user=request.user)
@@ -58,7 +58,7 @@ def show_board(request, name):
             if request.POST['method'] == 'add':
                 form = AddToBordForm(request.POST)
                 if form.is_valid():
-                    cd = form.cleaned_data 
+                    cd = form.cleaned_data
                     col = {
                            'column': cd['column'],
                            'query': request.session['last_search'],
@@ -72,23 +72,23 @@ def show_board(request, name):
                     columns.append(col)
                     board.columns = json.dumps(columns, cls=DjangoJSONEncoder)
                     board.save(user=request.user)
-                
+
                 else:
                     err_list = []
                     for field in form:
                         for err in field.errors:
                             err_list.append('%s: %s' % (field.name, err))
                     messages.add_message(request, messages.ERROR, _('data invalid: %s') % '\n'.join(err_list))
-                
+
                 return HttpResponseRedirect('/board/%s/' % urlquote_plus(board.name))
-                
+
         else:
             board = boards()
             board.name = request.POST['boardname']
             board.save(user=request.user)
-            
+
             return HttpResponseRedirect('/board/%s/' % urlquote_plus(request.POST['boardname']))
-    
+
     else:
         board = boards.objects.get(name=name, c_user=request.user)
         try:
@@ -103,15 +103,14 @@ def show_board(request, name):
                     new_columns.append(col)
             board.columns = json.dumps(new_columns, cls=DjangoJSONEncoder)
             board.save(user=request.user)
-            
+
             return HttpResponseRedirect('/board/%s/' % urlquote_plus(name))
-            
+
     for column in columns:
         column['query'] = get_ticket_model().objects.select_related('priority').filter(**column['query']).order_by('%s%s' % (column.get('order_dir', ''), column.get('order_by', 'id')))
         if column['limit']:
             column['query'] = column['query'][:column['limit']]
         if 'extra_filter' in column and 'days' in column and column['extra_filter'] and column['days']:
-            print type(column['extra_filter']) 
             if column['extra_filter'] == '1': # days since closed
                 column['query'] = column['query'].filter(close_date__gte=datetime.date.today() - datetime.timedelta(days=column['days'])).exclude(close_date=None)
             if column['extra_filter'] == '2': # days since created
@@ -120,7 +119,9 @@ def show_board(request, name):
                 column['query'] = column['query'].filter(u_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
             if column['extra_filter'] == '4': # days since last action
                 column['query'] = column['query'].filter(last_action_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
-        
+        if not request.user.is_staff:
+            column['query'] = column['query'].filter(customer=request.organisation)
+
     add_breadcrumbs(request, board.pk, '$')
     return render_to_response('board/view.html', {'columns': columns, 'board': board}, RequestContext(request))
 
