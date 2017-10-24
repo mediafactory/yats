@@ -19,6 +19,7 @@
             <thead>
             <tr>
                 <th>{% trans "state" %}</th>
+                <th></th>
                 <th>{% trans "ticket#" %}</th>
                 <th>{% trans "created" %}</th>
                 <th>{% trans "type" %}</th>
@@ -30,7 +31,8 @@
               {% for line in lines %}
                 <tr>
                 	<td data-title="{% trans "state" %}"><button type="button" class="btn {% if line.closed %}btn-danger{% else %}btn-success{% endif %}" disabled></td>
-                    <td data-title="{% trans "ticket#" %}"><a href="/tickets/history/{{ line.id }}/"><i class="icon-time"></i></a>&nbsp;&nbsp;<a href="/tickets/view/{{ line.id }}/">#{{ line.id }}</a></td>
+                    <td>{% if line.deadline %}<i class="icon-time"></i>{% endif %}</td>
+                    <td data-title="{% trans "ticket#" %}"><a href="/tickets/view/{{ line.id }}/">#{{ line.id }}</a></td>
                     <td data-title="{% trans "created" %}">{{ line.c_date }}</td>
                     <td data-title="{% trans "type" %}">{{ line.type }}</td>
                     <td data-title="{% trans "state" %}">{{ line.state }}</td>
