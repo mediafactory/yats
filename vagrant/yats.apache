@@ -13,6 +13,10 @@
         </Files>
     </Directory>
 
+    <Directory "/var/web/yats/static">
+        Require all granted
+    </Directory>
+
     Alias /static /var/web/yats/static
     Alias /favicon.ico /var/web/yats/static/favicon.ico
 
