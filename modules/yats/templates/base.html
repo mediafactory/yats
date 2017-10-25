@@ -101,6 +101,7 @@
 	<li><a href="{% url 'wiki:get' path=ancestor.path %}">{{ ancestor.article.current_revision.title|truncatechars:25 }}</a></li>
 	{% endfor %}
 	<li class="active">{{ article.current_revision.title|truncatechars:25 }}</li>
+    <a class="close" href="#">&times;</a>
 </ul>
 
 <div class="container">
@@ -119,7 +120,7 @@
     	</div>
         <div class="span6" style="text-align:right">
             <p>
-                &copy; 2014 <a href="http://www.mediafactory.de">media factory</a>
+                &copy; {% now "Y" %} <a href="http://www.mediafactory.de">media factory</a>
             </p>
         </div>
     </footer>
