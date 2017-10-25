@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 
+VERSION=$(sed 's/\..*//' /etc/debian_version)
+
 # debian packages
 apt-get update
-apt-get install -y memcached python-memcache python-httplib2 locales-all python-pyclamd libjpeg8 libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev
+if [[ "$VERSION" -eq 7 ]]; then
+  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg8 libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd
+elif [[ "$VERSION" -eq 8 ]]; then
+  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd
+else
+  echo "unknown version ${VERSION}"  1>&2
+  exit 1
+fi
 
 # python modules
 sites=`python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
