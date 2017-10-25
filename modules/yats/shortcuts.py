@@ -294,9 +294,11 @@ def prettyValues(data):
 
 def add_breadcrumbs(request, pk, typ):
     breadcrumbs = request.session.get('breadcrumbs', [])
-    # ignore dupplicates at the end of list
+    # checks if already exists
     if len(breadcrumbs) > 0:
         if breadcrumbs[-1][0] != long(pk) or breadcrumbs[-1][1] != typ:
+            if (long(pk), typ,) in breadcrumbs:
+                breadcrumbs.pop(breadcrumbs.index((long(pk), typ,)))
             breadcrumbs.append((long(pk), typ,))
             
     else:
