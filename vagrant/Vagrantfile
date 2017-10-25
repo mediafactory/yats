@@ -42,6 +42,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   config.vm.synced_folder "../modules", "/vagrant_modules"
   config.vm.synced_folder "../sites", "/vagrant_sites"
+  config.vm.synced_folder "../", "/vagrant_project"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.

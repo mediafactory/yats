@@ -5,9 +5,9 @@ VERSION=$(sed 's/\..*//' /etc/debian_version)
 # debian packages
 apt-get update
 if [[ "$VERSION" -eq 7 ]]; then
-  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg8 libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3
+  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg8 libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3 gettext ant
 elif [[ "$VERSION" -eq 8 ]]; then
-  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3
+  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3 gettext ant
 else
   echo "unknown version ${VERSION}"  1>&2
   exit 1
