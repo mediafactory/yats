@@ -5,9 +5,9 @@ VERSION=$(sed 's/\..*//' /etc/debian_version)
 # debian packages
 apt-get update
 if [[ "$VERSION" -eq 7 ]]; then
-  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg8 libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd
+  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg8 libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3
 elif [[ "$VERSION" -eq 8 ]]; then
-  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd
+  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3
 else
   echo "unknown version ${VERSION}"  1>&2
   exit 1
@@ -39,6 +39,7 @@ freshclam&
 # yats web
 mkdir -p /var/web/yats
 ln -fs /vagrant_sites/static /var/web/yats/static
+mkdir -p /var/web/yats/static
 ln -fs /vagrant_sites/web /var/web/yats/web
 
 mkdir -p /var/web/yats/files
@@ -64,15 +65,19 @@ python manage.py syncdb --noinput
 python manage.py createsuperuser --username root --email root@localhost --noinput
 python manage.py migrate
 python manage.py loaddata /vagrant/init_db.json
+python manage.py collectstatic  -l --noinput
 
 chown root:vagrant /var/web/yats/db/yats2.sqlite
 chmod go+w /var/web/yats/db/yats2.sqlite
 
 # apache config
-cp /vagrant/yats.apache /etc/apache2/sites-available/yats
+cp /vagrant/yats.apache /etc/apache2/sites-available/yats.conf
 a2dissite default
+a2dissite 000-default
 a2ensite yats
 apache2ctl restart
 
 # deb upgrade
 apt-get -y upgrade &
+
+echo "open http://192.168.33.11 with user: admin password: admin"

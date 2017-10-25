@@ -7,8 +7,9 @@
     <Directory "/var/web/yats/web/web">
         AllowOverride AuthConfig
         <Files "wsgi.py">
-            Order deny,allow
-            Allow from all
+          Order deny,allow
+          Allow from all
+          Require all granted
         </Files>
     </Directory>
 
