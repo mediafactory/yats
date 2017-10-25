@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 from ConfigParser import RawConfigParser
 
 config = RawConfigParser()
@@ -156,12 +156,12 @@ INSTALLED_APPS = (
 'django_nyt',
 'mptt',
 'sekizai',
-'sorl.thumbnail',
-'wiki',
-'wiki.plugins.attachments',
-'wiki.plugins.notifications',
-'wiki.plugins.images',
-'wiki.plugins.macros',
+#'sorl.thumbnail',
+#'wiki',
+#'wiki.plugins.attachments',
+#'wiki.plugins.notifications',
+#'wiki.plugins.images',
+#'wiki.plugins.macros',
     #'devserver'
 )
 
