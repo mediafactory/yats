@@ -11,7 +11,7 @@ from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs
 from yats.models import boards
-from yats.forms import AddToBordForm
+from yats.forms import AddToBordForm, PasswordForm
 
 import datetime
 try:
@@ -20,8 +20,14 @@ except ImportError:
     from django.utils import simplejson as json
 
 def root(request):
+    if request.method == 'POST':
+        form = PasswordForm(request.POST)
+        if form.is_valid():
+            request.user.set_password(form.cleaned_data['password'])
+        else:
+            messages.add_message(request, messages.ERROR, _(u'Password invalid'))
+
     return table(request)
-    #return render_to_response('home.html', {}, RequestContext(request))
 
 def info(request):
     from socket import gethostname

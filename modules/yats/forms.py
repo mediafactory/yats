@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 from django import forms
 from django.contrib.auth.models import User
 from django.utils import importlib
@@ -58,9 +58,9 @@ def save_instance(form, instance, fields=None, fail_message='saved',
 
 class TicketsForm(forms.ModelForm):
     required_css_class = 'required'
-    
+
     file_addition = forms.BooleanField(required=False)
-       
+
     def __init__(self, *args, **kwargs):
         if not 'user' in kwargs:
             raise Exception('missing user')
@@ -70,49 +70,49 @@ class TicketsForm(forms.ModelForm):
         if not 'customer' in kwargs:
             raise Exception('missing customer')
         self.customer = kwargs.pop('customer')
-        
+
         if 'exclude_list' in kwargs:
             exclude_list = kwargs.pop('exclude_list')
         else:
             exclude_list = []
-            
+
         if not 'is_stuff' in kwargs or not kwargs.pop('is_stuff'):
             exclude_list = list(set(exclude_list + settings.TICKET_NON_PUBLIC_FIELDS))
-            
+
             super(TicketsForm, self).__init__(*args, **kwargs)
-            
+
             if self.fields.get('customer'):
-                self.fields['customer'].queryset = self.fields['customer'].queryset.filter(pk=self.customer) 
+                self.fields['customer'].queryset = self.fields['customer'].queryset.filter(pk=self.customer)
         else:
             super(TicketsForm, self).__init__(*args, **kwargs)
-        
+
         for field in exclude_list:
             del self.fields[field]
-            
+
         for field in self.fields:
             if type(self.fields[field]) is forms.fields.DateField:
                 self.fields[field].widget = BootstrapDateInput()
-                
+
         # remove fields after close
         if not self.instance.pk is None and self.instance.closed and not self.view_only:
             available_fields = []
             for field in self.fields:
                 available_fields.append(str(field))
-                
+
             for field in available_fields:
                 if str(field) not in settings.TICKET_EDITABLE_FIELDS_AFTER_CLOSE:
                     del self.fields[str(field)]
-            
+
         # disallow non state
         if 'state' in self.fields:
             self.fields['state'].empty_label = None
-        
+
             # only allow possible states
             if not self.instance.pk is None and not self.view_only:
                 flows = list(ticket_flow_edges.objects.select_related('next').filter(now=self.instance.state).exclude(next__type=2).values_list('next', flat=True))
                 flows.append(self.instance.state_id)
                 self.fields['state'].queryset = self.fields['state'].queryset.filter(id__in=flows)
-                    
+
     def save(self, commit=True):
         """
         Saves this ``form``'s cleaned_data into model instance
@@ -132,57 +132,57 @@ class TicketsForm(forms.ModelForm):
     class Meta:
         model = mod_cls
         exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed', 'close_date', 'last_action_date']
-        
+
 class SearchForm(forms.ModelForm):
     required_css_class = 'do_not_require'
-    
+
     #fulltext = forms.CharField(required=True, label=_('full text search'))
 
     def __init__(self, *args, **kwargs):
         if not 'user' in kwargs:
             raise Exception('missing user')
         self.user = kwargs.pop('user')
-        
+
         if not 'customer' in kwargs:
             raise Exception('missing customer')
         self.customer = kwargs.pop('customer')
-        
+
         if 'include_list' in kwargs:
             include_list = kwargs.pop('include_list')
         else:
             include_list = []
-            
+
         if not 'is_stuff' in kwargs or not kwargs.pop('is_stuff'):
             used_fields = []
             for ele in include_list:
                 if not ele in settings.TICKET_NON_PUBLIC_FIELDS:
                     used_fields.append(ele)
             super(SearchForm, self).__init__(*args, **kwargs)
-            
+
             if self.fields.get('customer'):
-                self.fields['customer'].queryset = self.fields['customer'].queryset.filter(pk=self.customer) 
+                self.fields['customer'].queryset = self.fields['customer'].queryset.filter(pk=self.customer)
         else:
             used_fields = include_list
             super(SearchForm, self).__init__(*args, **kwargs)
         available_fields = []
         for field in self.fields:
             available_fields.append(str(field))
-            
+
         for field in available_fields:
             if str(field) not in used_fields:
                 del self.fields[str(field)]
-            
+
         for field in self.fields:
             if type(self.fields[field]) is forms.fields.DateField:
                 self.fields[field].widget = BootstrapDateInput()
-                
+
             if type(self.fields[field]) is forms.fields.BooleanField:
                 self.fields[field] = forms.NullBooleanField()
-                
+
         # unset initial
         for field in self.fields:
             self.fields[field].initial = None
-                                    
+
     def save(self, commit=True):
         """
         Saves this ``form``'s cleaned_data into model instance
@@ -209,17 +209,17 @@ class SearchForm(forms.ModelForm):
             'u_user': _('last updated by'),
             'd_user': _('deleted by'),
         }
-        
+
 class CommentForm(forms.Form):
     comment = forms.CharField(required=True, label=_('comment'))
 
 class UploadFileForm(forms.Form):
     file = yatsFileField(label=_('file'), required=True)
-    
+
 class TicketCloseForm(forms.Form):
     resolution = forms.ModelChoiceField(queryset=ticket_resolution.objects.filter(active_record=True), label=_('resolution'))
     close_comment = forms.CharField(widget=forms.Textarea(), label=_('comment'))
-    
+
 class TicketReassignForm(forms.Form):
     assigned = forms.ModelChoiceField(queryset=User.objects.filter(is_active=True), label=_('assigned'))
     state = forms.ModelChoiceField(queryset=ticket_flow.objects.all(), label=_('next'), empty_label=None)
@@ -253,4 +253,16 @@ class AddToBordForm(forms.Form):
     days = forms.IntegerField(label=_('days'), required=False)
     order_by = forms.ChoiceField(choices=ORDER_BY_CHOICES, label=_('order by'))
     order_dir = forms.ChoiceField(choices=ORDER_DIR_CHOICES, label=_('order direction'), required=False)
-    
+
+class PasswordForm(forms.Form):
+    password = forms.CharField(required=True)
+    password_check = forms.CharField(required=True)
+
+    def clean_password_check(self):
+        # check if confirmpassword is equal newpassword
+        password = self.cleaned_data['password']
+        password_check = self.cleaned_data['password_check']
+        if cmp(password, password_check) != 0:
+            raise forms.ValidationError(_(u'passwords did not match!'))
+        else:
+            return password_check

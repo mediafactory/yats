@@ -65,7 +65,7 @@
 	            	</ul>
 	            </li>
 	            {% else %}
-	            <li><a href="/wiki/" class="">{% trans "Wiki" %}</a></li>
+	            <!-- <li><a href="/wiki/" class="">{% trans "Wiki" %}</a></li> -->
             	{% endif %}
                 <li><a href="/reports/" class="">{% trans "Reports" %}</a></li>
                 <li class="dropdown">
@@ -133,14 +133,17 @@
         <h3>{% trans "change password" %}</h3>
     </div>
 
-    <form class="form-{{ layout }}" action="" method="post">
+    <form class="form-{{ layout }}" action="/" method="post">
     <div class="modal-body">
-    	Password Dialog
+      <div>
+        <label for="id_password">{% trans "Password" %}:</label> <input type="password" name="password" id="id_password" />
+        <label for="id_password">{% trans "Validate password" %}:</label> <input type="password" name="password_check" id="id_password_check" />
+      </div>
     </div>
 
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-        <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+        <input type="submit" value="{% trans "change" %}" class="btn btn-primary">
     </div>
     </form>
 </div>
