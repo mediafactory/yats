@@ -1,9 +1,15 @@
 YATS
 ====
 
-yet another (trouble) ticketing system based on Python Django  
-&copy; media factory, Lübeck, Germany http://www.mediafactory.de  
-License: MIT
+[![license](https://img.shields.io/github/license/mediafactory/yats.svg)]()
+[![GitHub issues](https://img.shields.io/github/issues/mediafactory/yats.svg)]()
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/mediafactory/yats.svg)]()
+[![GitHub contributors](https://img.shields.io/github/contributors/mediafactory/yats.svg)]()
+[![GitHub forks](https://img.shields.io/github/forks/mediafactory/yats.svg?style=social&label=Fork)]()
+[![GitHub stars](https://img.shields.io/github/stars/mediafactory/yats.svg?style=social&label=Stars)]()
+
+- yet another (trouble) ticketing system based on Python Django
+- &copy; media factory, Lübeck, Germany http://www.mediafactory.de
 
 DEMO
 -----
@@ -22,13 +28,15 @@ Or use vagrant!
 VAGRANT
 -----
 howto:
-cd vagrant  
-vagrant up  
-Wait! :-)  
-Point your browser at:  
-http://192.168.33.11  
+```
+$ cd vagrant
+$ vagrant up
+```
+Wait! :-)
+Point your browser at:
+http://192.168.33.11
 or for admin interface:
-http://192.168.33.11/admin  
+http://192.168.33.11/admin
   
 Staff User:  
 Login: admin  
