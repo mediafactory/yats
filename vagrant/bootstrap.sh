@@ -80,4 +80,8 @@ apache2ctl restart
 # deb upgrade
 apt-get -y upgrade &
 
+# running ant and ignore error
+cd /vagrant_project
+ant ci18n
+
 echo "open http://192.168.33.11 with user: admin password: admin"
