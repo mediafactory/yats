@@ -4,14 +4,10 @@ VERSION=$(sed 's/\..*//' /etc/debian_version)
 
 # debian packages
 apt-get update
-if [[ "$VERSION" -eq 7 ]]; then
-  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg8 libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3 gettext ant
-elif [[ "$VERSION" -eq 8 ]]; then
-  apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen python-pip apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3 gettext ant
-else
-  echo "unknown version ${VERSION}"  1>&2
-  exit 1
-fi
+apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3 gettext ant wget
+
+wget https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
 
 # python modules
 sites=`python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
@@ -61,9 +57,8 @@ chown root:vagrant /var/web/yats/db
 chmod go+w /var/web/yats/db
 
 cd /var/web/yats/web/
-python manage.py syncdb --noinput
-python manage.py createsuperuser --username root --email root@localhost --noinput
 python manage.py migrate
+python manage.py createsuperuser --username root --email root@localhost --noinput
 python manage.py loaddata /vagrant/init_db.json
 python manage.py collectstatic  -l --noinput
 

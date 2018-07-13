@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*- 
-from django.conf import settings 
+# -*- coding: utf-8 -*-
+from django.conf import settings
 from sys import version_info
-from south.signals import post_migrate
 from yats.api import *
 
 def update_permissions_after_migration(app,**kwargs):
@@ -13,8 +12,6 @@ def update_permissions_after_migration(app,**kwargs):
     from django.contrib.auth.management import create_permissions
 
     create_permissions(get_app(app), get_models(), 2 if settings.DEBUG else 0)
-
-post_migrate.connect(update_permissions_after_migration)
 
 version = '@version@'
 

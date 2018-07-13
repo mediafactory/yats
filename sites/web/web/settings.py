@@ -5,7 +5,6 @@ config = RawConfigParser()
 config.read('/usr/local/yats/config/web.ini')
 
 DEBUG = config.getboolean('debug','DEBUG')
-TEMPLATE_DEBUG = DEBUG
 #DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
 XMLRPC_DEBUG = False
 ALLOWED_HOSTS = ['*']
@@ -102,40 +101,43 @@ SECRET_KEY = ')ha6uuz1zqw3$r1-bqk1wv=wh%=*7aheo&6-cm(_z)v+bs%%!*'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.app_directories.Loader',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.messages.context_processors.messages',
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.request',
+                'django.template.context_processors.static',
+            ],
+            'loaders': [
+                'django.template.loaders.app_directories.Loader',
+            ]
+        },
+    },
+]
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    # 'django.core.context_processors.debug',
-    'django.core.context_processors.request',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.debug', # for wiki
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-    'sekizai.context_processors.sekizai', # for wiki
-)
-
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
+MIDDLEWARE_CLASSES = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'yats.middleware.header.ResponseInjectHeader',
     'yats.middleware.auth.BasicAuthMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
     'yats.middleware.error.ErrorCaptureMiddleware',
-)
+]
 
 ROOT_URLCONF = 'web.urls'
 
 WSGI_APPLICATION = 'web.wsgi.application'
-
-TEMPLATE_DIRS = (
-)
 
 DEVSERVER_TRUNCATE_SQL = False
 INSTALLED_APPS = (
@@ -145,33 +147,13 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'django.contrib.humanize',
     'rpc4django',
-    'yats',
-    'south',
     'bootstrap_toolkit',
+    #'django_nyt',
+    'yats',
     'web',
-# # for wiki
-'django.contrib.sites', # django 1.6.2
-'django.contrib.humanize',
-'django_nyt',
-'mptt',
-'sekizai',
-#'sorl.thumbnail',
-#'wiki',
-#'wiki.plugins.attachments',
-#'wiki.plugins.notifications',
-#'wiki.plugins.images',
-#'wiki.plugins.macros',
-    #'devserver'
 )
-
-SOUTH_MIGRATION_MODULES = {
-    'django_nyt': 'django_nyt.south_migrations',
-    'wiki': 'wiki.south_migrations',
-    'images': 'wiki.plugins.images.south_migrations',
-    'notifications': 'wiki.plugins.notifications.south_migrations',
-    'attachments': 'wiki.plugins.attachments.south_migrations',
-}
 
 LOGGING = {
     'version': 1,

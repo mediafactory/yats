@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.utils.translation import ugettext as _
-from django.contrib.auth.models import User
-from django.db.models import get_model
+from django.apps import apps
 from django.conf import settings
 from django.http import QueryDict
-from yats.models import tickets_comments
 from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_changes, mail_ticket, check_references
-from yats.forms import TicketsForm
 from rpc4django import rpcmethod
 from xmlrpclib import Fault
 import datetime
-import re
 
 """
     http://code.google.com/p/tracker-for-trac/source/browse/trunk/%40source/trac_main.pas
@@ -34,7 +30,7 @@ def fieldNameToTracName(field):
         return 'summary'
     if field == 'state':
         return 'status'
-    
+
     return field
 
 def buildFields(exclude_list):
@@ -45,27 +41,27 @@ def buildFields(exclude_list):
     for field in t._meta.fields:
         if field.name in exclude_list:
             continue
-        
+
         if type(field).__name__ == 'ForeignKey':
             typename = 'select'
             options = []
-            opts = get_model(modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__).objects.all()
+            opts = apps.get_model(modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__).objects.all()
             for opt in opts:
                 options.append(unicode(opt))
-                
+
             TicketFields[field.name] = (modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__)
-            
+
         else:
             if field.__class__.__name__ == 'TextField':
                 typename = 'textarea'
             else:
                 typename = 'text'
-                
+
             # TODO: bool and boolnull and choices
             options = None
-            
+
             TicketFields[field.name] = None
-        
+
         value = {
                 'name': field.name,
                 'label': fieldNameToTracName(field.name),
@@ -78,13 +74,13 @@ def buildFields(exclude_list):
 
 def TracNameTofieldName(field):
     return field
-    
+
 def add_search_terms(field_defs, parts, compare, results):
     if field_defs[parts[0]] == None:
         results['%s%s' % (parts[0], compare)] = parts[1]
     else:
-        results[parts[0]] = get_model(field_defs[parts[0]][0], field_defs[parts[0]][1]).objects.get(name=parts[1]).pk
-        
+        results[parts[0]] = apps.get_model(field_defs[parts[0]][0], field_defs[parts[0]][1]).objects.get(name=parts[1]).pk
+
 def search_terms(q):
     """
     Break apart a search query into its various search terms.  Terms are
@@ -119,14 +115,14 @@ def search_terms(q):
         elif '=' in element:
             parts = element.split('=')
             add_search_terms(fields, parts, '__iexact', results)
-            
+
     return results
 
-@rpcmethod(name='system.getAPIVersion', signature=['array']) 
+@rpcmethod(name='system.getAPIVersion', signature=['array'])
 def getAPIVersion():
     return [-1,0,1]
 
-@rpcmethod(name='ticket.getTicketFields', signature=['array']) 
+@rpcmethod(name='ticket.getTicketFields', signature=['array'])
 def getTicketFields(**kwargs):
     """
         array ticket.getTicketFields()
@@ -152,9 +148,9 @@ def getTicketFields(**kwargs):
             {
                 'name': 'ddd',
                 'type': 'radio',
-            },            
+            },
         ]
-        
+
         cache ticket structur:
         {
             'caption': None,
@@ -164,11 +160,11 @@ def getTicketFields(**kwargs):
 
     """
     request = kwargs['request']
-    
+
     exclude_list = FIELD_EXCLUDE_LIST
     if not request.user.is_staff:
         exclude_list = list(set(exclude_list + settings.TICKET_NON_PUBLIC_FIELDS))
-        
+
     return buildFields(exclude_list)[0]
 
 @rpcmethod(name='ticket.query', signature=['array'])
@@ -181,7 +177,7 @@ def query(*args, **kwargs):
     tickets = get_ticket_model().objects.all()
     if len(args) > 0:
         tickets =  tickets.filter(**search_terms(args[0]))
-    
+
     ids = tickets.values_list('id', flat=True)
     return list(ids)
 
@@ -192,9 +188,9 @@ def get(id, **kwargs):
     """
     exclude_list = FIELD_EXCLUDE_LIST
     #exclude_list.pop(exclude_list.index('id'))
-    
+
     request = kwargs['request']
-    
+
     if not request.user.is_staff:
         exclude_list = list(set(exclude_list + settings.TICKET_NON_PUBLIC_FIELDS))
 
@@ -211,7 +207,7 @@ def get(id, **kwargs):
                 attributes[fieldNameToTracName(field.name)] = datetime.datetime.combine(getattr(ticket, field.name), datetime.datetime.min.time())
             else:
                 attributes[fieldNameToTracName(field.name)] = None
-            
+
         else:
             attributes[fieldNameToTracName(field.name)] = unicode(getattr(ticket, field.name))
     return [id, ticket.c_date, ticket.last_action_date, attributes]
@@ -222,6 +218,8 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
     array ticket.update(int id, string comment, struct attributes={}, boolean notify=False)
     Update a ticket, returning the new ticket in the same form as getTicket(). Requires a valid 'action' in attributes to support workflow.
     """
+    from yats.forms import TicketsForm
+
     request = kwargs['request']
     params = {}
     for key, value in attributes.iteritems():
@@ -230,10 +228,10 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
     ticket = get_ticket_model().objects.get(pk=id)
     if ticket.closed:
         return Fault(_('ticket already closed'))
-    
+
     fakePOST = QueryDict('', mutable=True)
     fakePOST.update(params)
-    
+
     form = TicketsForm(fakePOST, instance=ticket, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
     form.cleaned_data = params
     form._changed_data = [name for name in params]
@@ -243,12 +241,14 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
         if key == 'assigned':
             touch_ticket(value, ticket.pk)
     ticket.save(user=request.user)
-    
+
     remember_changes(request, form, ticket)
-            
+
     touch_ticket(request.user, ticket.pk)
-        
+
     if comment:
+        from yats.models import tickets_comments
+
         com = tickets_comments()
         com.comment = _('ticket changed by %(user)s\n\n%(comment)s') % {'user': request.user, 'comment': comment}
         com.ticket = ticket

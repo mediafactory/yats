@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.contrib.auth.models import User
-from django.utils import importlib
 from django.conf import settings
 from django.forms.models import construct_instance
 from bootstrap_toolkit.widgets import BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
 from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards
+
+import importlib
 
 mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
 mod = importlib.import_module(mod_path)
@@ -179,6 +180,8 @@ class SearchForm(forms.ModelForm):
             if type(self.fields[field]) is forms.fields.BooleanField:
                 self.fields[field] = forms.NullBooleanField()
 
+            self.fields[field].required = False
+
         # unset initial
         for field in self.fields:
             self.fields[field].initial = None
@@ -201,6 +204,7 @@ class SearchForm(forms.ModelForm):
 
     class Meta:
         model = mod_cls
+        exclude = []
         labels = {
             'c_date': _('created'),
             'u_date': _('updated'),

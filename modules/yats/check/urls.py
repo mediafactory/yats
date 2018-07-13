@@ -1,7 +1,7 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^check/raise/500/$',
         view=views.raiseerror,
         name='check_raise'),
@@ -13,4 +13,4 @@ urlpatterns = patterns('',
     url(r'^check/404/$',
         view=views.notfound,
         name='check_raise'),
-)
+]

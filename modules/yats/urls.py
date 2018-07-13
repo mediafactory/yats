@@ -1,14 +1,18 @@
-# -*- coding: utf-8 -*- 
-from django.conf.urls import patterns, url
-from yats.views import root, info, show_board, board_by_id
+# -*- coding: utf-8 -*-
+from django.conf.urls import  url
+from yats.views import root, info, show_board, board_by_id, yatse_api
 from yats.tickets import new, action, table, search, reports, workflow
+from rpc4django.views import serve_rpc_request
 
-urlpatterns = patterns('',
-    (r'^RPC2/$', 'rpc4django.views.serve_rpc_request'),
+urlpatterns = [
+    url(r'^rpc/$',
+        view=serve_rpc_request,
+        name='tx.tickets.callback'),
+
    url(r'^$',
         view=root,
         name='view_root'),
-   
+
    # tickets
    url(r'^tickets/new/$',
         view=new,
@@ -49,5 +53,10 @@ urlpatterns = patterns('',
    url(r'^info/$',
         view=info,
         name='info'),
-   
-)
+
+
+   # yatse
+   url(r'^yatse/(?P<method>\w+)/$',
+        view=yatse_api,
+        name='yatse_api'),
+]

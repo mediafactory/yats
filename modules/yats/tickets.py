@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, StreamingHttpResponse, HttpResponse
-from django.db.models import get_model
+from django.apps import apps
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.serializers.json import DjangoJSONEncoder
@@ -51,12 +50,12 @@ def new(request):
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
     form.fields['state'].queryset = form.fields['state'].queryset.exclude(type=2)
 
-    return render_to_response('tickets/new.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))
+    return render(request, 'tickets/new.html', {'layout': 'horizontal', 'form': form})
 
 def action(request, mode, ticket):
     mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
     mod_path = mod_path.split('.').pop(0)
-    tic = get_model(mod_path, cls_name).objects.get(pk=ticket)
+    tic = apps.get_model(mod_path, cls_name).objects.get(pk=ticket)
 
     if mode == 'view':
         if request.method == 'POST':
@@ -132,11 +131,11 @@ def action(request, mode, ticket):
 
         add_breadcrumbs(request, ticket, '#')
 
-        return render_to_response('tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed}, RequestContext(request))
+        return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed})
 
     elif mode == 'history':
         history = tickets_history.objects.filter(ticket=ticket)
-        return render_to_response('tickets/history.html', {'layout': 'horizontal', 'ticket': tic, 'history': history}, RequestContext(request))
+        return render(request, 'tickets/history.html', {'layout': 'horizontal', 'ticket': tic, 'history': history})
 
     elif mode == 'reopen':
         if tic.closed:
@@ -222,7 +221,7 @@ def action(request, mode, ticket):
             form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
         if 'state' in form.fields:
             form.fields['state'].queryset = form.fields['state'].queryset.exclude(type=2)
-        return render_to_response('tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form}, RequestContext(request))
+        return render(request, 'tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form})
 
     elif mode == 'download':
         fileid = request.GET.get('file', -1)
@@ -271,13 +270,13 @@ def action(request, mode, ticket):
         else:
             form = UploadFileForm()
 
-        return render_to_response('tickets/file.html', {'ticketid': ticket, 'layout': 'horizontal', 'form': form}, RequestContext(request))
+        return rrender(request, 'tickets/file.html', {'ticketid': ticket, 'layout': 'horizontal', 'form': form})
 
 def table(request, **kwargs):
     search_params = {}
     mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
     mod_path = mod_path.split('.').pop(0)
-    tic = get_model(mod_path, cls_name).objects.select_related('type').all()
+    tic = apps.get_model(mod_path, cls_name).objects.select_related('type').all()
 
     if not request.user.is_staff:
         tic = tic.filter(customer=request.organisation)
@@ -332,7 +331,7 @@ def table(request, **kwargs):
     board_form = AddToBordForm()
     board_form.fields['board'].queryset = board_form.fields['board'].queryset.filter(c_user=request.user)
 
-    return render_to_response('tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption, 'board_form': board_form}, RequestContext(request))
+    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption, 'board_form': board_form})
 
 def search(request):
     searchable_fields = settings.TICKET_SEARCH_FIELDS
@@ -361,7 +360,7 @@ def search(request):
 
     form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
 
-    return render_to_response('tickets/search.html', {'layout': 'horizontal', 'form': form}, RequestContext(request))
+    return render(request, 'tickets/search.html', {'layout': 'horizontal', 'form': form})
 
 def reports(request):
     if 'report' in request.GET:
@@ -387,7 +386,7 @@ def reports(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         rep_lines = paginator.page(paginator.num_pages)
 
-    return render_to_response('tickets/reports.html', {'lines': rep_lines}, RequestContext(request))
+    return render(request, 'tickets/reports.html', {'lines': rep_lines})
 
 def workflow(request):
     if request.method == 'POST':
@@ -446,4 +445,4 @@ def workflow(request):
     max_x = max_x + min_x + (offset_x * 2)
     max_y = max_y + min_y + (offset_y * 2)
 
-    return render_to_response('tickets/workflow.html', {'layout': 'horizontal', 'flows': flows, 'edges': edges, 'nodes': nodes, 'width': max_x, 'height': max_y}, RequestContext(request))
+    return render(request, 'tickets/workflow.html', {'layout': 'horizontal', 'flows': flows, 'edges': edges, 'nodes': nodes, 'width': max_x, 'height': max_y})

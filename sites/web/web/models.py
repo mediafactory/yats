@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 from django.db import models
 from django.utils.functional import lazy
 from django.core.cache import cache
@@ -86,7 +86,7 @@ class test(tickets):
     solution = models.TextField(null=True, blank=True)
     fixed_in_version = models.CharField(max_length=255, choices=lazy(getGibthubTags, tuple)(), blank=True)
     deadline = models.DateField(null=True, blank=True)
-    
+
     def is_late(self):
         if self.deadline < datetime.date.today():
             return 2

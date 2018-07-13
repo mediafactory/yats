@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, HttpResponseNotFound, HttpResponse
 from django import get_version as get_django_version
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.http import urlquote_plus
 from django.contrib import messages
@@ -12,6 +11,7 @@ from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs
 from yats.models import boards
 from yats.forms import AddToBordForm, PasswordForm
+from yats.yatse import buildYATSFields
 
 import datetime
 try:
@@ -32,7 +32,7 @@ def root(request):
 def info(request):
     from socket import gethostname
 
-    return render_to_response('info.html', {'hostname': gethostname(), 'version': get_version(), 'date': datetime.datetime.now(), 'django': get_django_version(), 'python': get_python_version()}, RequestContext(request))
+    return render(request, 'info.html', {'hostname': gethostname(), 'version': get_version(), 'date': datetime.datetime.now(), 'django': get_django_version(), 'python': get_python_version()})
 
 def show_board(request, name):
     # http://bootsnipp.com/snippets/featured/kanban-board
@@ -129,8 +129,16 @@ def show_board(request, name):
             column['query'] = column['query'].filter(customer=request.organisation)
 
     add_breadcrumbs(request, board.pk, '$')
-    return render_to_response('board/view.html', {'columns': columns, 'board': board}, RequestContext(request))
+    return render(request, 'board/view.html', {'columns': columns, 'board': board})
 
 def board_by_id(request, id):
     board = boards.objects.get(pk=id, c_user=request.user)
     return show_board(request, board.name)
+
+def yatse_api(request, method):
+    if method == 'fields':
+        fields = buildYATSFields([])
+        return HttpResponse(json.dumps(fields[0]))
+
+    else:
+        return HttpResponseNotFound()

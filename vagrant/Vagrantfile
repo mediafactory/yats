@@ -19,9 +19,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box_check_update = true
 
   # Apache
-  config.vm.network "forwarded_port", guest: 80, host: 8080
+  #config.vm.network "forwarded_port", guest: 80, host: 8080
   # runserver
-  config.vm.network "forwarded_port", guest: 8000, guest_ip: "127.0.0.1", host: 8081
+  #config.vm.network "forwarded_port", guest: 8000, guest_ip: "127.0.0.1", host: 8081
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
