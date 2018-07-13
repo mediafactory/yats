@@ -46,5 +46,6 @@ def resttext(text):
         logger.fatal(repr(ex1))
         return text
 
+
 resttext.is_safe = True
 register.filter('resttext', resttext)

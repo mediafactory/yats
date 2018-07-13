@@ -6,7 +6,6 @@ see http://json-rpc.org/wiki/specification
 
 import json
 
-
 # indent the json output by this many characters
 # 0 does newlines only and None does most compact
 # This is consistent with SimpleXMLRPCServer output
@@ -27,6 +26,12 @@ try:
 except NameError:
     # Python3
     basestring = str
+
+
+class JSONRPCException(Exception):
+    def __init__(self, message, code):
+        self.message = message
+        self.code = code
 
 
 class JSONRPCDispatcher(object):
@@ -52,12 +57,10 @@ class JSONRPCDispatcher(object):
         res = {'jsonrpc': '2.0', 'id': jsonid}
 
         if error is None:
-            res['error'] = None
             res['result'] = result
         else:
             res['error'] = error
             res['error']['name'] = 'JSONRPCError'
-            res['result'] = None
         try:
             return json.dumps(res, indent=JSON_INDENT, cls=self.json_encoder)
         except:
@@ -100,7 +103,7 @@ class JSONRPCDispatcher(object):
                 'message': 'Cannot decode to a javascript Object',
                 'code': JSONRPC_BAD_CALL_ERROR})
 
-        if not 'method' in jsondict:
+        if 'method' not in jsondict:
             # verify the dictionary contains the method key
             return self._encode_result(jsondict.get('id', ''), None, {
                 'message': "JSONRPC requests must have the 'method' attribute.",
@@ -123,6 +126,10 @@ class JSONRPCDispatcher(object):
                 except TypeError:
                     # Catch unexpected keyword argument error
                     result = self.methods[jsondict.get('method')](*jsondict.get('params', []))
+            except JSONRPCException as e:
+                # Custom message and code
+                return self._encode_result(jsondict.get('id', ''), None, {
+                    'message': e.message, 'code': e.code})
             except Exception as e:
                 # this catches any error from the called method raising
                 # an exception to the wrong number of params being sent

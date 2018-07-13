@@ -54,7 +54,7 @@ def bootstrap_stylesheet_tag(css=None):
     """
     HTML tag to insert Bootstrap stylesheet
     """
-    return u'<link rel="stylesheet" href="%s">' % bootstrap_stylesheet_url(css)
+    return mark_safe(u'<link rel="stylesheet" href="%s">' % bootstrap_stylesheet_url(css))
 
 
 @register.simple_tag
@@ -65,9 +65,9 @@ def bootstrap_javascript_url(name=None):
     if BOOTSTRAP_JS_URL:
         return BOOTSTRAP_JS_URL
     if name:
-        return BOOTSTRAP_JS_BASE_URL + 'bootstrap-' + name + '.js'
+        return mark_safe(BOOTSTRAP_JS_BASE_URL + 'bootstrap-' + name + '.js')
     else:
-        return BOOTSTRAP_JS_BASE_URL + 'bootstrap.min.js'
+        return mark_safe(BOOTSTRAP_JS_BASE_URL + 'bootstrap.min.js')
 
 
 @register.simple_tag
@@ -77,7 +77,7 @@ def bootstrap_javascript_tag(name=None):
     """
     url = bootstrap_javascript_url(name)
     if url:
-        return u'<script src="%s"></script>' % url
+        return mark_safe(u'<script src="%s"></script>' % url)
     return u''
 
 
@@ -96,19 +96,19 @@ def as_bootstrap(form_or_field, layout='vertical,false'):
 
     if isinstance(form_or_field, BaseForm):
         return get_template("bootstrap_toolkit/form.html").render(
-            Context({
+            {
                 'form': form_or_field,
                 'layout': layout,
                 'float': bootstrap_float,
-            })
+            }
         )
     elif isinstance(form_or_field, BoundField):
         return get_template("bootstrap_toolkit/field.html").render(
-            Context({
+            {
                 'field': form_or_field,
                 'layout': layout,
                 'float': bootstrap_float,
-            })
+            }
         )
     else:
         # Display the default
@@ -174,7 +174,7 @@ def pagination(page, pages_to_show=11):
     Generate Bootstrap pagination links from a page object
     """
     context = get_pagination_context(page, pages_to_show)
-    return get_template("bootstrap_toolkit/pagination.html").render(Context(context))
+    return get_template("bootstrap_toolkit/pagination.html").render(context)
 
 
 @register.filter
@@ -204,8 +204,7 @@ def bootstrap_messages(context, *args, **kwargs):
     """
     Show request messages in Bootstrap style
     """
-    return get_template("bootstrap_toolkit/messages.html").render(context)
-
+    return get_template("bootstrap_toolkit/messages.html").render(context.flatten())
 
 @register.inclusion_tag("bootstrap_toolkit/form.html")
 def bootstrap_form(form, **kwargs):

@@ -14,12 +14,12 @@ The main entry point for RPC4Django. Usually, the user simply puts
 import logging
 import json
 from django.http import HttpResponse, Http404, HttpResponseForbidden
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.conf import settings
-from django.core.urlresolvers import reverse, NoReverseMatch, get_mod_func
+
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.importlib import import_module
-from .rpcdispatcher import RPCDispatcher
+
+from .rpcdispatcher import dispatcher
 from .__init__ import version
 
 logger = logging.getLogger('rpc4django')
@@ -29,10 +29,7 @@ logger = logging.getLogger('rpc4django')
 # see the rpc4django documentation for more details
 LOG_REQUESTS_RESPONSES = getattr(settings,
                                  'RPC4DJANGO_LOG_REQUESTS_RESPONSES', True)
-RESTRICT_INTROSPECTION = getattr(settings,
-                                 'RPC4DJANGO_RESTRICT_INTROSPECTION', False)
-RESTRICT_OOTB_AUTH = getattr(settings,
-                             'RPC4DJANGO_RESTRICT_OOTB_AUTH', True)
+
 RESTRICT_JSON = getattr(settings, 'RPC4DJANGO_RESTRICT_JSONRPC', False)
 RESTRICT_XML = getattr(settings, 'RPC4DJANGO_RESTRICT_XMLRPC', False)
 RESTRICT_METHOD_SUMMARY = getattr(settings,
@@ -43,18 +40,26 @@ HTTP_ACCESS_CREDENTIALS = getattr(settings,
                                   'RPC4DJANGO_HTTP_ACCESS_CREDENTIALS', False)
 HTTP_ACCESS_ALLOW_ORIGIN = getattr(settings,
                                    'RPC4DJANGO_HTTP_ACCESS_ALLOW_ORIGIN', '')
-JSON_ENCODER = getattr(settings, 'RPC4DJANGO_JSON_ENCODER',
-                       'django.core.serializers.json.DjangoJSONEncoder')
-
-# get a list of the installed django applications
-# these will be scanned for @rpcmethod decorators
-APPS = getattr(settings, 'INSTALLED_APPS', [])
 
 
-def get_request_body(request):
-    if hasattr(request, 'raw_post_data'):
-        return request.raw_post_data
-    return request.body
+def get_content_type(request):
+    """Return the MIME content type giving the request
+
+    Return `None` if unknown.
+    """
+
+    if hasattr(request, 'content_type'):
+        conttype = request.content_type
+
+    else:
+        header = request.META.get('CONTENT_TYPE', None)
+
+        if not header:
+            return None
+
+        conttype = header.partition(';')[0]  # remove ";charset="
+
+    return conttype
 
 
 def check_request_permission(request, request_format='xml'):
@@ -72,8 +77,7 @@ def check_request_permission(request, request_format='xml'):
 
     user = getattr(request, 'user', None)
     methods = dispatcher.list_methods()
-    method_name = dispatcher.get_method_name(get_request_body(request),
-                                             request_format)
+    method_name = dispatcher.get_method_name(request.body, request_format)
     response = True
 
     for method in methods:
@@ -128,7 +132,7 @@ def is_xmlrpc_request(request):
 
     '''
 
-    conttype = request.META.get('CONTENT_TYPE', 'unknown type')
+    conttype = get_content_type(request) or ''
 
     # check content type for obvious clues
     if conttype == 'text/xml' or conttype == 'application/xml':
@@ -144,7 +148,7 @@ def is_xmlrpc_request(request):
     # this is slower than if the content-type was set properly
     # checking JSON is safer than XML because of entity expansion
     try:
-        json.loads(get_request_body(request))
+        json.loads(request.body.decode('utf-8'))
         return False
     except ValueError:
         return True
@@ -168,7 +172,8 @@ def serve_rpc_request(request):
         # Handle POST request with RPC payload
 
         if LOG_REQUESTS_RESPONSES:
-            logger.debug('Incoming request: %s' % str(get_request_body(request)))
+            body_text = request.body.decode('utf-8')
+            logger.debug('Incoming request: %s' % body_text)
 
         if is_xmlrpc_request(request):
             if RESTRICT_XML:
@@ -177,8 +182,7 @@ def serve_rpc_request(request):
             if not check_request_permission(request, 'xml'):
                 return HttpResponseForbidden()
 
-            resp = dispatcher.xmldispatch(get_request_body(request),
-                                          request=request)
+            resp = dispatcher.xmldispatch(request.body, request=request)
             response_type = 'text/xml'
         else:
             if RESTRICT_JSON:
@@ -187,8 +191,7 @@ def serve_rpc_request(request):
             if not check_request_permission(request, 'json'):
                 return HttpResponseForbidden()
 
-            resp = dispatcher.jsondispatch(get_request_body(request),
-                                           request=request)
+            resp = dispatcher.jsondispatch(request.body, request=request)
             response_type = 'application/json'
 
         if LOG_REQUESTS_RESPONSES:
@@ -226,7 +229,7 @@ def serve_rpc_request(request):
         methods = dispatcher.list_methods()
         template_data = {
             'methods': methods,
-            'url': URL,
+            'url': request.path,
 
             # rpc4django version
             'version': version(),
@@ -234,34 +237,9 @@ def serve_rpc_request(request):
             # restricts the ability to test the rpc server from the docs
             'restrict_rpctest': RESTRICT_RPCTEST,
         }
-        from django.template import RequestContext
-        return render_to_response('rpc4django/rpcmethod_summary.html',
-                                  template_data,
-                                  context_instance=RequestContext(request))
 
-
-# reverse the method for use with system.describe and ajax
-try:
-    URL = reverse(serve_rpc_request)
-except NoReverseMatch:
-    URL = ''
-
-try:
-    # Python2
-    basestring
-except NameError:
-    # Python3
-    basestring = str
-
-# resolve JSON_ENCODER to class if it's a string
-if isinstance(JSON_ENCODER, basestring):
-    mod_name, cls_name = get_mod_func(JSON_ENCODER)
-    json_encoder = getattr(import_module(mod_name), cls_name)
-else:
-    json_encoder = JSON_ENCODER
-
-
-# instantiate the rpcdispatcher -- this examines the INSTALLED_APPS
-# for any @rpcmethod decorators and adds them to the callable methods
-dispatcher = RPCDispatcher(URL, APPS, RESTRICT_INTROSPECTION,
-                           RESTRICT_OOTB_AUTH, json_encoder)
+        return render(
+            request,
+            'rpc4django/rpcmethod_summary.html',
+            template_data
+        )

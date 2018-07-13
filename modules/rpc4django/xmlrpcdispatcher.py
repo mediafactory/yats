@@ -2,16 +2,20 @@
 Implements an XMLRPC dispatcher
 """
 
-import sys
-
 try:
     # Python2
-    from xmlrpclib import Fault, loads, dumps
+    from xmlrpclib import Fault, dumps
     from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 except ImportError:
     # Python3
-    from xmlrpc.client import Fault, loads, dumps
+    from xmlrpc.client import Fault, dumps
     from xmlrpc.server import SimpleXMLRPCDispatcher
+
+from defusedxml import xmlrpc
+
+# This method makes the XMLRPC parser (used by loads) safe
+# from various XML based attacks
+xmlrpc.monkey_patch()
 
 
 class XMLRPCDispatcher(SimpleXMLRPCDispatcher):
@@ -41,7 +45,7 @@ class XMLRPCDispatcher(SimpleXMLRPCDispatcher):
         """
 
         try:
-            params, method = loads(data)
+            params, method = xmlrpc.xmlrpc_client.loads(data)
 
             try:
                 response = self._dispatch(method, params, **kwargs)
@@ -57,11 +61,9 @@ class XMLRPCDispatcher(SimpleXMLRPCDispatcher):
         except Fault as fault:
             response = dumps(fault, allow_none=self.allow_none,
                              encoding=self.encoding)
-        except:
-            # report exception back to server
-            exc_type, exc_value, exc_tb = sys.exc_info()
+        except Exception:
             response = dumps(
-                Fault(1, "%s:%s" % (exc_type, exc_value)),
+                Fault(1, 'Unknown error'),
                 encoding=self.encoding, allow_none=self.allow_none,
             )
 
