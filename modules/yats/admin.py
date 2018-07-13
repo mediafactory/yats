@@ -10,10 +10,10 @@ class yatsAdmin(admin.ModelAdmin):
     list_filter = ('active_record',)
 
     def save_model(self, request, obj, form, change):
-        return super(yatsAdmin, self).save_model(request, obj, form, change, user=request.user)
+        obj.save(user=request.user)
 
     def delete_model(self, request, obj):
-        return super(yatsAdmin, self).delete(request, obj, user=request.user)
+        obj.delete(user=request.user)
 
     """
     def changelist_view(self, request, extra_context=None):

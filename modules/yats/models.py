@@ -72,18 +72,16 @@ class base(models.Model):
         if 'user' in kwargs:
             self.u_user = kwargs['user']
             if not self.pk:
-                if not self.c_user:
-                    self.c_user = kwargs['user']
-                else:
-                    self.u_user = kwargs['user']
+                self.c_user = kwargs['user']
+            else:
+                self.u_user = kwargs['user']
             del kwargs['user']
         if 'user_id' in kwargs:
             self.u_user_id = kwargs['user_id']
             if not self.pk:
-                if not self.c_user:
-                    self.c_user_id = kwargs['user_id']
-                else:
-                    self.u_user_id = kwargs['user_id']
+                self.c_user_id = kwargs['user_id']
+            else:
+                self.u_user_id = kwargs['user_id']
             del kwargs['user_id']
         self.u_date = datetime.datetime.now()
         super(base, self).save(*args, **kwargs)
