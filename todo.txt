@@ -1,4 +1,13 @@
+- boards werden nicht angezeigt
+- änderungen nicht in histroy
+- workflow gehlen elemente
+
+import pydevd
+pydevd.settrace('192.168.33.1', 5678)
+
+
 - gleichnamige boards = fehler!!!
+
 - neuer Comment von wem in Mail
 - change collision..
 - api ticket change after close...

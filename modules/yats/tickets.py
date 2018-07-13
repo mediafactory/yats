@@ -233,10 +233,10 @@ def action(request, mode, ticket):
             output = io.BytesIO()
             img.save(output, 'PNG')
             output.seek(0)
-            response = StreamingHttpResponse(output, mimetype=smart_str(file_data.content_type))
+            response = StreamingHttpResponse(output, content_type=smart_str(file_data.content_type))
 
         else:
-            response = StreamingHttpResponse(open('%s' % (src),"rb"), mimetype=smart_str(file_data.content_type))
+            response = StreamingHttpResponse(open('%s' % (src),"rb"), content_type=smart_str(file_data.content_type))
         response['Content-Disposition'] = 'attachment;filename=%s' % smart_str(file_data.name)
         return response
 
@@ -270,7 +270,7 @@ def action(request, mode, ticket):
         else:
             form = UploadFileForm()
 
-        return rrender(request, 'tickets/file.html', {'ticketid': ticket, 'layout': 'horizontal', 'form': form})
+        return render(request, 'tickets/file.html', {'ticketid': ticket, 'layout': 'horizontal', 'form': form})
 
 def table(request, **kwargs):
     search_params = {}

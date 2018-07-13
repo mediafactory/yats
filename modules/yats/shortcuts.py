@@ -3,8 +3,6 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.utils.translation import ugettext as _
-if apps.ready:
-    from yats.models import tickets_participants, tickets_comments, tickets_files, tickets_history
 
 from PIL import Image#, ImageOps
 import sys
@@ -61,9 +59,11 @@ def get_ticket_model():
     return apps.get_model(mod_path, cls_name)
 
 def touch_ticket(user, ticket_id):
+    from yats.models import tickets_participants
     tickets_participants.objects.get_or_create(ticket_id=ticket_id, user=user)
 
 def get_recipient_list(request, ticket_id):
+    from yats.models import tickets_participants
     pub_result = []
     int_result = []
     error = []
@@ -170,6 +170,7 @@ def mail_ticket(request, ticket_id, form, **kwargs):
                 messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
 def mail_comment(request, comment_id):
+    from yats.models import tickets_comments
     com = tickets_comments.objects.get(pk=comment_id)
     ticket_id = com.ticket_id
     int_rcpt, pub_rcpt = get_recipient_list(request, ticket_id)
@@ -185,6 +186,7 @@ def mail_comment(request, comment_id):
         messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
 def mail_file(request, file_id):
+    from yats.models import tickets_files
     io = tickets_files.objects.get(pk=file_id)
     ticket_id = io.ticket_id
     int_rcpt, pub_rcpt = get_recipient_list(request, ticket_id)
@@ -210,6 +212,7 @@ def clean_search_values(search):
     return result
 
 def check_references(request, src_com):
+    from yats.models import tickets_comments
     refs = re.findall('#([0-9]+)', src_com.comment)
     for ref in refs:
         com = tickets_comments()
@@ -223,6 +226,7 @@ def check_references(request, src_com):
         #mail_comment(request, com.pk)
 
 def remember_changes(request, form, ticket):
+    from yats.models import tickets_history
     new, old = field_changes(form)
 
     h = tickets_history()
@@ -233,6 +237,7 @@ def remember_changes(request, form, ticket):
     h.save(user=request.user)
 
 def add_history(request, ticket, typ, data):
+    from yats.models import tickets_history
     if typ == 5:
         old = {'file': ''}
         new = {'file': data}
