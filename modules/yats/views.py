@@ -90,11 +90,16 @@ def show_board(request, name):
                 return HttpResponseRedirect('/board/%s/' % urlquote_plus(board.name))
 
         else:
-            board = boards()
-            board.name = request.POST['boardname']
-            board.save(user=request.user)
+            if boards.objects.filter(active_record=True, c_user=request.user, name=request.POST['boardname']).count() == 0:
+                board = boards()
+                board.name = request.POST['boardname'].strip()
+                board.save(user=request.user)
 
-            return HttpResponseRedirect('/board/%s/' % urlquote_plus(request.POST['boardname']))
+                return HttpResponseRedirect('/board/%s/' % urlquote_plus(request.POST['boardname']))
+
+            else:
+                messages.add_message(request, messages.ERROR, _(u'A board with the name "%s" already exists' % request.POST['boardname']))
+                return HttpResponseRedirect('/')
 
     else:
         board = boards.objects.get(active_record=True, name=name, c_user=request.user)
