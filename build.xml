@@ -105,7 +105,7 @@
 
 	<target name="i18n" depends="" description="create translations">
 		<echo message="createing i18n po files" level="error" />
-		<py-run script="${basedir}/modules/django/bin/django-admin.py" pythonpath="${basedir}/modules/" optimize="0" dir="${basedir}/modules/yats/">
+		<py-run script="/usr/local/bin/django-admin" pythonpath="${basedir}/modules/" optimize="0" dir="${basedir}/modules/yats/">
 			<arg value="makemessages" />
 			<arg value="--locale=de" />
 			<arg value="--extension=html,xml" />
@@ -114,12 +114,12 @@
 
 	<target name="ci18n" depends="" description="compile translations">
 		<echo message="compile i18n po files in source" level="error" />
-		<py-run script="${basedir}/modules/django/bin/django-admin.py" pythonpath="${basedir}/modules/" optimize="0" failonerror="false" dir="${basedir}/modules/yats/">
+		<py-run script="/usr/local/bin/django-admin" pythonpath="${basedir}/modules/" optimize="0" failonerror="false" dir="${basedir}/modules/yats/">
 			<arg value="compilemessages" />
 		</py-run>
 
 		<echo message="compile i18n po files in dest" level="error" />
-		<py-run script="${basedir}/modules/django/bin/django-admin.py" pythonpath="${basedir}/modules/" optimize="0" dir="${basedir}/distribution/nightly/modules/yats/">
+		<py-run script="/usr/local/bin/django-admin" pythonpath="${basedir}/modules/" optimize="0" dir="${basedir}/distribution/nightly/modules/yats/">
 			<arg value="compilemessages" />
 		</py-run>
 	</target>
