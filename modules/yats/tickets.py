@@ -117,7 +117,7 @@ def action(request, mode, ticket):
 
         close_allowed = ticket_flow_edges.objects.select_related('next').filter(now=tic.state, next__type=2).count() > 0
 
-        files = tickets_files.objects.filter(ticket=ticket)
+        files = tickets_files.objects.filter(ticket=ticket, active_record=True)
         paginator = Paginator(files, 10)
         page = request.GET.get('page')
         try:
@@ -271,6 +271,16 @@ def action(request, mode, ticket):
             form = UploadFileForm()
 
         return render(request, 'tickets/file.html', {'ticketid': ticket, 'layout': 'horizontal', 'form': form})
+
+    elif mode == 'delfile':
+        file = tickets_files.objects.get(pk=request.GET['fileid'], ticket=ticket)
+        file.delete(user=request.user)
+
+        touch_ticket(request.user, ticket)
+
+        add_history(request, tic, 8, file.name)
+
+        return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
 
 def table(request, **kwargs):
     search_params = {}

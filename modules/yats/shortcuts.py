@@ -238,7 +238,10 @@ def remember_changes(request, form, ticket):
 
 def add_history(request, ticket, typ, data):
     from yats.models import tickets_history
-    if typ == 5:
+    if typ == 8:
+        old = {'file': data}
+        new = {'file': ''}
+    elif typ == 5:
         old = {'file': ''}
         new = {'file': data}
     elif typ == 6:
