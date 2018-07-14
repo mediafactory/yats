@@ -280,7 +280,7 @@ def action(request, mode, ticket):
 
         add_history(request, tic, 8, file.name)
 
-        return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
+        return HttpResponseRedirect('/tickets/view/%s/#files' % tic.pk)
 
 def table(request, **kwargs):
     search_params = {}

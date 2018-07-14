@@ -11,6 +11,8 @@
     <link href="{{ STATIC_URL }}timeline.css" type="text/css" rel="stylesheet" media="all">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
     <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css" type="text/css" rel="stylesheet" media="all">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -32,7 +34,8 @@
         </tr>
     </table>
 
-    <h3>{% trans "files" %}</h3>
+    <h3 id="files">{% trans "files" %}</h3>
+    {% trans "drop your files here..."%} <br />
     <hr />
     {% if files %}
     <section id="no-more-tables">
@@ -133,9 +136,22 @@
         </div>
         </form>
     </div>
+
+    <div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-header">
+          <h1>{% trans "uploading files" %}</h1>
+        </div>
+        <div class="modal-body">
+          <div class="progress progress-striped active">
+            <div id="upload-progress" class="bar" style="width: 0%;"></div>
+          </div>
+        </div>
+    </div>
 {% endif %}
+<form id="dataLink" method="get" action="/tickets/view/{{ ticket.id }}/?#files"></form>
 
 <script type="text/javascript">
+    var wnd = null;
     jQuery(document).tooltip({
             position: {
                 collision: "fit"
@@ -159,5 +175,25 @@
         if (confirm('{% trans "Do you really want to delete this file?" %}') )
               window.location.href = '/tickets/delfile/{{ ticket.id }}/?fileid=' + fileid;
     }
+
+    new Dropzone(document.body, { // Make the whole body a dropzone
+      url: "/tickets/upload/{{ ticket.id }}/", // Set the url
+      //previewsContainer: "#previews", // Define the container to display the previews
+      //clickable: "#clickable" // Define the element that should be used as click trigger to select files.
+      complete: function (file) {
+          console.log(this.getUploadingFiles().length, this.getQueuedFiles().length)
+          if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+            $('#dataLink').submit();
+            //window.location.href = '/tickets/view/{{ ticket.id }}/?#files'};
+          }
+      },
+      totaluploadprogress: function (progress) {
+          console.log(progress);
+          var roundProg = Math.floor(progress);
+          $('#upload-progress').css({ width: roundProg + '%' });
+          if ( ! wnd )
+            $('#pleaseWaitDialog').modal();
+      },
+    });
 </script>
 {% endblock %}
