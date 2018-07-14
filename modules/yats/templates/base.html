@@ -26,6 +26,7 @@
 <body>
 
 <div class="navbar navbar-fixed-top">
+    {% if request.user.is_authenticated %}
     <div class="navbar-inner">
         <div class="container pull-left yats-navi">
             <a class="brand " id="brand" href="/">&nbsp;&nbsp;&nbsp;YATS:</a>
@@ -86,6 +87,7 @@
         </div>
         <p class="navbar-text pull-right">{% trans "logged in as" %}: <a data-toggle="modal" href="#pwdDlg">{{ request.user }}@{{ request.organisation.name }}</a>&nbsp;&nbsp;</p>
     </div>
+    {% endif %}
 </div>
 
 <ul class="breadcrumb">
