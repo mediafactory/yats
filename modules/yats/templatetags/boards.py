@@ -9,7 +9,6 @@ def board_list(context):
 
     if user.is_authenticated():
         context['boards'] = boards.objects.filter(c_user=user, active_record=True)
-        context['boards'] = []
     else:
         context['boards'] = []
     return ''

@@ -117,13 +117,13 @@ def show_board(request, name):
         if column['limit']:
             column['query'] = column['query'][:column['limit']]
         if 'extra_filter' in column and 'days' in column and column['extra_filter'] and column['days']:
-            if column['extra_filter'] == '1': # days since closed
+            if column['extra_filter'] == '1':  # days since closed
                 column['query'] = column['query'].filter(close_date__gte=datetime.date.today() - datetime.timedelta(days=column['days'])).exclude(close_date=None)
-            if column['extra_filter'] == '2': # days since created
+            if column['extra_filter'] == '2':  # days since created
                 column['query'] = column['query'].filter(c_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
-            if column['extra_filter'] == '3': # days since last changed
+            if column['extra_filter'] == '3':  # days since last changed
                 column['query'] = column['query'].filter(u_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
-            if column['extra_filter'] == '4': # days since last action
+            if column['extra_filter'] == '4':  # days since last action
                 column['query'] = column['query'].filter(last_action_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
         if not request.user.is_staff:
             column['query'] = column['query'].filter(customer=request.organisation)

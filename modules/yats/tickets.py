@@ -236,7 +236,7 @@ def action(request, mode, ticket):
             response = StreamingHttpResponse(output, content_type=smart_str(file_data.content_type))
 
         else:
-            response = StreamingHttpResponse(open('%s' % (src),"rb"), content_type=smart_str(file_data.content_type))
+            response = StreamingHttpResponse(open('%s' % (src), "rb"), content_type=smart_str(file_data.content_type))
         response['Content-Disposition'] = 'attachment;filename=%s' % smart_str(file_data.name)
         return response
 
@@ -288,12 +288,11 @@ def table(request, **kwargs):
         if not request.user.is_staff:
             used_fields = []
             for ele in settings.TICKET_SEARCH_FIELDS:
-                if not ele in settings.TICKET_NON_PUBLIC_FIELDS:
+                if ele not in settings.TICKET_NON_PUBLIC_FIELDS:
                     used_fields.append(ele)
         else:
             used_fields = settings.TICKET_SEARCH_FIELDS
 
-        Qr = None
         fulltext = {}
         for field in params:
             if field == 'fulltext':
@@ -301,7 +300,7 @@ def table(request, **kwargs):
                     fulltext['%s__icontains' % field] = params[field]
 
             else:
-                if params[field] != None and params[field] != '':
+                if params[field] is not None and params[field] != '':
                     if get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
                         search_params['%s__icontains' % field] = params[field]
                     else:
@@ -355,7 +354,7 @@ def search(request):
 
         return table(request, search=request.session['last_search'])
 
-    if 'last_search' in request.session and not 'new' in request.GET:
+    if 'last_search' in request.session and 'new' not in request.GET:
         return table(request, search=request.session['last_search'], list_caption=request.session.get('last_search_caption', ''))
 
     form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
@@ -426,7 +425,7 @@ def workflow(request):
     g.solve()
 
     for id in g:
-        #print '%s => %s,%s' % (id, g[id].x, g[id].y)
+        # print '%s => %s,%s' % (id, g[id].x, g[id].y)
         nodes[id] = (g[id].x, g[id].y)
         min_x = min(min_x, g[id].x)
         min_y = min(min_y, g[id].y)

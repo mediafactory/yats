@@ -12,6 +12,12 @@ YES_NO_DONT_KNOW = (
     (False, _('no')),
 )
 
+STATE_CHOICES = (
+    (0, _('working state')),
+    (1, _('first state')),
+    (2, _('last state')),
+)
+
 def get_flow_start():
     start = ticket_flow.objects.filter(active_record=True, type=1)[:1]
     if len(start) > 0:
@@ -140,7 +146,7 @@ class ticket_resolution(base):
 
 class ticket_flow(base):
     name = models.CharField(max_length=255)
-    type = models.SmallIntegerField(default=0) # 1 = open, 2 = close, 0 = all nodes in between
+    type = models.SmallIntegerField(default=0, choices=STATE_CHOICES)  # 1 = open, 2 = close, 0 = all nodes in between
 
     def __unicode__(self):
         return self.name
