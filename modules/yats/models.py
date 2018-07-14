@@ -72,7 +72,7 @@ class base(models.Model):
     d_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', null=True)
 
     def save(self, *args, **kwargs):
-        if not 'user' in kwargs and not 'user_id' in kwargs:
+        if 'user' not in kwargs and 'user_id' not in kwargs:
             raise Exception('missing user')
         if 'user' in kwargs:
             self.u_user = kwargs['user']
@@ -92,15 +92,15 @@ class base(models.Model):
         super(base, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        if not 'user' in kwargs and not 'user_id' in kwargs:
+        if 'user' not in kwargs and 'user_id' not in kwargs:
             raise Exception('missing user for delete')
         self.d_date = timezone.now()
         if 'user' in kwargs:
             self.d_user = kwargs['user']
         if 'user_id' in kwargs:
             self.d_user_id = kwargs['user_id']
-        self.active = False
-        self.save()
+        self.active_record = False
+        self.save(**kwargs)
 
     class Meta():
         abstract = True
@@ -182,7 +182,7 @@ class tickets_participants(models.Model):
 class tickets_comments(base):
     ticket = models.ForeignKey(tickets)
     comment = models.TextField()
-    action = models.SmallIntegerField(default=0) # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 6 = comment, 7 = reassign
+    action = models.SmallIntegerField(default=0)  # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 6 = comment, 7 = reassign
 
     def save(self, *args, **kwargs):
         super(tickets_comments, self).save(*args, **kwargs)
@@ -212,7 +212,7 @@ class tickets_history(base):
     ticket = models.ForeignKey(tickets)
     old = models.TextField()
     new = models.TextField()
-    action = models.SmallIntegerField(default=0) # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 4 = ticket changed, 5 = file added, 6 = comment added, 7 = reassign
+    action = models.SmallIntegerField(default=0)  # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 4 = ticket changed, 5 = file added, 6 = comment added, 7 = reassign
 
 class boards(base):
     name = models.CharField(max_length=255)
