@@ -59,7 +59,7 @@ KEY FEATURES
 - ticket references (including back references)
 - complex workflows
 - multiple kanban boards with columns saved from searches
-- file attachments (optionally virus scanned)
+- file attachments with drag/drop (optionally virus scanned)
 - twitter bootstrapp 2 - responsive layout
 - git TAGS from Github as versions example
 - XML-RPC API
