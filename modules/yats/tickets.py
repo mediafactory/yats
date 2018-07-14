@@ -9,13 +9,13 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
+from django.utils import timezone
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search
 import os
 import io
 import graph
-import datetime
 try:
     import json
 except ImportError:
@@ -80,7 +80,7 @@ def action(request, mode, ticket):
                     if request.POST['resolution'] and int(request.POST['resolution']) > 0:
                         tic.resolution_id = request.POST['resolution']
                         tic.closed = True
-                        tic.close_date = datetime.datetime.now()
+                        tic.close_date = timezone.now()
                         tic.state = get_flow_end()
                         tic.save(user=request.user)
 
@@ -274,39 +274,12 @@ def action(request, mode, ticket):
 
 def table(request, **kwargs):
     search_params = {}
-    mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
-    mod_path = mod_path.split('.').pop(0)
-    tic = apps.get_model(mod_path, cls_name).objects.select_related('type').all()
-
-    if not request.user.is_staff:
-        tic = tic.filter(customer=request.organisation)
+    tic = get_ticket_model().objects.select_related('type').all()
 
     if 'search' in kwargs:
         is_search = True
-        params = kwargs['search']
+        search_params, tic = build_ticket_search(request, tic, search_params, kwargs['search'])
 
-        if not request.user.is_staff:
-            used_fields = []
-            for ele in settings.TICKET_SEARCH_FIELDS:
-                if ele not in settings.TICKET_NON_PUBLIC_FIELDS:
-                    used_fields.append(ele)
-        else:
-            used_fields = settings.TICKET_SEARCH_FIELDS
-
-        fulltext = {}
-        for field in params:
-            if field == 'fulltext':
-                if field in used_fields and get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
-                    fulltext['%s__icontains' % field] = params[field]
-
-            else:
-                if params[field] is not None and params[field] != '':
-                    if get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
-                        search_params['%s__icontains' % field] = params[field]
-                    else:
-                        search_params[field] = params[field]
-
-        tic = tic.filter(**search_params)
     else:
         tic = tic.filter(closed=False)
         is_search = False

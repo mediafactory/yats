@@ -4,7 +4,7 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 
-from PIL import Image#, ImageOps
+from PIL import Image  # ImageOps
 import sys
 import datetime
 import re
@@ -34,13 +34,13 @@ def resize_image(filename, size=(200, 150), dpi=75):
             # icon aspect is wider than destination ratio
             tw = int(round(nh * pr))
             image = image.resize((tw, nh), Image.ANTIALIAS)
-            l = int(round(( tw - nw ) / 2.0))
+            l = int(round((tw - nw) / 2.0))
             image = image.crop((l, 0, l + nw, nh))
         elif pr < nr:
             # icon aspect is taller than destination ratio
             th = int(round(nw / pr))
             image = image.resize((nw, th), Image.ANTIALIAS)
-            t = int(round(( th - nh ) / 2.0))
+            t = int(round((th - nh) / 2.0))
             image = image.crop((0, t, nw, t + nh))
         else:
             # icon aspect matches the destination ratio
@@ -118,7 +118,7 @@ def field_changes(form):
                 old[field] = getNameOfModelValue(cd.get(field), form.initial.get(field))
             else:
                 new[field] = unicode(cd.get(field))
-                if type(form.initial.get(field)) != None:
+                if type(form.initial.get(field)) is not None:
                     old[field] = unicode(form.initial.get(field))
                 else:
                     old[field] = unicode(None)
@@ -314,3 +314,31 @@ def add_breadcrumbs(request, pk, typ):
     while len(breadcrumbs) > 10:
         breadcrumbs.pop(0)
     request.session['breadcrumbs'] = breadcrumbs
+
+def build_ticket_search(request, base_query, search_params, params):
+    if not request.user.is_staff:
+        base_query = base_query.filter(customer=request.organisation)
+
+    if not request.user.is_staff:
+        used_fields = []
+        for ele in settings.TICKET_SEARCH_FIELDS:
+            if ele not in settings.TICKET_NON_PUBLIC_FIELDS:
+                used_fields.append(ele)
+    else:
+        used_fields = settings.TICKET_SEARCH_FIELDS
+
+    fulltext = {}
+    for field in params:
+        if field == 'fulltext':
+            if field in used_fields and get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
+                fulltext['%s__icontains' % field] = params[field]
+
+        else:
+            if params[field] is not None and params[field] != '':
+                if get_ticket_model()._meta.get_field(field).get_internal_type() == 'CharField':
+                    search_params['%s__icontains' % field] = params[field]
+                else:
+                    search_params[field] = params[field]
+
+    base_query = base_query.filter(**search_params)
+    return (search_params, base_query)

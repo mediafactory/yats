@@ -6,9 +6,10 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.http import urlquote_plus
 from django.contrib import messages
 from django.utils.translation import ugettext as _
+from django.utils import timezone
 from yats import get_version, get_python_version
 from yats.tickets import table
-from yats.shortcuts import get_ticket_model, add_breadcrumbs
+from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search
 from yats.models import boards
 from yats.forms import AddToBordForm, PasswordForm
 from yats.yatse import buildYATSFields
@@ -32,7 +33,7 @@ def root(request):
 def info(request):
     from socket import gethostname
 
-    return render(request, 'info.html', {'hostname': gethostname(), 'version': get_version(), 'date': datetime.datetime.now(), 'django': get_django_version(), 'python': get_python_version()})
+    return render(request, 'info.html', {'hostname': gethostname(), 'version': get_version(), 'date': timezone.now(), 'django': get_django_version(), 'python': get_python_version()})
 
 def show_board(request, name):
     # http://bootsnipp.com/snippets/featured/kanban-board
@@ -113,7 +114,9 @@ def show_board(request, name):
             return HttpResponseRedirect('/board/%s/' % urlquote_plus(name))
 
     for column in columns:
-        column['query'] = get_ticket_model().objects.select_related('priority').filter(**column['query']).order_by('%s%s' % (column.get('order_dir', ''), column.get('order_by', 'id')))
+        query = get_ticket_model().objects.select_related('type', 'priority').all()
+        search_params, query = build_ticket_search(request, query, {}, column['query'])
+        column['query'] = query.order_by('%s%s' % (column.get('order_dir', ''), column.get('order_by', 'id')))
         if column['limit']:
             column['query'] = column['query'][:column['limit']]
         if 'extra_filter' in column and 'days' in column and column['extra_filter'] and column['days']:

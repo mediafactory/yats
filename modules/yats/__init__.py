@@ -13,6 +13,7 @@ def update_permissions_after_migration(app,**kwargs):
 
     create_permissions(get_app(app), get_models(), 2 if settings.DEBUG else 0)
 
+
 version = '@version@'
 
 if 'version' in version:

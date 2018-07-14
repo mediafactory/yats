@@ -10,6 +10,7 @@ YATS
 
 - yet another (trouble) ticketing system based on Python Django
 - &copy; media factory, Lübeck, Germany http://www.mediafactory.de
+- requires: Django 1.11.x (Python 2.x)
 
 DEMO
 -----
@@ -22,7 +23,7 @@ Password: qwertz
 Customer User:  
 Login: customer.user  
 Password: qwertz  
-  
+
 Or use vagrant!  
 
 VAGRANT
@@ -37,7 +38,7 @@ Point your browser at:
 http://192.168.33.11
 or for admin interface:
 http://192.168.33.11/admin
-  
+
 Staff User:  
 Login: admin  
 Password: admin  
@@ -62,7 +63,7 @@ KEY FEATURES
 - twitter bootstrapp 2 - responsive layout
 - git TAGS from Github as versions example
 - XML-RPC API
-- compatible with tracker (see https://github.com/mediafactory/tracker) 
+- compatible with tracker (see https://github.com/mediafactory/tracker)
 - simple, but yet powerful! No real magic :-) 2 sourcefiles besides the django stuff (tickets.py and shortcuts.py)
 
 INSTALLATION
@@ -91,7 +92,7 @@ The project is splited into 2 parts:
 
 Customization is done in the web module - e.g. add more ticket fields (models.py in web) besides the settings itself (settings.py and ini file).
 So far the app needs 2 folders (for logging and attachments as defined in the inifile). Make sure the webserver has write access to those folders.
-  
+
 ./manage.py syncdb  
 ./manage.py migrate  
 

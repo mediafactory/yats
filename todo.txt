@@ -1,4 +1,3 @@
-- DateTimeField User.last_login received a naive datetime (2014-07-26 13:03:15) while time zone support
 - compile i18n po / compile i18n po files in dest
 
 

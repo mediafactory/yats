@@ -3,8 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
-
-import datetime
+from django.utils import timezone
 
 YES_NO_DONT_KNOW = (
     (None, '---------'),
@@ -63,10 +62,10 @@ class base(models.Model):
     active_record = models.BooleanField(default=True)
 
     # creation
-    c_date = models.DateTimeField(default=datetime.datetime.now)
+    c_date = models.DateTimeField(default=timezone.now)
     c_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     # update
-    u_date = models.DateTimeField(default=datetime.datetime.now)
+    u_date = models.DateTimeField(default=timezone.now)
     u_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     # deletion'
     d_date = models.DateTimeField(null=True)
@@ -89,13 +88,13 @@ class base(models.Model):
             else:
                 self.u_user_id = kwargs['user_id']
             del kwargs['user_id']
-        self.u_date = datetime.datetime.now()
+        self.u_date = timezone.now()
         super(base, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if not 'user' in kwargs and not 'user_id' in kwargs:
             raise Exception('missing user for delete')
-        self.d_date = datetime.datetime.now()
+        self.d_date = timezone.now()
         if 'user' in kwargs:
             self.d_user = kwargs['user']
         if 'user_id' in kwargs:
@@ -173,7 +172,7 @@ class tickets(base):
     last_action_date = models.DateTimeField(null=True)
 
     def save(self, *args, **kwargs):
-        self.last_action_date = datetime.datetime.now()
+        self.last_action_date = timezone.now()
         super(tickets, self).save(*args, **kwargs)
 
 class tickets_participants(models.Model):
@@ -201,6 +200,9 @@ class tickets_files(base):
         super(tickets_files, self).save(*args, **kwargs)
 
         tickets.objects.filter(id=self.ticket_id).update(last_action_date=self.c_date)
+
+    class Meta:
+        ordering = ['c_date']
 
 class tickets_reports(base):
     name = models.CharField(max_length=255)
