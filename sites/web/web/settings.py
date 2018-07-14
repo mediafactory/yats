@@ -33,7 +33,10 @@ DATABASES = {
         'PASSWORD': config.get('database', 'DATABASE_PASSWORD'),
         'HOST': config.get('database', 'DATABASE_HOST'),
         'PORT': config.get('database', 'DATABASE_PORT'),
-        'ATOMIC_REQUESTS': config.get('database', 'ATOMIC_REQUESTS')
+        # 'ATOMIC_REQUESTS': config.get('database', 'ATOMIC_REQUESTS'),
+        'OPTIONS': {
+            'timeout': 20,
+        }
     }
 }
 
