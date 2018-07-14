@@ -56,7 +56,7 @@ def show_board(request, name):
 
     if request.method == 'POST':
         if 'method' in request.POST:
-            board = boards.objects.get(pk=request.POST['board'], c_user=request.user)
+            board = boards.objects.get(active_record=True, pk=request.POST['board'], c_user=request.user)
             try:
                 columns = json.loads(board.columns)
             except:
@@ -97,7 +97,7 @@ def show_board(request, name):
             return HttpResponseRedirect('/board/%s/' % urlquote_plus(request.POST['boardname']))
 
     else:
-        board = boards.objects.get(name=name, c_user=request.user)
+        board = boards.objects.get(active_record=True, name=name, c_user=request.user)
         try:
             columns = json.loads(board.columns)
         except:
@@ -112,6 +112,10 @@ def show_board(request, name):
             board.save(user=request.user)
 
             return HttpResponseRedirect('/board/%s/' % urlquote_plus(name))
+
+        elif 'method' in request.GET and request.GET['method'] == 'delete':
+            board.delete(user=request.user)
+            return HttpResponseRedirect('/')
 
     for column in columns:
         query = get_ticket_model().objects.select_related('type', 'priority').all()
@@ -135,7 +139,7 @@ def show_board(request, name):
     return render(request, 'board/view.html', {'columns': columns, 'board': board})
 
 def board_by_id(request, id):
-    board = boards.objects.get(pk=id, c_user=request.user)
+    board = boards.objects.get(active_record=True, pk=id, c_user=request.user)
     return show_board(request, board.name)
 
 def yatse_api(request, method):

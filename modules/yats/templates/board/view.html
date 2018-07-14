@@ -13,10 +13,10 @@
 
 {% block content %}
 
-    <h2>{{ board.name }} {% trans "board" %}</h2>
-    
+    <h2><a href="javascript: delBoard();"><i class="fa fa-trash-o"></i></a>{{ board.name }} {% trans "board" %}</h2>
+
     <p>{% trans "add new columns by adding a search result to this board" %}</p>
-    
+
     <div class="container-fluid">
         <div id="sortableKanbanBoards" class="row">
 
@@ -27,7 +27,7 @@
                 </div>
                 <div class="panel-body">
                     <div id="{{ column.column }}" class="kanban-centered">
-                        
+
                         {% for ticket in column.query %}<article class="kanban-entry grab" id="item1">
                             <div class="kanban-entry-inner">
                                 <div class="kanban-label"{% if ticket.priority.color %} style="background-color:{{ ticket.priority.color }};"{% endif %}>
@@ -61,11 +61,16 @@
             </div>
         </div>
     </div>
-    
+
     <script>
     	function delColumn(col) {
     		if (confirm('{% trans "Do you really want to delete this column?" %}') )
                 window.location.href = '/board/{{ board.name }}/?method=del&column=' + encodeURIComponent(col);
     	}
+
+      function delBoard() {
+        if (confirm('{% trans "Do you really want to delete this board?" %}') )
+                window.location.href = '/board/{{ board.name }}/?method=delete';
+      }
     </script>
 {% endblock %}
