@@ -25,6 +25,8 @@ def root(request):
         form = PasswordForm(request.POST)
         if form.is_valid():
             request.user.set_password(form.cleaned_data['password'])
+            request.user.save()
+            messages.add_message(request, messages.SUCCESS, _(u'Successfully changed password'))
         else:
             messages.add_message(request, messages.ERROR, _(u'Password invalid'))
 
