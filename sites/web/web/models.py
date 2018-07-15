@@ -4,7 +4,7 @@ from django.utils.functional import lazy
 from django.core.cache import cache
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from yats.models import tickets, organisation
+from yats.models import tickets
 from yats.models import base
 
 import datetime
@@ -66,6 +66,7 @@ def getGibthubTags():
 
     cache.set(cache_name, result, 60 * 10)
     return tuple(reversed(sorted(result)))
+
 
 BILLING_TYPE_CHOICES = (
     ('service', 'service'),
