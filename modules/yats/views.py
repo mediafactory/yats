@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseRedirect, HttpResponseNotFound, HttpResponse
 from django import get_version as get_django_version
 from django.shortcuts import render
@@ -20,6 +21,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
+@login_required
 def root(request):
     if request.method == 'POST':
         form = PasswordForm(request.POST)
@@ -32,11 +34,13 @@ def root(request):
 
     return table(request)
 
+@login_required
 def info(request):
     from socket import gethostname
 
     return render(request, 'info.html', {'hostname': gethostname(), 'version': get_version(), 'date': timezone.now(), 'django': get_django_version(), 'python': get_python_version()})
 
+@login_required
 def show_board(request, name):
     # http://bootsnipp.com/snippets/featured/kanban-board
 
@@ -145,10 +149,12 @@ def show_board(request, name):
     add_breadcrumbs(request, board.pk, '$')
     return render(request, 'board/view.html', {'columns': columns, 'board': board})
 
+@login_required
 def board_by_id(request, id):
     board = boards.objects.get(active_record=True, pk=id, c_user=request.user)
     return show_board(request, board.name)
 
+@login_required
 def yatse_api(request, method):
     if method == 'fields':
         fields = buildYATSFields([])

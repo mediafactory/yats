@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http.response import HttpResponseRedirect, StreamingHttpResponse, HttpResponse
 from django.apps import apps
@@ -21,6 +22,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
+@login_required
 def new(request):
     excludes = ['resolution']
 
@@ -52,6 +54,7 @@ def new(request):
 
     return render(request, 'tickets/new.html', {'layout': 'horizontal', 'form': form})
 
+@login_required
 def action(request, mode, ticket):
     mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
     mod_path = mod_path.split('.').pop(0)
@@ -282,6 +285,7 @@ def action(request, mode, ticket):
 
         return HttpResponseRedirect('/tickets/view/%s/#files' % tic.pk)
 
+@login_required
 def table(request, **kwargs):
     search_params = {}
     tic = get_ticket_model().objects.select_related('type').all()
@@ -315,6 +319,7 @@ def table(request, **kwargs):
 
     return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption, 'board_form': board_form})
 
+@login_required
 def search(request):
     searchable_fields = settings.TICKET_SEARCH_FIELDS
 
@@ -344,6 +349,7 @@ def search(request):
 
     return render(request, 'tickets/search.html', {'layout': 'horizontal', 'form': form})
 
+@login_required
 def reports(request):
     if 'report' in request.GET:
         rep = tickets_reports.objects.get(pk=request.GET['report'])
@@ -370,6 +376,7 @@ def reports(request):
 
     return render(request, 'tickets/reports.html', {'lines': rep_lines})
 
+@login_required
 def workflow(request):
     if request.method == 'POST':
         if 'method' in request.POST:
