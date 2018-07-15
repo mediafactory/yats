@@ -4,7 +4,7 @@ VERSION=$(sed 's/\..*//' /etc/debian_version)
 
 # debian packages
 apt-get update
-apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3 gettext ant wget
+apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3 gettext ant wget ntp
 
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
@@ -78,5 +78,7 @@ apt-get -y upgrade &
 # running ant and ignore error
 cd /vagrant_project
 ant ci18n
+
+timedatectl set-ntp true
 
 echo "open http://192.168.33.11 with user: admin password: admin"
