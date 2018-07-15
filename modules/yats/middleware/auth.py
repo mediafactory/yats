@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.template import loader,RequestContext
+from django.template import loader, RequestContext
 from django.http import HttpResponse
 from django.conf import settings
 from django.contrib.auth import authenticate, login, get_user
@@ -15,7 +15,15 @@ class OrgaAdditionMiddleware(object):
                 request.organisation = UserProfile.objects.get(user=request.user).organisation
             except:
                 pass
+
+            if not request.organisation:
+                response = HttpResponse(loader.render_to_string('no_orga.html', {'source': 'middleware', 'request_path': request.build_absolute_uri()}, RequestContext(request)))
+                response.status_code = 200
+                return response
             return
+
+        else:
+            request.organisation = None
 
 class BasicAuthMiddleware(object):
     def __init__(self):
