@@ -4,3 +4,5 @@ Markdown>2.2.0
 six
 pillow
 pydevd
+itsdangerous
+webservices[django]
