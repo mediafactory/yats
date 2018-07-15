@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 from django.template import loader,RequestContext
 from django.http import HttpResponse
 from django.conf import settings
@@ -7,6 +7,15 @@ from yats.models import UserProfile
 
 import re
 import base64
+
+class OrgaAdditionMiddleware(object):
+    def process_request(self, request):
+        if request.user.is_active and request.user.is_authenticated():
+            try:
+                request.organisation = UserProfile.objects.get(user=request.user).organisation
+            except:
+                pass
+            return
 
 class BasicAuthMiddleware(object):
     def __init__(self):
@@ -17,9 +26,9 @@ class BasicAuthMiddleware(object):
             public_urls = [re.compile(url) for url in settings.PUBLIC_URLS]
         else:
             public_urls = [(re.compile("^%s$" % ( self.login_url[1:] )))]
-            
+
         self.public_urls = tuple(public_urls)
-    
+
     def _checkUnicode(self, credentials):
         try:
             credentials[0].decode('utf-8')
@@ -68,7 +77,7 @@ class BasicAuthMiddleware(object):
         # back to them to ask them to authenticate.
         #
         from socket import gethostname
-        
+
         response = HttpResponse(loader.render_to_string('401.html', {'source': 'middleware', 'request_path': request.build_absolute_uri(), 'hostname': gethostname()}, RequestContext(request)))
         response.status_code = 401
         response['WWW-Authenticate'] = 'Basic realm="%s"' % self.realm
