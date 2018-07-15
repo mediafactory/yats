@@ -11,13 +11,11 @@ python get-pip.py
 
 # python modules
 sites=`python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
-ln -fs /vagrant_modules/django $sites 2>/dev/null
 ln -fs /vagrant_modules/yats $sites 2>/dev/null
-ln -fs /vagrant_modules/south $sites 2>/dev/null
 ln -fs /vagrant_modules/bootstrap_toolkit $sites 2>/dev/null
 ln -fs /vagrant_modules/rpc4django $sites 2>/dev/null
 ln -fs /vagrant_modules/graph $sites 2>/dev/null
-ln -fs /vagrant_modules/wiki $sites 2>/dev/null
+ln -fs /vagrant_modules/simple_sso $sites 2>/dev/null
 
 pip install -r /vagrant/requirements.txt
 

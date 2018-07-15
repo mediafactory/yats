@@ -134,7 +134,8 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'yats.middleware.header.ResponseInjectHeader',
-    'yats.middleware.auth.BasicAuthMiddleware',
+    # 'yats.middleware.auth.BasicAuthMiddleware',
+    'yats.middleware.auth.OrgaAdditionMiddleware',
     'yats.middleware.error.ErrorCaptureMiddleware',
 ]
 
@@ -198,3 +199,8 @@ GITHUB_REPO = config.get('github', 'GITHUB_REPO')
 GITHUB_OWNER = config.get('github', 'GITHUB_OWNER')
 GITHUB_USER = config.get('github', 'GITHUB_USER')
 GITHUB_PASS = config.get('github', 'GITHUB_PASS')
+
+LOGIN_URL = '/client'
+SSO_PRIVATE_KEY = 'Your Private Key'
+SSO_PUBLIC_KEY = 'Your Public Key'
+SSO_SERVER = 'http://192.168.33.17:8080/server/'

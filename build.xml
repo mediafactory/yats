@@ -44,19 +44,15 @@
 			<fileset dir="${basedir}/modules/yats" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
 		</copy>
 		<replace file="${basedir}/distribution/nightly/modules/yats/__init__.py" token="@version@" value="${yatsversion}"/>
-		<echo message="copy module Django" level="info" />
-		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/django">
-			<fileset dir="${basedir}/modules/django" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
-		</copy>
-		<echo message="copy module south" level="info" />
-		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/south">
-			<fileset dir="${basedir}/modules/south" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
+		<echo message="copy module simple_sso" level="info" />
+		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/simple_sso">
+			<fileset dir="${basedir}/modules/simple_sso" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
 		</copy>
 		<echo message="copy module bootstrap_toolkit" level="info" />
 		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/bootstrap_toolkit">
 			<fileset dir="${basedir}/modules/bootstrap_toolkit" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
 		</copy>
-		<echo message="copy module bootstrap_toolkit" level="info" />
+		<echo message="copy module rpc4django" level="info" />
 		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/rpc4django">
 			<fileset dir="${basedir}/modules/rpc4django" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
 		</copy>
@@ -92,8 +88,7 @@
 				installs YATS modules
 				</description>
 				<tarfileset dir="${basedir}/distribution/nightly/modules/yats" prefix="usr/share/yats/site-packages/yats" />
-				<tarfileset dir="${basedir}/distribution/nightly/modules/django" prefix="usr/share/yats/site-packages/django" />
-				<tarfileset dir="${basedir}/distribution/nightly/modules/south" prefix="usr/share/yats/site-packages/south" />
+				<tarfileset dir="${basedir}/distribution/nightly/modules/simple_sso" prefix="usr/share/yats/site-packages/simple_sso" />
 				<tarfileset dir="${basedir}/distribution/nightly/modules/bootstrap_toolkit" prefix="usr/share/yats/site-packages/bootstrap_toolkit" />
 				<tarfileset dir="${basedir}/distribution/nightly/modules/rpc4django" prefix="usr/share/yats/site-packages/rpc4django" />
 				<tarfileset dir="${basedir}/distribution/nightly/modules/graph" prefix="usr/share/yats/site-packages/graph" />
