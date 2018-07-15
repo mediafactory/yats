@@ -8,38 +8,38 @@
     "is_active": true,
     "is_superuser": true,
     "is_staff": true,
-    "last_login": "2014-07-26T13:03:15",
+    "last_login": "2014-07-26T13:03:15Z",
     "groups": [],
     "user_permissions": [],
     "password": "pbkdf2_sha256$12000$HjHWJbyp8i9C$Dkm6ek/772C2XYSsxYjJazZmGSvgegEoQLhVvn/I/pw=",
     "email": "",
-    "date_joined": "2014-07-26T13:00:53"
+    "date_joined": "2014-07-26T13:00:53Z"
   }
 }, {
   "pk": 1,
   "model": "web.ticket_component",
   "fields": {
     "d_date": null,
-    "c_date": "2014-07-26T13:04:11.424",
+    "c_date": "2014-07-26T13:04:11.424Z",
     "name": "Android",
     "c_user": 1,
     "active_record": true,
     "d_user": null,
     "u_user": 1,
-    "u_date": "2014-07-26T13:04:11.424"
+    "u_date": "2014-07-26T13:04:11.424Z"
   }
 }, {
   "pk": 2,
   "model": "web.ticket_component",
   "fields": {
     "d_date": null,
-    "c_date": "2014-07-26T13:04:11.424",
+    "c_date": "2014-07-26T13:04:11.424Z",
     "name": "iOS",
     "c_user": 1,
     "active_record": true,
     "d_user": null,
     "u_user": 1,
-    "u_date": "2014-07-26T13:04:11.424"
+    "u_date": "2014-07-26T13:04:11.424Z"
   }
 }, {
   "model": "yats.ticket_type",
@@ -336,13 +336,13 @@
   "model": "yats.organisation",
   "fields": {
     "d_date": null,
-    "c_date": "2014-07-26T13:03:35.123",
+    "c_date": "2014-07-26T13:03:35.123Z",
     "name": "Test Company",
     "c_user": 1,
     "active_record": true,
     "d_user": null,
     "u_user": 1,
-    "u_date": "2014-07-26T13:03:35.123",
+    "u_date": "2014-07-26T13:03:35.123Z",
     "hourly_rate": 100.0
   }
 }, {
