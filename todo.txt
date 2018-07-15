@@ -1,32 +1,28 @@
-- compile i18n po / compile i18n po files in dest
-
-
 ---- WISHLIST
-- Files Drag/Drop
+- Vorlangen von Tickets
 - Wiederkehrende Aufgaben
+- SSO => yatse
+- todo inside a ticket desc
 
 import pydevd
 pydevd.settrace('192.168.33.1', 5678)
 
-
-- gleichnamige boards = fehler!!!
-
+- check for duplicated files using hash
 - neuer Comment von wem in Mail
 - change collision..
 - api ticket change after close...
 - Lösung gelöscht: won&#39;t fix in comment
 - move deadline to tickets => change to datetime...? + func - datetime
 - app name prefix in settings
-- del boards
 - csv export
 - customers are allowed to close tickets???
 - save and reassign without mail...
 - RPC => like TRAC
+- ticket dependencies
 
 - versions not sorted
-- change password
 - last generell action user and dt
-- timeline / gant / roadmap
+- timeline / gant / roadmap => https://jsganttimproved.github.io/jsgantt-improved/ => https://ourcodeworld.com/articles/read/434/top-5-best-free-jquery-and-javascript-dynamic-gantt-charts-for-web-applications
 - followed by ticket (parent / ancestors)
 - rss feed
 
@@ -39,8 +35,6 @@ pydevd.settrace('192.168.33.1', 5678)
 
 - wiki integration
 - translation
-
-- del attachments
 
 - mail templates
 - mail html diff of ticket changes
