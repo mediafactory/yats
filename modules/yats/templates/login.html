@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+
+<div>
+    <h1>{% trans "Local login" %}</h1><span id="trust_root"></span>
+</div>
+{% if form.errors %}
+<div class="alert alert-error">{% trans "Your user and password didn't match. Please try again." %}</div>
+{% else %}
+<br />
+{% endif %}
+
+<form action="/local_login/" method="post" id="login-form">
+  <div>
+    <label for="id_username">{% trans "User" %}:</label> <input type="text" name="username" id="id_username" />
+  </div>
+  <div>
+    <label for="id_password">{% trans "Password" %}:</label> <input type="password" name="password" id="id_password" />
+    <input type="hidden" name="this_is_the_login_form" value="1" />
+    <input type="hidden" name="post_data" value="{{ post_data }}" />
+  </div>
+  <div>
+      <sup><a href="/user/password/reset/?{{ request.GET.urlencode }}">Passwort vergessen</a></sup>
+  </div>
+  <div>
+    <p class="form-actions"><input type="submit" value="{% trans "Login" %}" class="btn btn-success" /></p>
+  </div>
+  <input type="hidden" name="next" value="{{ next }}" />
+  {% csrf_token %}
+</form>
+
+<script type="text/javascript">
+        document.getElementById('id_username').focus();
+
+        function gup(name)
+        {
+                var regexS = "[\\?&]"+name+"=([^&#]*)";
+                var regex = new RegExp( regexS );
+                var tmpURL = window.location.href;
+                var results = regex.exec( tmpURL );
+                if( results == null )
+                        return "";
+                else
+                        return results[1];
+        }
+        document.getElementById('trust_root').innerHTML = unescape(gup("tr"));
+</script>
+{% endblock %}

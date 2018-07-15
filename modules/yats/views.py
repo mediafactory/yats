@@ -8,6 +8,8 @@ from django.utils.http import urlquote_plus
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils import timezone
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login as auth_login, logout as aut_logout
 from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search
@@ -21,18 +23,37 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-@login_required
-def root(request):
-    if request.method == 'POST':
-        form = PasswordForm(request.POST)
-        if form.is_valid():
-            request.user.set_password(form.cleaned_data['password'])
-            request.user.save()
-            messages.add_message(request, messages.SUCCESS, _(u'Successfully changed password'))
-        else:
-            messages.add_message(request, messages.ERROR, _(u'Password invalid'))
+def root(request, form=None):
+    if request.user.is_authenticated():
+        if request.method == 'POST':
+            form = PasswordForm(request.POST)
+            if form.is_valid():
+                request.user.set_password(form.cleaned_data['password'])
+                request.user.save()
+                messages.add_message(request, messages.SUCCESS, _(u'Successfully changed password'))
+            else:
+                messages.add_message(request, messages.ERROR, _(u'Password invalid'))
 
-    return table(request)
+        return table(request)
+
+    else:
+        return HttpResponseRedirect('/local_login/')
+
+def login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request.POST)
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        if user:
+            auth_login(request, user)
+            return HttpResponseRedirect('/')
+        else:
+            messages.add_message(request, messages.ERROR, _(u'Data invalid'))
+    form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
+
+def logout(request):
+    aut_logout(request)
+    return HttpResponseRedirect('/local_login/')
 
 @login_required
 def info(request):
