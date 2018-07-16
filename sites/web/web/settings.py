@@ -144,7 +144,7 @@ ROOT_URLCONF = 'web.urls'
 WSGI_APPLICATION = 'web.wsgi.application'
 
 DEVSERVER_TRUNCATE_SQL = False
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -154,10 +154,9 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'rpc4django',
     'bootstrap_toolkit',
-    #'django_nyt',
     'yats',
     'web',
-)
+]
 
 LOGGING = {
     'version': 1,
