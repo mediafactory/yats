@@ -247,9 +247,15 @@ def action(request, mode, ticket):
         if request.method == 'POST':
             form = UploadFileForm(request.POST, request.FILES)
             if form.is_valid():
+                if tickets_files.objects.filter(active_record=True, ticket=ticket, checksum=request.FILES['file'].hash).count() > 0:
+                    messages.add_message(request, messages.ERROR, _('File already exists: %s') % request.FILES['file'].name)
+                    if request.GET.get('Ajax') == '1':
+                        return HttpResponse('OK')
+                    return HttpResponseRedirect('/tickets/view/%s/' % ticket)
                 f = tickets_files()
                 f.name = request.FILES['file'].name
                 f.size = request.FILES['file'].size
+                f.checksum = request.FILES['file'].hash
                 f.content_type = request.FILES['file'].content_type
                 f.ticket_id = ticket
                 f.public = True

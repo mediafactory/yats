@@ -3,7 +3,8 @@ from django import forms
 from django.conf import settings
 from django.forms.utils import ValidationError
 from os import chmod
-
+import hashlib
+from io import BytesIO
 try:
     import pyclamd
 except:
@@ -48,5 +49,23 @@ class yatsFileField(forms.FileField):
             if result:
                 msg = ' '.join(result[result.keys()[0]]).replace('FOUND ', '')
                 raise ValidationError(self.error_messages['virus_found'] % msg)
+
+
+        hasher = hashlib.md5()
+        # We need to get a file object for clamav. We might have a path or we might
+        # have to read the data into memory.
+        if hasattr(data, 'temporary_file_path'):
+            with open(data.temporary_file_path(), 'rb') as afile:
+                buf = afile.read()
+                hasher.update(buf)
+            self.hash = hasher.hexdigest()
+        else:
+            if hasattr(data, 'read'):
+                data.seek(0)
+                buf = data.read()
+                hasher.update(buf)
+            else:
+                hasher.update(data['content'].read())
+        f.hash = hasher.hexdigest()
 
         return f

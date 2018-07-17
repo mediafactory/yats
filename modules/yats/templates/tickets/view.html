@@ -47,6 +47,7 @@
                 <th>{% trans "document" %}</th>
                 <th>{% trans "size" %}</th>
                 <th>{% trans "contenttype" %}</th>
+                <th>{% trans "hash" %}</th>
             </tr>
             </thead>
               {% for line in files %}
@@ -56,6 +57,7 @@
                     <td data-title="{% trans "name" %}"{% if line.content_type|contains:"image" %} dataimg="/tickets/download/{{ ticket.id }}/?file={{ line.id }}&preview=yes"{% endif %}><a href="/tickets/download/{{ ticket.id }}/?file={{ line.id }}">{{ line.name }}</a></td>
                     <td data-title="{% trans "size" %}">{% if line.size %}{{ line.size|filesizeformat }}{% else %}{% trans "unknown" %}{% endif %}</td>
                     <td data-title="{% trans "contenttype" %}">{{ line.content_type }}</td>
+                    <td data-title="{% trans "hash" %}">{{ line.checksum }}</td>
                 </tr>
             {% endfor %}
         </table>
