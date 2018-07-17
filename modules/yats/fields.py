@@ -22,26 +22,31 @@ class yatsFileField(forms.FileField):
         elif not data and initial:
             return initial
 
-        if settings.FILE_UPLOAD_VIRUS_SCAN:
+        if settings.FILE_UPLOAD_VIRUS_SCAN and pyclamd:
             # virus scan
             try:
-                pyclamd.init_network_socket('localhost', 3310)
+                if not hasattr(pyclamd, 'scan_stream'):
+                    cd = pyclamd.ClamdUnixSocket()
+                else:
+                    pyclamd.init_network_socket('localhost', 3310)
+                    cd = pyclamd
 
                 # We need to get a file object for clamav. We might have a path or we might
                 # have to read the data into memory.
                 if hasattr(data, 'temporary_file_path'):
                     chmod(data.temporary_file_path(), 0664)
-                    result = pyclamd.scan_file(data.temporary_file_path())
+                    result = cd.scan_file(data.temporary_file_path())
                 else:
                     if hasattr(data, 'read'):
-                        result = pyclamd.scan_stream(data.read())
+                        result = cd.scan_stream(data.read())
                     else:
-                        result = pyclamd.scan_stream(data['content'])
+                        result = cd.scan_stream(data['content'])
             except:
                 from socket import gethostname
                 raise ValidationError(self.error_messages['virus_engine_error'] % gethostname())
 
             if result:
-                raise ValidationError(self.error_messages['virus_found'] % result[result.keys()[0]])
+                msg = ' '.join(result[result.keys()[0]]).replace('FOUND ', '')
+                raise ValidationError(self.error_messages['virus_found'] % msg)
 
         return f

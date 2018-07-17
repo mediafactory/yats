@@ -270,6 +270,13 @@ def action(request, mode, ticket):
                         destination.write(chunk)
 
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
+
+            else:
+                msg = unicode(form.errors['file'])
+                messages.add_message(request, messages.ERROR, msg)
+                if request.GET.get('Ajax') == '1':
+                    return HttpResponse('OK')
+                return HttpResponseRedirect('/tickets/view/%s/' % ticket)
         else:
             form = UploadFileForm()
 

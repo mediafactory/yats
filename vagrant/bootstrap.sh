@@ -4,7 +4,7 @@ VERSION=$(sed 's/\..*//' /etc/debian_version)
 
 # debian packages
 apt-get update
-apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev python-pyclamd sqlite3 gettext ant wget ntp
+apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev sqlite3 gettext ant wget ntp clamav clamav-daemon
 
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
@@ -28,6 +28,10 @@ ret=`grep -ir "TCPAddr" /etc/clamav/clamd.conf`
 if [ "" = "$ret" ]; then
 echo "TCPAddr 127.0.0.1" >> /etc/clamav/clamd.conf
 fi
+echo "ListenStream=127.0.0.1:3310" >> /etc/systemd/system/clamav-daemon.socket.d/extend.conf
+systemctl --system daemon-reload
+systemctl restart clamav-daemon.socket
+systemctl restart clamav-daemon.service
 freshclam&
 
 # yats web
