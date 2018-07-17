@@ -14,7 +14,7 @@ YATS
 
 DEMO
 -----
-http://yats.mediafactory.de
+https://yats.mediafactory.de
 
 Staff User:  
 Login: staff.user  
