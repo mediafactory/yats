@@ -62,7 +62,7 @@ USE_L10N = True
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 * 1024
 FILE_UPLOAD_PATH = config.get('folder', 'FILE_UPLOAD_PATH')
-FILE_UPLOAD_VIRUS_SCAN = False
+FILE_UPLOAD_VIRUS_SCAN = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"

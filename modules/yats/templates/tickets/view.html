@@ -177,18 +177,18 @@
     }
 
     new Dropzone(document.body, { // Make the whole body a dropzone
-      url: "/tickets/upload/{{ ticket.id }}/", // Set the url
+      url: "/tickets/upload/{{ ticket.id }}/?Ajax=1", // Set the url
       //previewsContainer: "#previews", // Define the container to display the previews
       //clickable: "#clickable" // Define the element that should be used as click trigger to select files.
       complete: function (file) {
-          console.log(this.getUploadingFiles().length, this.getQueuedFiles().length)
+          //console.log(this.getUploadingFiles().length, this.getQueuedFiles().length)
           if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
             $('#dataLink').submit();
             //window.location.href = '/tickets/view/{{ ticket.id }}/?#files'};
           }
       },
       totaluploadprogress: function (progress) {
-          console.log(progress);
+          //console.log(progress);
           var roundProg = Math.floor(progress);
           $('#upload-progress').css({ width: roundProg + '%' });
           if ( ! wnd )

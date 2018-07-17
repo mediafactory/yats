@@ -117,15 +117,19 @@ def show_board(request, name):
                 return HttpResponseRedirect('/board/%s/' % urlquote_plus(board.name))
 
         else:
-            if boards.objects.filter(active_record=True, c_user=request.user, name=request.POST['boardname']).count() == 0:
-                board = boards()
-                board.name = request.POST['boardname'].strip()
-                board.save(user=request.user)
+            if request.POST['boardname'].strip() != '':
+                if boards.objects.filter(active_record=True, c_user=request.user, name=request.POST['boardname']).count() == 0 and request.POST['boardname']:
+                        board = boards()
+                        board.name = request.POST['boardname'].strip()
+                        board.save(user=request.user)
 
-                return HttpResponseRedirect('/board/%s/' % urlquote_plus(request.POST['boardname']))
+                        return HttpResponseRedirect('/board/%s/' % urlquote_plus(request.POST['boardname']))
 
+                else:
+                    messages.add_message(request, messages.ERROR, _(u'A board with the name "%s" already exists' % request.POST['boardname']))
+                    return HttpResponseRedirect('/')
             else:
-                messages.add_message(request, messages.ERROR, _(u'A board with the name "%s" already exists' % request.POST['boardname']))
+                messages.add_message(request, messages.ERROR, _(u'No name for a board given'))
                 return HttpResponseRedirect('/')
 
     else:
