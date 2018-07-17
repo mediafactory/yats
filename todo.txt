@@ -7,7 +7,6 @@
 import pydevd
 pydevd.settrace('192.168.33.1', 5678)
 
-- check for duplicated files using hash
 - neuer Comment von wem in Mail
 - change collision..
 - api ticket change after close...
@@ -19,6 +18,7 @@ pydevd.settrace('192.168.33.1', 5678)
 - save and reassign without mail...
 - RPC => like TRAC
 - ticket dependencies
+- remove HTML from virus error
 
 - versions not sorted
 - last generell action user and dt
