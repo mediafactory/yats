@@ -35,7 +35,9 @@
     </table>
 
     <h3 id="files">{% trans "files" %}</h3>
-    {% trans "drop your files here..."%} <br />
+    <div id="clickable">
+        {% trans "drop your files here..."%} <br />
+    </div>
     <hr />
     {% if files %}
     <section id="no-more-tables">
@@ -180,8 +182,8 @@
 
     new Dropzone(document.body, { // Make the whole body a dropzone
       url: "/tickets/upload/{{ ticket.id }}/?Ajax=1", // Set the url
-      //previewsContainer: "#previews", // Define the container to display the previews
-      //clickable: "#clickable" // Define the element that should be used as click trigger to select files.
+      previewsContainer: false, // Define the container to display the previews
+      clickable: "#clickable", // Define the element that should be used as click trigger to select files.
       complete: function (file) {
           //console.log(this.getUploadingFiles().length, this.getQueuedFiles().length)
           if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
