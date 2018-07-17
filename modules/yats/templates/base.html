@@ -18,18 +18,18 @@
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     {% bootstrap_javascript_tag %}
     {% block extra_head %}
-        <script>
-            function delMe() {
-                // ajax call -> clear session from breadcrumb
-                $.ajax({
-                    url: "{% url 'action' 'remove' '1' %}",
-                    success: function(result){
-                        $(".breadcrumb").remove()
-                    }
-                });
-            }
-        </script>
     {% endblock %}
+    <script>
+        function delMe() {
+            // ajax call -> clear session from breadcrumb
+            $.ajax({
+                url: "{% url 'action' 'remove' '1' %}",
+                success: function(result){
+                    $(".breadcrumb").remove()
+                }
+            });
+        }
+    </script>
     <style>
       div.container.pull-left.yats-navi {width: auto;}
     </style>
