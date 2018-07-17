@@ -17,6 +17,7 @@ from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment
 import os
 import io
 import graph
+import re
 try:
     import json
 except ImportError:
@@ -279,6 +280,7 @@ def action(request, mode, ticket):
 
             else:
                 msg = unicode(form.errors['file'])
+                msg = re.sub('<[^<]+?>', '', msg)
                 messages.add_message(request, messages.ERROR, msg)
                 if request.GET.get('Ajax') == '1':
                     return HttpResponse('OK')
