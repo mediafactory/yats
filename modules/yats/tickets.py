@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, del_breadcrumbs
 import os
 import io
 import graph
@@ -284,6 +284,11 @@ def action(request, mode, ticket):
         add_history(request, tic, 8, file.name)
 
         return HttpResponseRedirect('/tickets/view/%s/#files' % tic.pk)
+
+    elif mode == 'remove':
+            del_breadcrumbs(request)
+
+            return HttpResponse('OK')
 
 @login_required
 def table(request, **kwargs):

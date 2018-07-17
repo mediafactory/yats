@@ -318,6 +318,9 @@ def add_breadcrumbs(request, pk, typ):
         breadcrumbs.pop(0)
     request.session['breadcrumbs'] = breadcrumbs
 
+def del_breadcrumbs(request):
+    request.session['breadcrumbs'] = None
+
 def build_ticket_search(request, base_query, search_params, params):
     if not request.user.is_staff:
         base_query = base_query.filter(customer=request.organisation)
