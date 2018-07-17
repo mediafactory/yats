@@ -195,6 +195,7 @@ class tickets_files(base):
     content_type = models.CharField(max_length=255)
     size = models.PositiveIntegerField()
     public = models.BooleanField(default=False)
+    checksum = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         super(tickets_files, self).save(*args, **kwargs)
