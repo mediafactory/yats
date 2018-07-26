@@ -15,7 +15,7 @@ from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search
 from yats.models import boards
 from yats.forms import AddToBordForm, PasswordForm
-from yats.yatse import buildYATSFields
+from yats.yatse import api_login, buildYATSFields, YATSSearch
 
 import datetime
 try:
@@ -179,11 +179,15 @@ def board_by_id(request, id):
     board = boards.objects.get(active_record=True, pk=id, c_user=request.user)
     return show_board(request, board.name)
 
-@login_required
 def yatse_api(request, method):
-    if method == 'fields':
-        fields = buildYATSFields([])
+    api_login(request)
+
+    if request.method == 'PROPFIND':
+        fields = buildYATSFields(request, [])
         return HttpResponse(json.dumps(fields[0]))
+
+    if request.method == 'SEARCH':
+        return HttpResponse(json.dumps(YATSSearch(request)))
 
     else:
         return HttpResponseNotFound()

@@ -1,6 +1,26 @@
 # -*- coding: utf-8 -*-
 from django.apps import apps
-from yats.shortcuts import get_ticket_model, modulePathToModuleName
+from django.conf import settings
+from django.http import JsonResponse
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth import User
+from yats.shortcuts import get_ticket_model, modulePathToModuleName, build_ticket_search, clean_search_values
+from yats.models import UserProfile
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
+
+def api_login(request):
+    if request.META.get('HTTP_API_KEY') == settings.API_KEY and request.META.get('HTTP_API_USER') <> '':
+        try:
+            user = User.object.get(username=request.META.get('HTTP_API_USER'), is_active=True)
+            request.user = user
+            request.organisation = UserProfile.objects.get(user=user).organisation
+        except:
+            raise PermissionDenied
+    else:
+        raise PermissionDenied
 
 def buildYATSFields(exclude_list):
     TracFields = []
@@ -37,3 +57,14 @@ def buildYATSFields(exclude_list):
             value['options'] = options
         TracFields.append(value)
     return (TracFields, TicketFields)
+
+def YATSSearch(request):
+    def ValuesQuerySetToDict(vqs):
+        return [item for item in vqs]
+
+    tic = get_ticket_model().objects.select_related('type').all()
+    # todo content_type
+    # evtl: request.body.decode('utf-8')
+    data = json.loads(request.body)
+    search_params, base_query = build_ticket_search(request, tic, {}, clean_search_values(data))
+    return ValuesQuerySetToDict(base_query)
