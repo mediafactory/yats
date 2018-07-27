@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.decorators import login_required
-from django.http.response import HttpResponseRedirect, HttpResponseNotFound, HttpResponse
+from django.http.response import HttpResponseRedirect, HttpResponseNotFound, HttpResponse, HttpResponseForbidden, JsonResponse
 from django import get_version as get_django_version
 from django.shortcuts import render
 from django.core.serializers.json import DjangoJSONEncoder
@@ -10,6 +10,7 @@ from django.utils.translation import ugettext as _
 from django.utils import timezone
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login as auth_login, logout as aut_logout
+from django.core.exceptions import PermissionDenied
 from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search
@@ -179,15 +180,19 @@ def board_by_id(request, id):
     board = boards.objects.get(active_record=True, pk=id, c_user=request.user)
     return show_board(request, board.name)
 
-def yatse_api(request, method):
-    api_login(request)
+def yatse_api(request):
+    try:
+        api_login(request)
+
+    except PermissionDenied:
+        return HttpResponseForbidden(request.META.get('HTTP_API_USER'))
 
     if request.method == 'PROPFIND':
         fields = buildYATSFields(request, [])
-        return HttpResponse(json.dumps(fields[0]))
+        return JsonResponse(fields[0])
 
     if request.method == 'SEARCH':
-        return HttpResponse(json.dumps(YATSSearch(request)))
+        return JsonResponse(YATSSearch(request), safe=False)
 
     else:
-        return HttpResponseNotFound()
+        return HttpResponseNotFound('invalid method')

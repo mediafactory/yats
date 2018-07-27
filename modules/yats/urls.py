@@ -64,7 +64,7 @@ urlpatterns = [
         name='logout'),
 
    # yatse
-   url(r'^yatse/(?P<method>\w+)/$',
+   url(r'^yatse/$',
         view=yatse_api,
         name='yatse_api'),
 ]

@@ -3,7 +3,7 @@ from django.apps import apps
 from django.conf import settings
 from django.http import JsonResponse
 from django.core.exceptions import PermissionDenied
-from django.contrib.auth import User
+from django.contrib.auth.models import User
 from yats.shortcuts import get_ticket_model, modulePathToModuleName, build_ticket_search, clean_search_values
 from yats.models import UserProfile
 try:
@@ -14,7 +14,7 @@ except ImportError:
 def api_login(request):
     if request.META.get('HTTP_API_KEY') == settings.API_KEY and request.META.get('HTTP_API_USER') <> '':
         try:
-            user = User.object.get(username=request.META.get('HTTP_API_USER'), is_active=True)
+            user = User.objects.get(username=request.META.get('HTTP_API_USER'), is_active=True)
             request.user = user
             request.organisation = UserProfile.objects.get(user=user).organisation
         except:
@@ -62,9 +62,9 @@ def YATSSearch(request):
     def ValuesQuerySetToDict(vqs):
         return [item for item in vqs]
 
-    tic = get_ticket_model().objects.select_related('type').all()
+    tic = get_ticket_model().objects.select_related('type', 'state', 'assigned').all()
     # todo content_type
-    # evtl: request.body.decode('utf-8')
+    # evtl:
     data = json.loads(request.body)
     search_params, base_query = build_ticket_search(request, tic, {}, clean_search_values(data))
-    return ValuesQuerySetToDict(base_query)
+    return ValuesQuerySetToDict(base_query.values('id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed'))
