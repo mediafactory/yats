@@ -4,8 +4,10 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
+from django.http.request import QueryDict
 from yats.shortcuts import get_ticket_model, modulePathToModuleName, build_ticket_search, clean_search_values
 from yats.models import UserProfile
+from yats.forms import SearchForm
 try:
     import json
 except ImportError:
@@ -63,8 +65,21 @@ def YATSSearch(request):
         return [item for item in vqs]
 
     tic = get_ticket_model().objects.select_related('type', 'state', 'assigned').all()
-    # todo content_type
-    # evtl:
     data = json.loads(request.body)
-    search_params, base_query = build_ticket_search(request, tic, {}, clean_search_values(data))
+    POST = QueryDict(mutable=True)
+    POST.update(data)
+    form = SearchForm(POST, include_list=settings.TICKET_SEARCH_FIELDS, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
+    form.is_valid()
+    for err in form._errors:
+        field = form.fields[err]
+        b = type(field)
+        if err in ['c_user']:
+            form.cleaned_data[err] = field.choices.queryset.get(username=data[err]).pk
+        else:
+            try:
+                form.cleaned_data[err] = field.choices.queryset.get(name=data[err]).pk
+            except:
+                form.cleaned_data[err] = -1
+
+    search_params, base_query = build_ticket_search(request, tic, {}, clean_search_values(form.cleaned_data))
     return ValuesQuerySetToDict(base_query.values('id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed'))
