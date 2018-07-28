@@ -12,11 +12,10 @@
     <p>&nbsp;</p>
 
 	<form id="data" name="data" action="" method="post" enctype="multipart/form-data">
-	<table>
-	    {{ form|as_bootstrap:"vertical" }}
-	</table>
+  {% csrf_token %}
+  {{ form|as_bootstrap:"vertical" }}
 	<br />
 	<input class="btn btn-primary" type="submit" value="{% trans "upload" %}" />
 	</form>
-    
+
 {% endblock %}
