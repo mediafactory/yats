@@ -182,14 +182,15 @@ def board_by_id(request, id):
 
 def yatse_api(request):
     try:
-        api_login(request)
+        if request.method != 'PROPFIND':
+            api_login(request)
 
     except PermissionDenied:
         return HttpResponseForbidden(request.META.get('HTTP_API_USER'))
 
     if request.method == 'PROPFIND':
-        fields = buildYATSFields(request, [])
-        return JsonResponse(fields[0])
+        fields = buildYATSFields([])
+        return JsonResponse(fields[0], safe=False)
 
     if request.method == 'SEARCH':
         return JsonResponse(YATSSearch(request), safe=False)
