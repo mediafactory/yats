@@ -74,7 +74,10 @@ def YATSSearch(request):
         field = form.fields[err]
         b = type(field)
         if err in ['c_user']:
-            form.cleaned_data[err] = field.choices.queryset.get(username=data[err]).pk
+            try:
+                form.cleaned_data[err] = field.choices.queryset.get(username=data[err]).pk
+            except:
+                form.cleaned_data[err] = -1
         else:
             try:
                 form.cleaned_data[err] = field.choices.queryset.get(name=data[err]).pk
