@@ -64,7 +64,7 @@ def YATSSearch(request):
     def ValuesQuerySetToDict(vqs):
         return [item for item in vqs]
 
-    tic = get_ticket_model().objects.select_related('type', 'state', 'assigned').all()
+    tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
     data = json.loads(request.body)
     POST = QueryDict(mutable=True)
     POST.update(data)
@@ -72,7 +72,7 @@ def YATSSearch(request):
     form.is_valid()
     for err in form._errors:
         field = form.fields[err]
-        b = type(field)
+        # b = type(field)
         if err in ['c_user']:
             try:
                 form.cleaned_data[err] = field.choices.queryset.get(username=data[err]).pk
@@ -85,4 +85,13 @@ def YATSSearch(request):
                 form.cleaned_data[err] = -1
 
     search_params, base_query = build_ticket_search(request, tic, {}, clean_search_values(form.cleaned_data))
-    return ValuesQuerySetToDict(base_query.values('id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed'))
+    neededColumns = ['id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed', 'priority__color', 'customer__name', 'customer__hourly_rate', 'billing_estimated_time']
+    """
+    availableColumns = []
+    tickets = get_ticket_model()
+    t = tickets()
+    for field in t._meta.fields:
+        if field.name in neededColumns:
+            availableColumns.append(field.name)
+    """
+    return ValuesQuerySetToDict(base_query.values(*neededColumns))
