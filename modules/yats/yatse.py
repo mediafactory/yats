@@ -85,7 +85,7 @@ def YATSSearch(request):
                 form.cleaned_data[err] = -1
 
     search_params, base_query = build_ticket_search(request, tic, {}, clean_search_values(form.cleaned_data))
-    neededColumns = ['id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed', 'priority__color', 'customer__name', 'customer__hourly_rate', 'billing_estimated_time']
+    neededColumns = ['id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed', 'priority__color', 'customer__name', 'customer__hourly_rate', 'billing_estimated_time', 'close_date', 'last_action_date']
     """
     availableColumns = []
     tickets = get_ticket_model()
