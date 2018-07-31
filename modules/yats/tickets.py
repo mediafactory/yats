@@ -134,6 +134,8 @@ def action(request, mode, ticket):
             files_lines = paginator.page(paginator.num_pages)
 
         add_breadcrumbs(request, ticket, '#')
+        if 'YATSE' in request.GET and 'isUsingYATSE' not in request.session:
+            request.session['isUsingYATSE'] = True
 
         return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed})
 

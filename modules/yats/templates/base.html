@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load bootstrap_toolkit i18n boards %}
+{% load bootstrap_toolkit i18n boards menu %}
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -43,43 +43,6 @@
         <div class="container-fluid yats-navi">
             <a class="brand " id="brand" href="/">&nbsp;&nbsp;&nbsp;YATS:</a>
             <ul class="nav">
-                {% if urlpath %}
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Wiki" %}<b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                    {% for child in children_slice %}
-                        <li>
-                          <a href="{% url 'wiki:get' path=child.path %}">
-                            {{ child.article.current_revision.title }}
-                          </a>
-                        </li>
-                        {% empty %}
-                        <li><a href="#"><em>{% trans "No sub-articles" %}</em></a></li>
-                      {% endfor %}
-                      {% if children_slice_more %}
-                      <li><a href="#"><em>{% trans "...and more" %}</em></a></li>
-                      {% endif %}
-                      <li>
-                        <a href="{% url 'wiki:dir' path=urlpath.path %}">{% trans "Browse articles in this level" %} &raquo;</a>
-                      </li>
-                      <li>
-                        {% if urlpath.parent %}
-                        <a href="{% url 'wiki:create' path=urlpath.parent.path %}" style="padding: 7px;">
-                          <span class="icon-arrow-right"></span>
-                          {% trans "New article next to" %} {{ article.current_revision.title }}
-                        </a>
-                        {% endif %}
-                        <a href="{% url 'wiki:create' path=urlpath.path %}" style="padding: 7px;">
-                          <span class="icon-arrow-down"></span>
-                          {% trans "New article below" %} {{ article.current_revision.title }}
-                        </a>
-                      </li>
-
-                    </ul>
-                </li>
-                {% else %}
-                <!-- <li><a href="/wiki/" class="">{% trans "Wiki" %}</a></li> -->
-                {% endif %}
                 <li><a href="/reports/" class="">{% trans "Reports" %}</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Boards" %}<b class="caret"></b></a>
@@ -91,7 +54,17 @@
                     {% endfor %}
                     </ul>
                 </li>
+                {% if request.session.isUsingYATSE %}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Search" %}<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/tickets/search/" class="">{% trans "lokal" %}</a></li>
+                        <li><a href="{% YATSSerch %}" class="">{% trans "global" %}</a></li>
+                    </ul>
+                </li>
+                {% else %}
                 <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>
+                {% endif %}
                 <li><a href="/tickets/new/" class="">{% trans "New" %}</a></li>
                 <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>
                 <li><a href="/info/" class="">{% trans "Info" %}</a></li>
