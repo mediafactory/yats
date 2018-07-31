@@ -12,6 +12,7 @@ try:
     import json
 except ImportError:
     from django.utils import simplejson as json
+import datetime
 
 def api_login(request):
     if request.META.get('HTTP_API_KEY') == settings.API_KEY and request.META.get('HTTP_API_USER') <> '':
@@ -66,6 +67,18 @@ def YATSSearch(request):
 
     tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
     data = json.loads(request.body)
+
+    if 'extra_filter' in data:
+        extra_filter = data['extra_filter']
+        del data['extra_filter']
+    else:
+        extra_filter = None
+    if 'days' in data:
+        days = data['days']
+        del data['days']
+    else:
+        days = None
+
     POST = QueryDict(mutable=True)
     POST.update(data)
     form = SearchForm(POST, include_list=settings.TICKET_SEARCH_FIELDS, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
@@ -85,6 +98,16 @@ def YATSSearch(request):
                 form.cleaned_data[err] = -1
 
     search_params, base_query = build_ticket_search(request, tic, {}, clean_search_values(form.cleaned_data))
+    if extra_filter and days:
+        if extra_filter == '1':  # days since closed
+            base_query = base_query.filter(close_date__gte=datetime.date.today() - datetime.timedelta(days=days)).exclude(close_date=None)
+        if extra_filter == '2':  # days since created
+            base_query = base_query.filter(c_date__gte=datetime.date.today() - datetime.timedelta(days=days))
+        if extra_filter == '3':  # days since last changed
+            base_query = base_query.filter(u_date__gte=datetime.date.today() - datetime.timedelta(days=days))
+        if extra_filter == '4':  # days since last action
+            base_query = base_query.filter(last_action_date__gte=datetime.date.today() - datetime.timedelta(days=days))
+
     neededColumns = ['id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed', 'priority__color', 'customer__name', 'customer__hourly_rate', 'billing_estimated_time', 'close_date', 'last_action_date']
     """
     availableColumns = []
