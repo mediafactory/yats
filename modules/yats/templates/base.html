@@ -96,12 +96,6 @@
             {% if not forloop.last %}<span class="divider">|</span>{% endif %}
         </li>
         {% endfor %}
-
-        {% for ancestor in urlpath.cached_ancestors %}
-        <li><a href="{% url 'wiki:get' path=ancestor.path %}">{{ ancestor.article.current_revision.title|truncatechars:25 }}</a></li>
-        {% endfor %}
-        <li class="active">{{ article.current_revision.title|truncatechars:25 }}</li>
-        <a class="close" href="#" onclick="delMe()">&times;</a>
     </ul>
 {% endif %}
 
