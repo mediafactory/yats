@@ -11,6 +11,7 @@ YATS
 - yet another (trouble) ticketing system based on Python Django
 - &copy; media factory, Lübeck, Germany http://www.mediafactory.de
 - requires: Django 1.11.x (Python 2.x)
+- See also: YATSE (https://github.com/mediafactory/yatse)
 
 DEMO
 -----
@@ -93,7 +94,6 @@ The project is splited into 2 parts:
 Customization is done in the web module - e.g. add more ticket fields (models.py in web) besides the settings itself (settings.py and ini file).
 So far the app needs 2 folders (for logging and attachments as defined in the inifile). Make sure the webserver has write access to those folders.
 
-./manage.py syncdb  
 ./manage.py migrate  
 
 ALTERNATIVE PACKAGES
