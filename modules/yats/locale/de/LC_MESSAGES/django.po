@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-16 06:53+0000\n"
+"POT-Creation-Date: 2018-07-31 17:43+0000\n"
 "PO-Revision-Date: 2018-07-17 17:05+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Last-Translator: \n"
-"Language-Team: \n"
 "X-Generator: Poedit 2.0.9\n"
 
 #: templates/401.html:7
@@ -30,98 +30,78 @@ msgstr "nicht gefunden"
 msgid "System Error"
 msgstr "Systemfehler"
 
-#: templates/base.html:36 templates/base.html:69
-msgid "Wiki"
-msgstr "Wiki"
-
-#: templates/base.html:45
-msgid "No sub-articles"
-msgstr ""
-
-#: templates/base.html:48
-msgid "...and more"
-msgstr ""
-
-#: templates/base.html:51
-msgid "Browse articles in this level"
-msgstr ""
-
-#: templates/base.html:57
-msgid "New article next to"
-msgstr ""
-
-#: templates/base.html:62
-msgid "New article below"
-msgstr ""
-
-#: templates/base.html:71
+#: templates/base.html:46
 msgid "Reports"
 msgstr "Berichte"
 
-#: templates/base.html:73
+#: templates/base.html:48
 msgid "Boards"
 msgstr "Borde"
 
-#: templates/base.html:75
+#: templates/base.html:50
 msgid "add new board"
 msgstr "neues Board hinzufügen"
 
-#: templates/base.html:82
+#: templates/base.html:59 templates/base.html:66
 msgid "Search"
 msgstr "Suche"
 
-#: templates/base.html:83
+#: templates/base.html:61
+msgid "lokal"
+msgstr ""
+
+#: templates/base.html:62
+msgid "global"
+msgstr ""
+
+#: templates/base.html:68
 msgid "New"
 msgstr "Neu"
 
-#: templates/base.html:84
+#: templates/base.html:69
 msgid "Workflow"
 msgstr "Workflow"
 
-#: templates/base.html:85
+#: templates/base.html:70
 msgid "Info"
 msgstr "Info"
 
-#: templates/base.html:86
-msgid "Logout"
-msgstr "Abmelden"
-
-#: templates/base.html:89
-msgid "logged in as"
-msgstr "angemeldet als"
-
-#: templates/base.html:137
+#: templates/base.html:77 templates/base.html:135
 msgid "change password"
 msgstr "Passwort ändern"
 
-#: templates/base.html:143 templates/login.html:23
+#: templates/base.html:79
+msgid "Logout"
+msgstr "Abmelden"
+
+#: templates/base.html:141 templates/login.html:23
 msgid "Password"
 msgstr "Passwort"
 
-#: templates/base.html:144
+#: templates/base.html:142
 msgid "Validate password"
 msgstr "Passwort überprüfen"
 
-#: templates/base.html:149 templates/base.html:175
+#: templates/base.html:147 templates/base.html:173
 #: templates/tickets/list.html:76 templates/tickets/list.html:95
-#: templates/tickets/reports.html:47 templates/tickets/view.html:114
-#: templates/tickets/view.html:134
+#: templates/tickets/reports.html:47 templates/tickets/view.html:118
+#: templates/tickets/view.html:138
 msgid "cancel"
 msgstr "abbrechen"
 
-#: templates/base.html:150
+#: templates/base.html:148
 msgid "change"
 msgstr "ändern"
 
-#: templates/base.html:159
+#: templates/base.html:157
 msgid "new board"
 msgstr "neues Bord"
 
-#: templates/base.html:165
+#: templates/base.html:163
 msgid "board name"
 msgstr "Bord-Name"
 
-#: templates/base.html:176 templates/tickets/edit.html:25
+#: templates/base.html:174 templates/tickets/edit.html:25
 #: templates/tickets/edit.html:28 templates/tickets/list.html:77
 #: templates/tickets/list.html:96 templates/tickets/new.html:24
 #: templates/tickets/new.html:27
@@ -134,7 +114,9 @@ msgstr "Bord"
 
 #: templates/board/view.html:18
 msgid "add new columns by adding a search result to this board"
-msgstr "füge neue Spalten hinzu, in dem du ein Suchergebnis in der Suche zu diesem Bord hinzufügst"
+msgstr ""
+"füge neue Spalten hinzu, in dem du ein Suchergebnis in der Suche zu diesem "
+"Bord hinzufügst"
 
 #: templates/board/view.html:67
 msgid "Do you really want to delete this column?"
@@ -225,7 +207,7 @@ msgstr ""
 msgid "ticket"
 msgstr "Ticket"
 
-#: templates/tickets/file.html:19
+#: templates/tickets/file.html:18
 msgid "upload"
 msgstr "hochladen"
 
@@ -367,11 +349,11 @@ msgstr "Kommentar anfügen"
 msgid "reopen"
 msgstr "erneut öffnen"
 
-#: templates/tickets/view.html:20 templates/tickets/view.html:135
+#: templates/tickets/view.html:20 templates/tickets/view.html:139
 msgid "reassign"
 msgstr "erneut zuweisen"
 
-#: templates/tickets/view.html:20 templates/tickets/view.html:115
+#: templates/tickets/view.html:20 templates/tickets/view.html:119
 msgid "close"
 msgstr "schliessen"
 
@@ -387,67 +369,71 @@ msgstr "Teilnehmer"
 msgid "files"
 msgstr "Dateien"
 
-#: templates/tickets/view.html:38
+#: templates/tickets/view.html:39
 msgid "drop your files here..."
-msgstr "Zehen Sie ihre Dateien hier her…"
+msgstr "Ziehen Sie ihre Dateien hier her…"
 
-#: templates/tickets/view.html:45 templates/tickets/view.html:54
+#: templates/tickets/view.html:47 templates/tickets/view.html:57
 msgid "action"
 msgstr "Aktion"
 
-#: templates/tickets/view.html:46 templates/tickets/view.html:55
+#: templates/tickets/view.html:48 templates/tickets/view.html:58
 msgid "date"
 msgstr "Datum"
 
-#: templates/tickets/view.html:47
+#: templates/tickets/view.html:49
 msgid "document"
 msgstr "Dokument"
 
-#: templates/tickets/view.html:48 templates/tickets/view.html:57
+#: templates/tickets/view.html:50 templates/tickets/view.html:60
 msgid "size"
 msgstr "Größe"
 
-#: templates/tickets/view.html:49 templates/tickets/view.html:58
+#: templates/tickets/view.html:51 templates/tickets/view.html:61
 msgid "contenttype"
 msgstr "Dateityp"
 
-#: templates/tickets/view.html:56
+#: templates/tickets/view.html:52 templates/tickets/view.html:62
+msgid "hash"
+msgstr ""
+
+#: templates/tickets/view.html:59
 msgid "name"
 msgstr "Name"
 
-#: templates/tickets/view.html:57
+#: templates/tickets/view.html:60
 msgid "unknown"
 msgstr "unbekannt"
 
-#: templates/tickets/view.html:66
+#: templates/tickets/view.html:70
 msgid "no files so far"
 msgstr "keine Dateien bisher"
 
-#: templates/tickets/view.html:69
+#: templates/tickets/view.html:73
 msgid "comments"
 msgstr "Kommentare"
 
-#: templates/tickets/view.html:91
+#: templates/tickets/view.html:95
 msgid "leave new comment"
 msgstr "neuen Kommentar anfügen"
 
-#: templates/tickets/view.html:96
+#: templates/tickets/view.html:100
 msgid "add"
 msgstr "anfügen"
 
-#: templates/tickets/view.html:104
+#: templates/tickets/view.html:108
 msgid "close ticket"
 msgstr "Ticket schließen"
 
-#: templates/tickets/view.html:124
+#: templates/tickets/view.html:128
 msgid "reassign ticket"
 msgstr "Ticketzuständigkeit ändern"
 
-#: templates/tickets/view.html:142
+#: templates/tickets/view.html:146
 msgid "uploading files"
 msgstr "Dateien werden hochgeladen"
 
-#: templates/tickets/view.html:175
+#: templates/tickets/view.html:179
 msgid "Do you really want to delete this file?"
 msgstr "Wollen Sie wirklich diese Datei löschen?"
 
@@ -463,6 +449,12 @@ msgstr "füge neue Status im Adminbereich an"
 #: templates/tickets/workflow.html:65
 msgid "Are you sure you want to disconnect these nodes?"
 msgstr "Wollen Sie wirklich diese Verbindung löschen?"
+
+#~ msgid "Wiki"
+#~ msgstr "Wiki"
+
+#~ msgid "logged in as"
+#~ msgstr "angemeldet als"
 
 #, fuzzy
 #~ msgid "ticket already closed"
@@ -596,8 +588,12 @@ msgstr "Wollen Sie wirklich diese Verbindung löschen?"
 #~ msgid "ticket states"
 #~ msgstr "Ticketliste"
 
-#~ msgid "the following participants could not be reached by mail (address missing): %s"
-#~ msgstr "die folgenden Empfänger konnten nicht per Mail erreicht werden (fehlende Adresse): %s"
+#~ msgid ""
+#~ "the following participants could not be reached by mail (address "
+#~ "missing): %s"
+#~ msgstr ""
+#~ "die folgenden Empfänger konnten nicht per Mail erreicht werden (fehlende "
+#~ "Adresse): %s"
 
 #~ msgid "mail not send: %s"
 #~ msgstr "Email nicht gesendet: %s"
