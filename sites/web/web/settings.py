@@ -130,7 +130,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'yats.middleware.header.ResponseInjectHeader',
@@ -167,10 +167,10 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler'
         },
         'request_handler': {
-                'level':'DEBUG',
-                'class':'logging.handlers.RotatingFileHandler',
+                'level': 'DEBUG',
+                'class': 'logging.handlers.RotatingFileHandler',
                 'filename': config.get('folder', 'LOGGING_PATH'),
-                'maxBytes': 1024*1024*5, # 5 MB
+                'maxBytes': 1024 * 1024 * 5,  # 5 MB
                 'backupCount': 5,
         },
     },
@@ -204,3 +204,9 @@ SSO_PRIVATE_KEY = 'Your Private Key'
 SSO_PUBLIC_KEY = 'Your Public Key'
 SSO_SERVER = 'http://192.168.33.17:8080/server/'
 API_KEY = 'geheim'
+
+KEEP_IT_SIMPLE = True
+KEEP_IT_SIMPLE_DEFAULT_TYPE = 1
+KEEP_IT_SIMPLE_DEFAULT_PRIORITY = 2
+KEEP_IT_SIMPLE_DEFAULT_CUSTOMER = -1  # auto from user
+KEEP_IT_SIMPLE_DEFAULT_COMPONENT = 1
