@@ -13,3 +13,10 @@ def YATSSerch():
         return urlunsplit(parts)
     else:
         return ''
+
+@register.simple_tag(takes_context=True)
+def SimpleSerch(context):
+    if hasattr(settings, 'KEEP_IT_SIMPLE'):
+        if settings.KEEP_IT_SIMPLE:
+            context['simple_search'] = True
+    return ''

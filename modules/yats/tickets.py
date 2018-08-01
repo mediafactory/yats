@@ -11,7 +11,7 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
 from django.utils import timezone
-from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm
+from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, del_breadcrumbs
 import os
@@ -56,10 +56,51 @@ def new(request):
     return render(request, 'tickets/new.html', {'layout': 'horizontal', 'form': form})
 
 @login_required
+def simple(request):
+    if request.method == 'POST':
+        form = SimpleTickets(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            ticket = get_ticket_model()
+            tic = ticket()
+            tic.caption = cd['caption']
+            tic.description = cd['description']
+            tic.priority = cd['priority']
+            tic.assigned = cd['assigned']
+            if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER') and settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER:
+                if settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER == -1:
+                    tic.customer = request.organisation
+                else:
+                    tic.customer_id = settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOME
+            if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
+                tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
+            tic.save(user=request.user)
+
+            if tic.assigned:
+                touch_ticket(tic.assigned, tic.pk)
+
+            for ele in form.changed_data:
+                form.initial[ele] = ''
+            remember_changes(request, form, tic)
+
+            touch_ticket(request.user, tic.pk)
+
+            return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
+
+    else:
+        form = SimpleTickets(initial={'assigned': request.user.id})
+    return render(request, 'tickets/new.html', {'layout': 'horizontal', 'form': form})
+
+@login_required
 def action(request, mode, ticket):
     mod_path, cls_name = settings.TICKET_CLASS.rsplit('.', 1)
     mod_path = mod_path.split('.').pop(0)
     tic = apps.get_model(mod_path, cls_name).objects.get(pk=ticket)
+
+    if hasattr(settings, 'KEEP_IT_SIMPLE') and settings.KEEP_IT_SIMPLE:
+        keep_it_simple = True
+    else:
+        keep_it_simple = False
 
     if mode == 'view':
         if request.method == 'POST':
@@ -137,11 +178,11 @@ def action(request, mode, ticket):
         if 'YATSE' in request.GET and 'isUsingYATSE' not in request.session:
             request.session['isUsingYATSE'] = True
 
-        return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed})
+        return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed, 'keep_it_simple': keep_it_simple})
 
     elif mode == 'history':
         history = tickets_history.objects.filter(ticket=ticket)
-        return render(request, 'tickets/history.html', {'layout': 'horizontal', 'ticket': tic, 'history': history})
+        return render(request, 'tickets/history.html', {'layout': 'horizontal', 'ticket': tic, 'history': history, 'keep_it_simple': keep_it_simple})
 
     elif mode == 'reopen':
         if tic.closed:
@@ -227,6 +268,42 @@ def action(request, mode, ticket):
             form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
         if 'state' in form.fields:
             form.fields['state'].queryset = form.fields['state'].queryset.exclude(type=2)
+        return render(request, 'tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form})
+
+    elif mode == 'simple':
+        if request.method == 'POST':
+            form = SimpleTickets(request.POST, initial={
+                    'caption': tic.caption,
+                    'description': tic.description,
+                    'priority': tic.priority,
+                    'assigned': tic.assigned
+                })
+            if form.is_valid():
+                cd = form.cleaned_data
+                tic.caption = cd['caption']
+                tic.description = cd['description']
+                tic.priority = cd['priority']
+                tic.assigned = cd['assigned']
+                tic.save(user=request.user)
+
+                if cd['assigned']:
+                    touch_ticket(cd['assigned'], tic.pk)
+
+                remember_changes(request, form, tic)
+
+                touch_ticket(request.user, tic.pk)
+
+                mail_ticket(request, tic.pk, form)
+
+                return HttpResponseRedirect('/tickets/view/%s/' % ticket)
+
+        else:
+            form = SimpleTickets(initial={
+                    'caption': tic.caption,
+                    'description': tic.description,
+                    'priority': tic.priority,
+                    'assigned': tic.assigned
+                })
         return render(request, 'tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form})
 
     elif mode == 'download':

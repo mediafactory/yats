@@ -15,10 +15,10 @@
 
 {% block content %}
 
-    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/view/{{ ticket.id }}/">{% trans "view" %}</a>&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/edit/{{ ticket.id }}/">{% trans "edit" %}</a>{% endif %}</h2>
+    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/view/{{ ticket.id }}/">{% trans "view" %}</a>&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/{% if keep_it_simple %}simple{% else %}edit{% endif %}/{{ ticket.id }}/">{% trans "edit" %}</a>{% endif %}</h2>
     <p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} by {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}</small></p>
     <p>&nbsp;</p>
-    
+
     <h3>{% trans "history" %}</h3>
     <hr />
     <ul class="timeline">

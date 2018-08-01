@@ -6,7 +6,7 @@ from django.forms.models import construct_instance
 from bootstrap_toolkit.widgets import BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
-from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards
+from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards, ticket_priority
 
 import importlib
 
@@ -134,6 +134,20 @@ class TicketsForm(forms.ModelForm):
     class Meta:
         model = mod_cls
         exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed', 'close_date', 'last_action_date']
+
+
+def get_simple_priority():
+    if hasattr(settings, 'KEEP_IT_SIMPLE') and settings.KEEP_IT_SIMPLE and hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_PRIORITY') and settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY:
+        return settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY
+    else:
+        return None
+
+class SimpleTickets(forms.Form):
+    caption = forms.CharField(required=True, label=_('caption'))
+    description = forms.CharField(widget=forms.Textarea(), required=False, label=_('description'))
+    assigned = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label=_('assigned'))
+    priority = forms.ModelChoiceField(queryset=ticket_priority.objects.all(), required=True, initial=get_simple_priority, label=_('priority'))
+
 
 class SearchForm(forms.ModelForm):
     required_css_class = 'do_not_require'

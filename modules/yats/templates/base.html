@@ -65,7 +65,8 @@
                 {% else %}
                 <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>
                 {% endif %}
-                <li><a href="/tickets/new/" class="">{% trans "New" %}</a></li>
+                {% SimpleSerch %}
+                <li><a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="">{% trans "New" %}</a></li>
                 <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>
                 <li><a href="/info/" class="">{% trans "Info" %}</a></li>
             </ul>
