@@ -66,6 +66,8 @@ KEY FEATURES
 - XML-RPC API
 - compatible with tracker (see https://github.com/mediafactory/tracker)
 - simple, but yet powerful! No real magic :-) 2 sourcefiles besides the django stuff (tickets.py and shortcuts.py)
+- SSO (single sign on), if you are using multiple YATS and YATSE (but you or your customers can still login locally)
+- Simple-Mode for using YATS as a simple task manager
 
 INSTALLATION
 -----
