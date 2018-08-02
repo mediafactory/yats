@@ -260,7 +260,7 @@ def action(request, mode, ticket):
 
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 
-    elif mode == 'edit' or (mode == 'simple' and not tic.keep_it_simple and keep_it_simple):
+    elif mode == 'edit' or (mode == 'simple' and (not tic.keep_it_simple or tic.closed) and keep_it_simple):
         excludes = ['resolution']
         if request.method == 'POST':
             form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
