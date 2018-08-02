@@ -24,6 +24,18 @@ except ImportError:
     from django.utils import simplejson as json
 
 @login_required
+def create(request):
+    if hasattr(settings, 'KEEP_IT_SIMPLE') and settings.KEEP_IT_SIMPLE:
+        keep_it_simple = True
+    else:
+        keep_it_simple = False
+
+    if keep_it_simple:
+        return HttpResponseRedirect('/tickets/simple/')
+    else:
+        return HttpResponseRedirect('/tickets/new/')
+
+@login_required
 def new(request):
     excludes = ['resolution']
 
