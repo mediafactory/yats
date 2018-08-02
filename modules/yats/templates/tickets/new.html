@@ -13,7 +13,8 @@
 {% block content %}
 
     <h2>{% trans "new ticket" %}</h2>
-    
+    {% if mode == "simple" %}<p style="margin-top: -15px;"><small class="text-muted"><a href="/tickets/new/">switch to extended form</a></small></p>{% endif %}
+
     <p>&nbsp;</p>
 
     <form class="form-{{ layout }}" action="" method="post">
@@ -26,6 +27,6 @@
         {% else %}
             <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
         {% endif %}
-    </form>        
+    </form>
 
 {% endblock %}

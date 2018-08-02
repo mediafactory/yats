@@ -133,7 +133,7 @@ class TicketsForm(forms.ModelForm):
 
     class Meta:
         model = mod_cls
-        exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed', 'close_date', 'last_action_date']
+        exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed', 'close_date', 'last_action_date', 'keep_it_simple']
 
 
 def get_simple_priority():

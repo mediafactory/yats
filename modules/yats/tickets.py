@@ -31,6 +31,9 @@ def new(request):
         form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
         if form.is_valid():
             tic = form.save()
+            if tic.keep_it_simple:
+                tic.keep_it_simple = False
+                tic.save(user=request.user)
 
             assigned = form.cleaned_data.get('assigned')
             if assigned:
@@ -89,7 +92,7 @@ def simple(request):
 
     else:
         form = SimpleTickets(initial={'assigned': request.user.id})
-    return render(request, 'tickets/new.html', {'layout': 'horizontal', 'form': form})
+    return render(request, 'tickets/new.html', {'layout': 'horizontal', 'form': form, 'mode': 'simple'})
 
 @login_required
 def action(request, mode, ticket):
@@ -245,12 +248,16 @@ def action(request, mode, ticket):
 
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 
-    elif mode == 'edit':
+    elif mode == 'edit' or (mode == 'simple' and not tic.keep_it_simple and keep_it_simple):
         excludes = ['resolution']
         if request.method == 'POST':
             form = TicketsForm(request.POST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id)
             if form.is_valid():
                 tic = form.save()
+
+                if tic.keep_it_simple:
+                    tic.keep_it_simple = False
+                    tic.save(user=request.user)
 
                 assigned = form.cleaned_data.get('assigned')
                 if assigned:
@@ -304,7 +311,7 @@ def action(request, mode, ticket):
                     'priority': tic.priority,
                     'assigned': tic.assigned
                 })
-        return render(request, 'tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form})
+        return render(request, 'tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form, 'mode': mode})
 
     elif mode == 'download':
         fileid = request.GET.get('file', -1)

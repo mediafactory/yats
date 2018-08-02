@@ -170,6 +170,7 @@ class tickets(base):
     state = models.ForeignKey(ticket_flow, null=True, blank=True, default=get_flow_start)
     close_date = models.DateTimeField(null=True)
     last_action_date = models.DateTimeField(null=True)
+    keep_it_simple = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         self.last_action_date = timezone.now()
