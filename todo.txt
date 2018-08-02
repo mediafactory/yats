@@ -1,11 +1,10 @@
+import pydevd
+pydevd.settrace('192.168.33.1', 5678)
+
 ---- WISHLIST
 - Vorlangen von Tickets
 - Wiederkehrende Aufgaben
-- SSO => yatse
 - todo inside a ticket desc
-
-import pydevd
-pydevd.settrace('192.168.33.1', 5678)
 
 - neuer Comment von wem in Mail
 - change collision..
@@ -34,7 +33,6 @@ pydevd.settrace('192.168.33.1', 5678)
 - import from TRAC
 
 - wiki integration
-- translation
 
 - mail templates
 - mail html diff of ticket changes
