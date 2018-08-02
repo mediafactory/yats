@@ -69,6 +69,7 @@
                 <li><a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="">{% trans "New" %}</a></li>
                 <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>
                 <li><a href="/info/" class="">{% trans "Info" %}</a></li>
+                {% if request.user.is_staff %}<li><a href="/admin/" class="">{% trans "Admin" %}</a></li>{% endif %}
             </ul>
 
             <ul class="nav pull-right">
