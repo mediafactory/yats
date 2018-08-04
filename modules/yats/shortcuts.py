@@ -348,3 +348,15 @@ def build_ticket_search(request, base_query, search_params, params):
 
     base_query = base_query.filter(**search_params)
     return (search_params, base_query)
+
+def convertPDFtoImg(pdf, dest=None):
+    try:
+        import PythonMagick
+        img = PythonMagick.Image()
+        img.density('300')
+        img.read(pdf)  # read in at 300 dpi
+        img.write(dest)
+
+    except:
+        pass
+    return dest
