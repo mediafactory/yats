@@ -373,7 +373,6 @@ class yatsCalledProcessError(subprocess.CalledProcessError):
 
 def convertOfficeTpPDF(office):
     command = '/usr/bin/libreoffice --headless --invisible --convert-to pdf --outdir /tmp %s' % (office)
-    print command
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd='.')
     output, unused_err = process.communicate()
     retcode = process.poll()
