@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, del_breadcrumbs, convertPDFtoImg
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, del_breadcrumbs, convertPDFtoImg, convertOfficeTpPDF
 import os
 import io
 import graph
@@ -330,7 +330,7 @@ def action(request, mode, ticket):
         file_data = tickets_files.objects.get(id=fileid, ticket=ticket)
         src = '%s%s.dat' % (settings.FILE_UPLOAD_PATH, fileid)
         content_type = file_data.content_type
-        if request.GET.get('preview') == 'yes' and 'pdf' in file_data.content_type:
+        if request.GET.get('preview') == 'yes' and os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)):
             src = '%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)
             content_type = 'imgae/png'
 
@@ -344,7 +344,7 @@ def action(request, mode, ticket):
         else:
             response = StreamingHttpResponse(open('%s' % (src), "rb"), content_type=content_type)
 
-        if request.GET.get('preview') == 'yes' and 'pdf' in file_data.content_type:
+        if request.GET.get('preview') == 'yes' and os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)):
             response['Content-Disposition'] = 'attachment;filename=%s' % content_type
         else:
             response['Content-Disposition'] = 'attachment;filename=%s' % smart_str(file_data.name)
@@ -384,6 +384,11 @@ def action(request, mode, ticket):
 
                 if 'pdf' in f.content_type:
                     convertPDFtoImg('%s/%s.dat' % (dest, f.id), '%s/%s.preview' % (dest, f.id))
+                else:
+                    if 'image' not in f.content_type:
+                        tmp = convertOfficeTpPDF('%s/%s.dat' % (dest, f.id))
+                        convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
+                        os.unlink(tmp)
 
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
 

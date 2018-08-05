@@ -8,6 +8,8 @@ from PIL import Image  # ImageOps
 import sys
 import datetime
 import re
+import os
+import subprocess
 
 try:
     import json
@@ -353,10 +355,31 @@ def convertPDFtoImg(pdf, dest=None):
     try:
         import PythonMagick
         img = PythonMagick.Image()
-        img.density('300')
+        img.density('100')
         img.read(pdf)  # read in at 300 dpi
         img.write(dest)
 
     except:
         pass
     return dest
+
+class yatsCalledProcessError(subprocess.CalledProcessError):
+    def __init__(self, returncode, cmd, output):
+        self.output = output
+        super(yatsCalledProcessError, self).__init__(returncode, cmd)
+
+    def __str__(self):
+        return "Command '%s' returned non-zero exit status %d - error: %s" % (self.cmd, self.returncode, self.output)
+
+def convertOfficeTpPDF(office):
+    command = '/usr/bin/libreoffice --headless --invisible --convert-to pdf --outdir /tmp %s' % (office)
+    print command
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd='.')
+    output, unused_err = process.communicate()
+    retcode = process.poll()
+    if retcode:
+        raise yatsCalledProcessError(retcode, command, output=output)
+
+    path, fileName = os.path.split(office)
+
+    return '/tmp/%s.%s' % (fileName.split('.')[0], 'pdf')
