@@ -10,63 +10,63 @@ try:
     import json
 except ImportError:
     from django.utils import simplejson as json
-    
+
 register = template.Library()
 
+@register.filter
 def prettify(value):
     return pretty_name(value)
-register.filter('prettify', prettify)
 
+@register.filter
 def contains(value, search):
     if not value or not search:
         return False
     return search in value
-register.filter('contains', contains)
 
+@register.filter
 def numberToTicketURL(value):
     return re.sub('#([0-9]+)', r'<a href="/tickets/view/\1/">#\1</a>', value)
-register.filter('numberToTicketURL', numberToTicketURL)
 
 class Diffs(template.Node):
     def __init__(self, line):
         self.line = line
-        
+
     def render(self, context):
         line = context.get(self.line)
         user = context.get('request').user
-        
+
         result = {}
         old = json.loads(line.old)
         new = json.loads(line.new)
-        
+
         if not has_public_fields(old) and not user.is_staff:
             context['elements'] = []
             return ''
-        
+
         for ele in old:
             if not user.is_staff and ele in settings.TICKET_NON_PUBLIC_FIELDS:
                 continue
-            
+
             if new[ele] == 'None':
                 new[ele] = _('unknown')
             if old[ele] == 'None':
                 old[ele] = _('unknown')
-            
+
             if new[ele] == 'True':
                 new[ele] = _('yes')
             if old[ele] == 'True':
                 old[ele] = _('yes')
-    
+
             if new[ele] == 'False':
                 new[ele] = _('no')
             if old[ele] == 'False':
                 old[ele] = _('no')
 
             result[ele] = generate_patch_html(old[ele], new[ele], ele, 'semantic')
-        
+
         context['elements'] = result
         return ''
-    
+
 def do_diff(parser, token):
     try:
         # split_contents() knows not to split quoted strings.
