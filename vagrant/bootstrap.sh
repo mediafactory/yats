@@ -4,7 +4,7 @@ VERSION=$(sed 's/\..*//' /etc/debian_version)
 
 # debian packages
 apt-get update
-apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev sqlite3 gettext ant wget ntp clamav clamav-daemon
+apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev sqlite3 gettext ant wget ntp clamav clamav-daemon python-pythonmagick libreoffice
 
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
@@ -16,6 +16,7 @@ ln -fs /vagrant_modules/bootstrap_toolkit $sites 2>/dev/null
 ln -fs /vagrant_modules/rpc4django $sites 2>/dev/null
 ln -fs /vagrant_modules/graph $sites 2>/dev/null
 ln -fs /vagrant_modules/simple_sso $sites 2>/dev/null
+ln -fs /vagrant_modules/djradicale $sites 2>/dev/null
 
 pip install -r /vagrant/requirements.txt
 
@@ -48,6 +49,8 @@ mkdir -p /var/web/yats/logs
 touch /var/web/yats/logs/django_request.log
 chown root:vagrant /var/web/yats/logs/django_request.log
 chmod go+w /var/web/yats/logs/django_request.log
+
+ln -fs /vagrant_sites/caldav /var/web/yats/caldav
 
 # yats config
 mkdir -p /usr/local/yats/config
