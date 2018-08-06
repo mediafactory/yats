@@ -25,6 +25,9 @@ except ImportError:
 
 @login_required
 def create(request):
+    if 'isUsingYATSE' not in request.session:
+        request.session['isUsingYATSE'] = True
+
     if hasattr(settings, 'KEEP_IT_SIMPLE') and settings.KEEP_IT_SIMPLE:
         keep_it_simple = True
     else:
