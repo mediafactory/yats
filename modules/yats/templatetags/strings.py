@@ -27,6 +27,15 @@ def contains(value, search):
 def numberToTicketURL(value):
     return re.sub('#([0-9]+)', r'<a href="/tickets/view/\1/">#\1</a>', value)
 
+@register.filter
+def buildToDoList(value):
+    def render_item(match):
+        state = match.groups()
+        checked = ' checked' if state[0].strip() else ''
+        return '<input type="checkbox" %s/>' % checked
+
+    return re.sub('\[([ Xx])\]', render_item, value)
+
 class Diffs(template.Node):
     def __init__(self, line):
         self.line = line
