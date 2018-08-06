@@ -356,7 +356,7 @@ def convertPDFtoImg(pdf, dest=None):
         import PythonMagick
         img = PythonMagick.Image()
         img.density('100')
-        img.read(pdf)  # read in at 300 dpi
+        img.read(pdf)  # read in at 100 dpi
         img.write(dest)
 
     except:
