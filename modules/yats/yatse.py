@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
 from django.http.request import QueryDict
+from django.utils import timezone
 from yats.shortcuts import get_ticket_model, modulePathToModuleName, build_ticket_search, clean_search_values
 from yats.models import UserProfile
 from yats.forms import SearchForm
@@ -99,7 +100,7 @@ def YATSSearch(request):
                 form.cleaned_data[err] = -1
 
     search_params, base_query = build_ticket_search(request, tic, {}, clean_search_values(form.cleaned_data))
-    if extra_filter and days:
+    if extra_filter:
         if extra_filter == '1':  # days since closed
             base_query = base_query.filter(close_date__gte=datetime.date.today() - datetime.timedelta(days=days)).exclude(close_date=None)
         if extra_filter == '2':  # days since created
@@ -108,6 +109,8 @@ def YATSSearch(request):
             base_query = base_query.filter(u_date__gte=datetime.date.today() - datetime.timedelta(days=days))
         if extra_filter == '4':  # days since last action
             base_query = base_query.filter(last_action_date__gte=datetime.date.today() - datetime.timedelta(days=days))
+        if extra_filter == '5':  # days since falling due
+            base_query = base_query.filter(deadline__gte=timezone.now() - datetime.timedelta(days=days)).filter(deadline__isnull=False)
 
     neededColumns = ['id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed', 'priority__color', 'customer__name', 'customer__hourly_rate', 'billing_estimated_time', 'close_date', 'last_action_date']
     """

@@ -25,6 +25,9 @@ except ImportError:
 
 @login_required
 def create(request):
+    if 'isUsingYATSE' not in request.session:
+        request.session['isUsingYATSE'] = True
+
     if hasattr(settings, 'KEEP_IT_SIMPLE') and settings.KEEP_IT_SIMPLE:
         keep_it_simple = True
     else:
@@ -89,6 +92,7 @@ def simple(request):
                     tic.customer_id = settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOME
             if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
                 tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
+            tic.deadline = cd['deadline']
             tic.save(user=request.user)
 
             if tic.assigned:
@@ -303,6 +307,7 @@ def action(request, mode, ticket):
                 tic.description = cd['description']
                 tic.priority = cd['priority']
                 tic.assigned = cd['assigned']
+                tic.deadline = cd['deadline']
                 tic.save(user=request.user)
 
                 if cd['assigned']:
@@ -321,7 +326,8 @@ def action(request, mode, ticket):
                     'caption': tic.caption,
                     'description': tic.description,
                     'priority': tic.priority,
-                    'assigned': tic.assigned
+                    'assigned': tic.assigned,
+                    'deadline': tic.deadline,
                 })
         return render(request, 'tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form, 'mode': mode})
 

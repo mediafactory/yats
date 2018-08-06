@@ -147,6 +147,7 @@ class SimpleTickets(forms.Form):
     description = forms.CharField(widget=forms.Textarea(), required=False, label=_('description'))
     assigned = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label=_('assigned'))
     priority = forms.ModelChoiceField(queryset=ticket_priority.objects.all(), required=True, initial=get_simple_priority, label=_('priority'))
+    deadline = forms.DateTimeField(widget=BootstrapDateInput(), required=False, label=_('deadline'))
 
 
 class SearchForm(forms.ModelForm):
