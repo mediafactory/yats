@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-31 17:43+0000\n"
-"PO-Revision-Date: 2018-07-17 17:05+0200\n"
+"POT-Creation-Date: 2018-08-07 18:56+0000\n"
+"PO-Revision-Date: 2018-08-07 20:56+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.9\n"
+"X-Generator: Poedit 2.1.1\n"
 
 #: templates/401.html:7
 msgid "not authenticated"
@@ -47,64 +47,68 @@ msgid "Search"
 msgstr "Suche"
 
 #: templates/base.html:61
-msgid "lokal"
-msgstr ""
+msgid "local"
+msgstr "lokal"
 
 #: templates/base.html:62
 msgid "global"
-msgstr ""
+msgstr "global"
 
-#: templates/base.html:68
+#: templates/base.html:69
 msgid "New"
 msgstr "Neu"
 
-#: templates/base.html:69
+#: templates/base.html:70
 msgid "Workflow"
 msgstr "Workflow"
 
-#: templates/base.html:70
+#: templates/base.html:71
 msgid "Info"
 msgstr "Info"
 
-#: templates/base.html:77 templates/base.html:135
+#: templates/base.html:72
+msgid "Admin"
+msgstr "Admin"
+
+#: templates/base.html:79 templates/base.html:131
 msgid "change password"
 msgstr "Passwort ändern"
 
-#: templates/base.html:79
+#: templates/base.html:81
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:141 templates/login.html:23
+#: templates/base.html:137 templates/login.html:23
 msgid "Password"
 msgstr "Passwort"
 
-#: templates/base.html:142
+#: templates/base.html:138
 msgid "Validate password"
 msgstr "Passwort überprüfen"
 
-#: templates/base.html:147 templates/base.html:173
+#: templates/base.html:143 templates/base.html:169
 #: templates/tickets/list.html:76 templates/tickets/list.html:95
 #: templates/tickets/reports.html:47 templates/tickets/view.html:118
 #: templates/tickets/view.html:138
 msgid "cancel"
 msgstr "abbrechen"
 
-#: templates/base.html:148
+#: templates/base.html:144
 msgid "change"
 msgstr "ändern"
 
-#: templates/base.html:157
+#: templates/base.html:153
 msgid "new board"
 msgstr "neues Bord"
 
-#: templates/base.html:163
+#: templates/base.html:159
 msgid "board name"
 msgstr "Bord-Name"
 
-#: templates/base.html:174 templates/tickets/edit.html:25
-#: templates/tickets/edit.html:28 templates/tickets/list.html:77
-#: templates/tickets/list.html:96 templates/tickets/new.html:24
-#: templates/tickets/new.html:27
+#: templates/base.html:170 templates/tickets/edit.html:26
+#: templates/tickets/edit.html:29 templates/tickets/list.html:77
+#: templates/tickets/list.html:96 templates/tickets/new.html:25
+#: templates/tickets/new.html:28
 msgid "save"
 msgstr "speichern"
 
@@ -176,7 +180,7 @@ msgstr "User"
 
 #: templates/login.html:31
 msgid "Login"
-msgstr ""
+msgstr "Login"
 
 #: templates/no_orga.html:7
 msgid "no organisation assigned"
@@ -186,20 +190,20 @@ msgstr "keine Organisation zugeordnet"
 msgid "edit ticket"
 msgstr "Ticket ändern"
 
-#: templates/tickets/edit.html:16 templates/tickets/history.html:19
+#: templates/tickets/edit.html:17 templates/tickets/history.html:19
 #: templates/tickets/list.html:24 templates/tickets/list.html:36
 #: templates/tickets/view.html:21
 msgid "created"
 msgstr "erstellt"
 
-#: templates/tickets/edit.html:16 templates/tickets/history.html:19
+#: templates/tickets/edit.html:17 templates/tickets/history.html:19
 #: templates/tickets/view.html:21
 msgid "last modified"
 msgstr "zuletzt geändert"
 
 #: templates/tickets/file.html:6
 msgid "file upload ticket"
-msgstr ""
+msgstr "Datei Upload Ticket"
 
 #: templates/tickets/file.html:10 templates/tickets/history.html:6
 #: templates/tickets/history.html:18 templates/tickets/view.html:6
@@ -287,7 +291,7 @@ msgstr "Betreff"
 
 #: templates/tickets/list.html:49
 msgid "no tickets found!"
-msgstr "keine Tickets gefunden"
+msgstr "keine Tickets gefunden!"
 
 #: templates/tickets/list.html:52
 msgid "You searched for:"
@@ -395,7 +399,7 @@ msgstr "Dateityp"
 
 #: templates/tickets/view.html:52 templates/tickets/view.html:62
 msgid "hash"
-msgstr ""
+msgstr "Hash"
 
 #: templates/tickets/view.html:59
 msgid "name"
