@@ -1,3 +1,7 @@
+---- BUGS
+- gleichnamige ToDos
+
+
 ---- WISHLIST
 - Vorlangen von Tickets
 - Wiederkehrende Aufgaben

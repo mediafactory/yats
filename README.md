@@ -68,6 +68,13 @@ KEY FEATURES
 - simple, but yet powerful! No real magic :-) 2 sourcefiles besides the django stuff (tickets.py and shortcuts.py)
 - SSO (single sign on), if you are using multiple YATS and YATSE (but you or your customers can still login locally)
 - Simple-Mode for using YATS as a simple task manager
+- Github-Style ToDo list inside tickets
+```
+[ ] my first ToDo
+[ ] my second ToDo
+[X] third ToDo
+[ ] 4. ToDo
+```
 
 INSTALLATION
 -----
