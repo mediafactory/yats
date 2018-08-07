@@ -61,6 +61,7 @@ KEY FEATURES
 - complex workflows
 - multiple kanban boards with columns saved from searches
 - file attachments with drag/drop (optionally virus scanned)
+- preview of all uploaded files
 - twitter bootstrapp 2 - responsive layout
 - git TAGS from Github as versions example
 - XML-RPC API
@@ -80,19 +81,16 @@ INSTALLATION
 -----
 no pypi package yet!
 
-needs:  
-pil or pillow  
-rpc4django  
-diff-match-patch  
-http://nodebox.net/code/index.php/Graph  
-httplib2 (if using tags from github)    
-django-wiki (not yet used)  
+needs:
+see requirements.txt
+AND
+all modules from modules folder
 
 should need:  
 pyclamd (add TCPSocket 3310 and TCPAddr 127.0.0.1 to its config and restart)  
-memcache  
+memcache
 
-There is a debian package which includes parts of all, but is very special designed for our usecase as we make no use of pip. It distributes all packages not available via debian packages.
+There is a debian package which includes parts of all, but is very special designed for our usecase as we make no use of pip.
 
 settings.py reads part of its config data from an inifile (see top of settings.py).
 
@@ -102,8 +100,6 @@ The project is splited into 2 parts:
 
 Customization is done in the web module - e.g. add more ticket fields (models.py in web) besides the settings itself (settings.py and ini file).
 So far the app needs 2 folders (for logging and attachments as defined in the inifile). Make sure the webserver has write access to those folders.
-
-./manage.py migrate  
 
 ALTERNATIVE PACKAGES
 -----
