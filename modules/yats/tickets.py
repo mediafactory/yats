@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.http.response import HttpResponseRedirect, StreamingHttpResponse, HttpResponse
+from django.http.response import HttpResponseRedirect, StreamingHttpResponse, HttpResponse, JsonResponse
 from django.apps import apps
 from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -18,6 +18,7 @@ import os
 import io
 import graph
 import re
+import urllib
 try:
     import json
 except ImportError:
@@ -424,6 +425,14 @@ def action(request, mode, ticket):
             del_breadcrumbs(request)
 
             return HttpResponse('OK')
+
+    elif mode == 'todo':
+        data = {
+            'set': request.GET['set'],
+            'item': request.GET['item'],
+            'text': urllib.unquote(request.GET['text']).decode('utf8'),
+        }
+        return JsonResponse(data, safe=False)
 
 @login_required
 def table(request, **kwargs):
