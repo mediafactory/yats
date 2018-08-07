@@ -110,7 +110,7 @@ def YATSSearch(request):
         if extra_filter == '4':  # days since last action
             base_query = base_query.filter(last_action_date__gte=datetime.date.today() - datetime.timedelta(days=days))
         if extra_filter == '5':  # days since falling due
-            base_query = base_query.filter(deadline__gte=timezone.now() - datetime.timedelta(days=days)).filter(deadline__isnull=False)
+            base_query = base_query.filter(deadline__lte=timezone.now() - datetime.timedelta(days=days)).filter(deadline__isnull=False)
 
     neededColumns = ['id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed', 'priority__color', 'customer__name', 'customer__hourly_rate', 'billing_estimated_time', 'close_date', 'last_action_date']
     """
