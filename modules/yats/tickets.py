@@ -427,10 +427,28 @@ def action(request, mode, ticket):
             return HttpResponse('OK')
 
     elif mode == 'todo':
+        desc = tic.description
+        text = urllib.unquote(request.GET['text']).decode('utf8')
+        if request.GET['set'] == 'true':
+            tic.description = re.sub(r'\[[ ]\]%s' % text, '[X]%s' % text, desc)
+            old = _('undone: %s') % text
+            new = _('done: %s') % text
+        else:
+            tic.description = re.sub(r'\[[Xx]\]%s' % text, '[ ]%s' % text, desc)
+            new = _('undone: %s') % text
+            old = _('done: %s') % text
+
+        tic.save(user=request.user)
+
+        touch_ticket(request.user, ticket)
+
+        add_history(request, tic, 9, (new, old))
+
         data = {
             'set': request.GET['set'],
             'item': request.GET['item'],
             'text': urllib.unquote(request.GET['text']).decode('utf8'),
+            'desc': desc,
         }
         return JsonResponse(data, safe=False)
 
