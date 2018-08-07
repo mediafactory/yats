@@ -79,6 +79,11 @@ def YATSSearch(request):
         del data['days']
     else:
         days = None
+    if 'exclude_own' in data:
+        exclude_own = data['exclude_own']
+        del data['exclude_own']
+    else:
+        exclude_own = False
 
     POST = QueryDict(mutable=True)
     POST.update(data)
@@ -112,6 +117,8 @@ def YATSSearch(request):
         if extra_filter == '5':  # days since falling due
             base_query = base_query.filter(deadline__lte=timezone.now() - datetime.timedelta(days=days)).filter(deadline__isnull=False)
 
+    if exclude_own:
+        base_query = base_query.exclude(assigned=request.user)
     neededColumns = ['id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed', 'priority__color', 'customer__name', 'customer__hourly_rate', 'billing_estimated_time', 'close_date', 'last_action_date']
     """
     availableColumns = []
