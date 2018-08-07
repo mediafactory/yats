@@ -119,6 +119,7 @@ def YATSSearch(request):
 
     if exclude_own:
         base_query = base_query.exclude(assigned=request.user)
+
     neededColumns = ['id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed', 'priority__color', 'customer__name', 'customer__hourly_rate', 'billing_estimated_time', 'close_date', 'last_action_date']
     """
     availableColumns = []
