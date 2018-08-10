@@ -193,11 +193,19 @@ def yatse_api(request):
     except PermissionDenied:
         return HttpResponseForbidden(request.META.get('HTTP_API_USER'))
 
-    if request.method == 'PROPFIND':
+    if request.method == 'PROPPATCH':
+        data = json.loads(request.body)
+        if 'ticket' in data and 'method' in data:
+            if data['method'] == 'notify':
+                tickets_participants.objects.filter(ticket=data['ticket'], user=request.user).update(seen=True)
+                return HttpResponse('OK')
+        return HttpResponseNotFound('invalid method\n\n%s' % request.body)
+
+    elif request.method == 'PROPFIND':
         fields = buildYATSFields([])
         return JsonResponse(fields[0], safe=False)
 
-    if request.method == 'SEARCH':
+    elif request.method == 'SEARCH':
         return JsonResponse(YATSSearch(request), safe=False)
 
     else:
