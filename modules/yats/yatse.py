@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.http.request import QueryDict
 from django.utils import timezone
 from yats.shortcuts import get_ticket_model, modulePathToModuleName, build_ticket_search, clean_search_values
-from yats.models import UserProfile
+from yats.models import UserProfile, tickets_participants
 from yats.forms import SearchForm
 try:
     import json
@@ -120,6 +120,11 @@ def YATSSearch(request):
     if exclude_own:
         base_query = base_query.exclude(assigned=request.user)
 
+    seen = tickets_participants.objects.filter(user=request.user, ticket__in=base_query.values_list('id', flat=True)).values_list('ticket_id', 'seen')
+    seen_elements = {}
+    for see in seen:
+        seen_elements[see[0]] = see[1]
+
     neededColumns = ['id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed', 'priority__color', 'customer__name', 'customer__hourly_rate', 'billing_estimated_time', 'close_date', 'last_action_date']
     """
     availableColumns = []
@@ -129,4 +134,14 @@ def YATSSearch(request):
         if field.name in neededColumns:
             availableColumns.append(field.name)
     """
-    return ValuesQuerySetToDict(base_query.values(*neededColumns))
+    result = ValuesQuerySetToDict(base_query.values(*neededColumns))
+
+    for ele in result:
+        ele['seen'] = 0
+        if ele['id'] in seen_elements:
+            if seen_elements[ele['id']]:
+                ele['seen'] = 2
+            else:
+                ele['seen'] = 1
+
+    return result
