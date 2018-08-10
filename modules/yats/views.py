@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search
-from yats.models import boards
+from yats.models import boards, tickets_participants
 from yats.forms import AddToBordForm, PasswordForm
 from yats.yatse import api_login, buildYATSFields, YATSSearch
 
@@ -155,7 +155,7 @@ def show_board(request, name):
             return HttpResponseRedirect('/')
 
     for column in columns:
-        query = get_ticket_model().objects.select_related('type', 'priority').all()
+        query = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
         search_params, query = build_ticket_search(request, query, {}, column['query'])
         column['query'] = query.order_by('%s%s' % (column.get('order_dir', ''), column.get('order_by', 'id')))
         if column['limit']:
@@ -171,6 +171,11 @@ def show_board(request, name):
                 column['query'] = column['query'].filter(last_action_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
         if not request.user.is_staff:
             column['query'] = column['query'].filter(customer=request.organisation)
+        seen = tickets_participants.objects.filter(user=request.user, ticket__in=column['query'].values_list('id', flat=True)).values_list('ticket_id', 'seen')
+        seen_elements = {}
+        for see in seen:
+            seen_elements[see[0]] = see[1]
+        column['seen'] = seen_elements
 
     add_breadcrumbs(request, board.pk, '$')
     return render(request, 'board/view.html', {'columns': columns, 'board': board})

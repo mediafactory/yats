@@ -5,6 +5,16 @@ from yats.models import boards
 register = template.Library()
 
 @register.simple_tag(takes_context=True)
+def lookup_seen(context, column, ticket):
+    seen = column['seen']
+    if ticket.pk in seen:
+        result = 1 if not seen[ticket.pk] else 2
+    else:
+        result = 0
+    context['seen'] = result
+    return ''
+
+@register.simple_tag(takes_context=True)
 def board_list(context):
     user = context['user']
 

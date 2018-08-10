@@ -422,9 +422,12 @@ def action(request, mode, ticket):
         return HttpResponseRedirect('/tickets/view/%s/#files' % tic.pk)
 
     elif mode == 'remove':
-            del_breadcrumbs(request)
+        del_breadcrumbs(request)
+        return HttpResponse('OK')
 
-            return HttpResponse('OK')
+    elif mode == 'notify':
+        tickets_participants.objects.filter(ticket=tic, user=request.user).update(seen=True)
+        return HttpResponse('OK')
 
     elif mode == 'todo':
         desc = tic.description
