@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n strings %}
+
+{% block title %}
+    {% trans "file upload ticket" %} #{{ ticket.id }}
+{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}/galereya/css/jquery.galereya.css">
+    <!--[if lt IE 9]>
+    <link rel="stylesheet" href="{{ STATIC_URL }}/galereya/css/jquery.galereya.ie.css">
+    <![endif]-->
+    <script src="{{ STATIC_URL }}/galereya/js/jquery.galereya.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/view/{{ ticket.id }}/">{% trans "view" %}</a></h2>
+
+    <p>&nbsp;</p>
+
+    <div id="gallery">
+      {% for image in images %}<img src="{% if "image" in image.content_type %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}{% else %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}&preview=yes{% endif %}"
+          alt="{{ image.name }}"
+          title="{{ image.name }}"
+          data-desc="{{ image.content_tye }}"
+          data-category="{{ image.content_tye }}"
+          data-fullsrc="/tickets/download/{{ ticket.id }}/?file={{ image.id }}"
+      />{% endfor %}
+    </div>
+
+    <script>
+      $(function() {
+          $('#gallery').galereya({
+            wave: false,
+            modifier: '',
+            spacing: 5,
+            disableSliderOnClick: true,
+        });
+        $('footer').hide();
+      });
+
+    </script>
+
+{% endblock %}

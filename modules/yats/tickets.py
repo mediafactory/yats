@@ -200,6 +200,10 @@ def action(request, mode, ticket):
 
         return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed, 'keep_it_simple': keep_it_simple})
 
+    elif mode == 'gallery':
+        images = tickets_files.objects.filter(ticket=ticket, active_record=True)
+        return render(request, 'tickets/gallery.html', {'layout': 'horizontal', 'ticket': tic, 'images': images})
+
     elif mode == 'history':
         history = tickets_history.objects.filter(ticket=ticket)
         return render(request, 'tickets/history.html', {'layout': 'horizontal', 'ticket': tic, 'history': history, 'keep_it_simple': keep_it_simple})
