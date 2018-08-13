@@ -1,10 +1,10 @@
-import pydevd
-pydevd.settrace('192.168.33.1', 5678)
+---- BUGS
+- gleichnamige ToDos
+
 
 ---- WISHLIST
 - Vorlangen von Tickets
 - Wiederkehrende Aufgaben
-- todo inside a ticket desc
 
 - neuer Comment von wem in Mail
 - change collision..

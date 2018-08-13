@@ -170,6 +170,22 @@
             }
         });
 
+    $(":checkbox").on("click", function(){
+      //alert(this.checked);
+      //alert(this.value);
+      //console.log(this.nextSibling.data);
+
+      $.getJSON( "/tickets/todo/{{ ticket.id }}/", { set: this.checked, item: this.value, text: encodeURIComponent(this.nextSibling.data) } )
+        .done(function( json ) {
+          console.log( json );
+        })
+        .fail(function( jqxhr, textStatus, error ) {
+          var err = textStatus + ", " + error;
+          console.log( "Request Failed: " + err );
+      });
+
+    } );
+
     function onRowDblClick(rowid) {
         //window.location.href = '/files/download/{{ model }}/' + rowid + '/';
         alert('dbl click')

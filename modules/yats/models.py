@@ -174,11 +174,13 @@ class tickets(base):
 
     def save(self, *args, **kwargs):
         self.last_action_date = timezone.now()
+        tickets_participants.objects.filter(ticket=self).update(seen=False)
         super(tickets, self).save(*args, **kwargs)
 
 class tickets_participants(models.Model):
     ticket = models.ForeignKey(tickets)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    seen = models.BooleanField(default=False)
 
 class tickets_comments(base):
     ticket = models.ForeignKey(tickets)

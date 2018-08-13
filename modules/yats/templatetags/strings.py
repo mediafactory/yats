@@ -29,10 +29,14 @@ def numberToTicketURL(value):
 
 @register.filter
 def buildToDoList(value):
+    class local:
+        counter = 0
+
     def render_item(match):
+        local.counter += 1
         state = match.groups()
         checked = ' checked' if state[0].strip() else ''
-        return '<input type="checkbox" %s/>' % checked
+        return '<input type="checkbox" value="%s" %s/>' % (local.counter, checked)
 
     return re.sub('\[([ Xx])\]', render_item, value)
 

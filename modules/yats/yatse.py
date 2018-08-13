@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.http.request import QueryDict
 from django.utils import timezone
 from yats.shortcuts import get_ticket_model, modulePathToModuleName, build_ticket_search, clean_search_values
-from yats.models import UserProfile
+from yats.models import UserProfile, tickets_participants
 from yats.forms import SearchForm
 try:
     import json
@@ -79,6 +79,11 @@ def YATSSearch(request):
         del data['days']
     else:
         days = None
+    if 'exclude_own' in data:
+        exclude_own = data['exclude_own']
+        del data['exclude_own']
+    else:
+        exclude_own = False
 
     POST = QueryDict(mutable=True)
     POST.update(data)
@@ -110,7 +115,15 @@ def YATSSearch(request):
         if extra_filter == '4':  # days since last action
             base_query = base_query.filter(last_action_date__gte=datetime.date.today() - datetime.timedelta(days=days))
         if extra_filter == '5':  # days since falling due
-            base_query = base_query.filter(deadline__gte=timezone.now() - datetime.timedelta(days=days)).filter(deadline__isnull=False)
+            base_query = base_query.filter(deadline__lte=timezone.now() - datetime.timedelta(days=days)).filter(deadline__isnull=False)
+
+    if exclude_own:
+        base_query = base_query.exclude(assigned=request.user)
+
+    seen = tickets_participants.objects.filter(user=request.user, ticket__in=base_query.values_list('id', flat=True)).values_list('ticket_id', 'seen')
+    seen_elements = {}
+    for see in seen:
+        seen_elements[see[0]] = see[1]
 
     neededColumns = ['id', 'caption', 'c_date', 'type__name', 'state__name', 'assigned__username', 'deadline', 'closed', 'priority__color', 'customer__name', 'customer__hourly_rate', 'billing_estimated_time', 'close_date', 'last_action_date']
     """
@@ -121,4 +134,14 @@ def YATSSearch(request):
         if field.name in neededColumns:
             availableColumns.append(field.name)
     """
-    return ValuesQuerySetToDict(base_query.values(*neededColumns))
+    result = ValuesQuerySetToDict(base_query.values(*neededColumns))
+
+    for ele in result:
+        ele['seen'] = 0
+        if ele['id'] in seen_elements:
+            if seen_elements[ele['id']]:
+                ele['seen'] = 2
+            else:
+                ele['seen'] = 1
+
+    return result

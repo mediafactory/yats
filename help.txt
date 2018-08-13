@@ -1,0 +1,2 @@
+import pydevd
+pydevd.settrace('192.168.33.1', 5678)
