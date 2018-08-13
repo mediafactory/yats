@@ -356,8 +356,14 @@ def convertPDFtoImg(pdf, dest=None):
         import PythonMagick
         img = PythonMagick.Image()
         img.density('100')
-        img.read(pdf)  # read in at 100 dpi
-        img.write(dest)
+        img.read(pdf)
+        path, ext = os.path.splitext(pdf)
+        img.write('%s.png' % path)
+
+        if dest:
+            os.rename('%s.png' % path, dest)
+        else:
+            return '%s.png' % path
 
     except:
         pass
