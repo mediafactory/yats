@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search
-from yats.models import boards, tickets_participants
+from yats.models import boards, tickets_participants, ticket_flow, ticket_flow_edges
 from yats.forms import AddToBordForm, PasswordForm
 from yats.yatse import api_login, buildYATSFields, YATSSearch
 
@@ -210,3 +210,20 @@ def yatse_api(request):
 
     else:
         return HttpResponseNotFound('invalid method')
+
+def kanban(request):
+    flows = ticket_flow.objects.all().order_by('type')
+    columns = []
+
+    query = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
+
+    for flow in flows:
+        search_params, flow.data = build_ticket_search(request, query, {}, {'state': flow.pk})
+
+        if flow.type == 1:
+            columns.insert(0, flow)
+        else:
+            columns.append(flow)
+
+    edges = ticket_flow_edges.objects.all().order_by('now')
+    return render(request, 'board/kanban.html', {'columns': columns, 'edges': edges})

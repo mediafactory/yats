@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n boards %}
+
+{% block title %}
+    {% trans "kanban" %}
+{% endblock %}
+
+{% block extra_head %}
+<script src="{{ STATIC_URL }}board.js"></script>
+<link rel="stylesheet" href="{{ STATIC_URL }}board.css">
+<style>
+  .new { background-color: #51a351; }
+  .done { background-color: #bd362f; }
+  .flow {
+    border: 1px solid #428bca;
+    border-color: #428bca;
+    background-color: white;
+    color: black;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <h2>{% trans "getting things done" %}</h2>
+
+    <div class="container-fluid">
+        <div class="row">
+          <div id="alert_placeholder"></div>
+        </div>
+        <div id="sortableKanbanBoards" class="row">
+
+            {% for column in columns %}<div class="panel panel-primary kanban-col">
+                <div class="panel-heading {% if column.type == 0 %}flow{% endif %}{% if column.type == 1 %}new{% endif %}{% if column.type == 2 %}done{% endif %}">
+                    {{ column.name }}
+                </div>
+                <div class="panel-body">
+                    <div id="list{{ column.id }}" class="kanban-centered">
+                        {% for ticket in column.data %}<article class="kanban-entry grab" id="item{{ ticket.pk }}" draggable="true">
+                            <div class="kanban-entry-inner">
+                                <div class="kanban-label"{% if ticket.priority.color %} style="background-color:{{ ticket.priority.color }};"{% endif %}>
+                                    <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> {{ ticket.caption }}</h2>
+                                    {% if ticket.deadline and not ticket.closed %}<small class="text-muted"{% if ticket.is_late == 2 %} style="color: red;"{% endif %}{% if ticket.is_late == 1 %} style="color: orange;"{% endif %}><i class="icon-time"></i> {{ ticket.deadline }}</small>{% endif %}
+                                    {% if ticket.assigned %}<small class="text-muted"><i class="icon-user"></i> {{ ticket.assigned }}</small>{% endif %}{% if seen == 1 %}<a href="javascript: seen({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% endif %}
+                                    {% if request.user.is_staff and ticket.customer and ticket.billing_estimated_time and ticket.customer.hourly_rate %}<small class="text-muted"><b>€</b> {{ ticket.customer.hourly_rate|multiply:ticket.billing_estimated_time|floatformat:"0" }}</small>{% endif %}
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>{% endfor %}
+
+        </div>
+    </div>
+
+
+    <!-- Static Modal -->
+    <div class="modal modal-static fade" id="processing-modal" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="text-center">
+                        <i class="fa fa-refresh fa-5x fa-spin"></i>
+                        <h4>Processing...</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    var edges = {
+      {% for edge in edges %}{% ifchanged edge.now %}{% if not forloop.first %}],
+      {% endif %}"{{ edge.now.id }}": [{% else %},{% endifchanged %}{{ edge.next.id }}{% if forloop.last %}]{% endif %}{% endfor %}
+    }
+    </script>
+{% endblock %}

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import  url
-from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout
+from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout, kanban
 from yats.tickets import new, action, table, search, reports, workflow, simple, create
 from rpc4django.views import serve_rpc_request
 
@@ -56,6 +56,11 @@ urlpatterns = [
    url(r'^board/(?P<name>[\w|\W]+)/$',
         view=show_board,
         name='board'),
+
+   # kanban
+   url(r'^kanban/$',
+        view=kanban,
+        name='kanban'),
 
    # info
    url(r'^info/$',
