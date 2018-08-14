@@ -11,7 +11,7 @@
     <!--[if lt IE 9]>
     <link rel="stylesheet" href="{{ STATIC_URL }}/galereya/css/jquery.galereya.ie.css">
     <![endif]-->
-    <script src="{{ STATIC_URL }}/galereya/js/jquery.galereya.min.js"></script>
+    <script src="{{ STATIC_URL }}/galereya/js/jquery.galereya.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -36,6 +36,10 @@
             modifier: '',
             spacing: 5,
             disableSliderOnClick: true,
+            onCellClick: function(e, ele) {
+              //console.log(ele.childNodes[0].getAttribute('data-fullsrc'));
+              window.location.href = ele.childNodes[0].getAttribute('data-fullsrc');
+            }
         });
         $('footer').hide();
       });

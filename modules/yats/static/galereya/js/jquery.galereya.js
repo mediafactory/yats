@@ -91,8 +91,7 @@
                 if (!self.options.disableSliderOnClick) {
                     openSlider(parseInt(this.getAttribute('data-visibleIndex'), 10));
                 }
-
-                self.options.onCellClick(e);
+                self.options.onCellClick(e, this);
             },
             sliderNextClick: function (e) {
                 changeSlide('next');
