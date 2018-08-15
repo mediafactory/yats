@@ -256,6 +256,8 @@ def action(request, mode, ticket):
                     touch_ticket(request.user, ticket)
                     if request.POST['assigned']:
                         touch_ticket(newUser, ticket)
+                    else:
+                        mail_comment(request, com.pk)
 
                     history_data = {
                                     'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state)},
@@ -263,7 +265,6 @@ def action(request, mode, ticket):
                                     }
                     add_history(request, tic, 7, history_data)
 
-                    mail_comment(request, com.pk)
                 else:
                     messages.add_message(request, messages.ERROR, _('missing assigned user'))
 
@@ -283,12 +284,12 @@ def action(request, mode, ticket):
                 assigned = form.cleaned_data.get('assigned')
                 if assigned:
                     touch_ticket(assigned, tic.pk)
+                else:
+                    mail_ticket(request, tic.pk, form)
 
                 remember_changes(request, form, tic)
 
                 touch_ticket(request.user, tic.pk)
-
-                mail_ticket(request, tic.pk, form)
 
                 return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 
