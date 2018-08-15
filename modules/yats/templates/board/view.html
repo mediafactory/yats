@@ -23,7 +23,6 @@
             {% for column in columns %}<div class="panel panel-primary kanban-col">
                 <div class="panel-heading">
                     <a href="javascript: delColumn('{{ column.column }}')"><i class="icon-trash icon-white"></i></a>&nbsp;&nbsp;{{ column.column }}
-                    <i class="fa fa-2x fa-plus-circle pull-right"></i>
                 </div>
                 <div class="panel-body">
                     <div id="{{ column.column }}" class="kanban-centered">
