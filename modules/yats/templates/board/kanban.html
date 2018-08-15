@@ -154,5 +154,15 @@
         }
       );
     }
+
+    function move(ticketid, state) {
+      $.post('/tickets/move/' + ticketid + '/', 'simple=1&state=' + state,  function(data) {
+        var element = document.getElementById('item' + ticketid);
+        list_items.prepend(element);
+
+        $('#processing-modal').modal('toggle');
+        }
+      );
+    }
     </script>
 {% endblock %}

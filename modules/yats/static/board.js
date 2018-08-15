@@ -49,20 +49,17 @@
                       new_state = parseInt(targetId.replace('list', ''));
                       //console.log('ticketid: ', ticketid);
                       //console.log('new state: ', new_state);
+                      list_items = children;
 
                       if (new_state == finish_state) {
-                        list_items = children;
                         $('#closeDlg').modal('toggle');
 
                       } else {
                         if (event.ctrlKey || event.altKey) {
-                          $('#processing-modal').modal('toggle'); //before post
-
-                          var element = document.getElementById(elementId);
-                          children.prepend(element);
+                          $('#processing-modal').modal('toggle');
+                          move(ticketid, new_state);
 
                         } else {
-                          list_items = children;
                           if ( ! all_states ) {
                             all_states = $('#id_state > option').clone();
                           }
