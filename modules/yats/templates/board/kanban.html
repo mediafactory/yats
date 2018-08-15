@@ -71,10 +71,88 @@
         </div>
     </div>
 
+    <div id="closeDlg" class="modal hide fade">
+
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>{% trans "close ticket" %}</h3>
+        </div>
+
+        <form class="form-{{ layout }}" action="" method="post">
+        <div class="modal-body">
+	        {% csrf_token %}
+	        {{ close|as_bootstrap:layout }}
+        </div>
+
+        <div class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
+            <a href="javascript: close();" class="btn btn-danger">{% trans "close" %}</a>
+        </div>
+        </form>
+    </div>
+
+    <div id="reassignDlg" class="modal hide fade">
+
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>{% trans "reassign ticket" %}</h3>
+        </div>
+
+        <form class="form-{{ layout }}" action="/tickets/reassign/0/" method="post">
+        <div class="modal-body">
+            {% csrf_token %}
+            {{ reassign|as_bootstrap:layout }}
+        </div>
+
+        <div class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
+            <a href="javascript: reassign();" class="btn btn-warning">{% trans "reassign" %}</a>
+        </div>
+        </form>
+    </div>
+
+
     <script>
+    var finish_state = {{ finish_state }};
+    var ticketid;
+    var list_items;
+    var all_states;
+
     var edges = {
       {% for edge in edges %}{% ifchanged edge.now %}{% if not forloop.first %}],
       {% endif %}"{{ edge.now.id }}": [{% else %},{% endifchanged %}{{ edge.next.id }}{% if forloop.last %}]{% endif %}{% endfor %}
+    }
+
+    function close() {
+      form = $('#closeDlg').find('form');
+
+      if ( ! $('#id_resolution').val() || ! $('#id_close_comment').val() ) {
+        alert('{% trans "Please fill out the required fields!" %}');
+        return;
+      }
+
+      $.post('/tickets/view/' + ticketid + '/', form.serialize(),  function(data) {
+          var element = document.getElementById('item' + ticketid);
+          list_items.prepend(element);
+          $('#closeDlg').modal('toggle');
+        }
+      );
+    }
+
+    function reassign() {
+      form = $('#reassignDlg').find('form');
+
+      if ( ! $('#id_assigned').val() || ! $('#id_reassign_comment').val() ) {
+        alert('{% trans "Please fill out the required fields!" %}');
+        return;
+      }
+
+      $.post('/tickets/reassign/' + ticketid + '/', form.serialize(),  function(data) {
+          var element = document.getElementById('item' + ticketid);
+          list_items.prepend(element);
+          $('#reassignDlg').modal('toggle');
+        }
+      );
     }
     </script>
 {% endblock %}

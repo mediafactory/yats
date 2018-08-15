@@ -42,20 +42,42 @@
                 var elementId = event.originalEvent.dataTransfer.getData("text/plain");
                 availListIDs = edges[sourceId.replace('list', '')];
                 newListID = parseInt(targetId.replace('list', ''));
+                oldListID = parseInt(sourceId.replace('list', ''));
                 if ( availListIDs.indexOf(newListID) > -1 ) {
                   if (sourceId && sourceId != targetId) {
+                      ticketid = parseInt(elementId.replace('item', ''));
+                      new_state = parseInt(targetId.replace('list', ''));
+                      //console.log('ticketid: ', ticketid);
+                      //console.log('new state: ', new_state);
 
-                      $('#processing-modal').modal('toggle'); //before post
+                      if (new_state == finish_state) {
+                        list_items = children;
+                        $('#closeDlg').modal('toggle');
 
-                      // Post data
-                      setTimeout(function () {
+                      } else {
+                        if (event.ctrlKey || event.altKey) {
+                          $('#processing-modal').modal('toggle'); //before post
+
                           var element = document.getElementById(elementId);
                           children.prepend(element);
-                          $('#processing-modal').modal('toggle'); // after post
-                      }, 1000);
 
-                      //var element = document.getElementById(elementId);
-                      //children.prepend(element);
+                        } else {
+                          list_items = children;
+                          if ( ! all_states ) {
+                            all_states = $('#id_state > option').clone();
+                          }
+
+                          $('#id_state').empty();
+                          $('#id_state').append(all_states);
+                          $("#id_state > option").each(function() {
+                            if ( parseInt(this.value) != newListID ) {
+                              this.remove()
+                            }
+                          });
+
+                          $('#reassignDlg').modal('toggle');
+                        }
+                      }
                   }
                 } else {
                   showalert('State not allowed for ticket #' + elementId.replace('item', ''), 'alert-error')

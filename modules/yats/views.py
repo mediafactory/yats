@@ -15,7 +15,7 @@ from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search
 from yats.models import boards, tickets_participants, ticket_flow, ticket_flow_edges
-from yats.forms import AddToBordForm, PasswordForm
+from yats.forms import AddToBordForm, PasswordForm, TicketCloseForm, TicketReassignForm
 from yats.yatse import api_login, buildYATSFields, YATSSearch
 
 import datetime
@@ -214,6 +214,7 @@ def yatse_api(request):
 def kanban(request):
     flows = ticket_flow.objects.all().order_by('type')
     columns = []
+    finish_state = -1
 
     query = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
 
@@ -224,6 +225,10 @@ def kanban(request):
             columns.insert(0, flow)
         else:
             columns.append(flow)
+            if flow.type == 2:
+                finish_state = flow.pk
 
+    close = TicketCloseForm()
+    reassign = TicketReassignForm()
     edges = ticket_flow_edges.objects.all().order_by('now')
-    return render(request, 'board/kanban.html', {'columns': columns, 'edges': edges})
+    return render(request, 'board/kanban.html', {'layout': 'horizontal', 'columns': columns, 'edges': edges, 'finish_state': finish_state, 'close': close, 'reassign': reassign})
