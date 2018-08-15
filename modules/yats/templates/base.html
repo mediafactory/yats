@@ -63,6 +63,7 @@
                           {% endfor %}
                           </ul>
                       </li>
+                      <li><a href="/kanban/" class="">{% trans "Kanban" %}</a></li>
                       <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>
                       <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>
                       <li><a href="/info/" class="">{% trans "Info" %}</a></li>
@@ -71,6 +72,17 @@
                 </li>
                 {% else %}
                 <li><a href="/reports/" class="">{% trans "Reports" %}</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Boards" %}<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a data-toggle="modal" href="#newBoardDlg">{% trans "add new board" %}</a></li>
+                    {% board_list %}
+                    {% for board in boards %}
+                        <li><a href="/board/{{ board.name|urlencode }}/">{{ board.name }}</a></li>
+                    {% endfor %}
+                    </ul>
+                </li>
+                <li><a href="/kanban/" class="">{% trans "Kanban" %}</a></li>
                 <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>
                 <li><a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="">{% trans "New" %}</a></li>
                 <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>
