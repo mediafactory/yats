@@ -58,7 +58,7 @@ KEY FEATURES
 - searches saveable as reports
 - ticket history
 - ticket references (including back references)
-- complex workflows
+- complex workflows (create the workflow you need)
 - multiple kanban boards with columns saved from searches
 - file attachments with drag/drop (optionally virus scanned)
 - preview of all uploaded files
