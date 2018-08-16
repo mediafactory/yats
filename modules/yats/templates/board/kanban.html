@@ -164,5 +164,13 @@
         }
       );
     }
+
+    function seen(ticket) {
+      if (confirm('{% trans "Do you really want to remove this ticket from this board until the next change of that ticket?" %}') ) {
+        $.get("/tickets/notify/" + ticket + "/", function(data, status) {
+            $('#item' + ticket).remove();
+        });
+      }
+    }
     </script>
 {% endblock %}
