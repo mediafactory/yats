@@ -9,6 +9,11 @@
 {% block extra_head %}
 <script src="{{ STATIC_URL }}board.js"></script>
 <link rel="stylesheet" href="{{ STATIC_URL }}board.css">
+<style type="text/css">
+    .kanban-label h2 {
+      color: #222222 !important;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
