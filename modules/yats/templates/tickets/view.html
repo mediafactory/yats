@@ -34,7 +34,7 @@
         </tr>
     </table>
 
-    <h3 id="files">{% trans "files" %} <a href="/tickets/gallery/{{ ticket.id }}/"><i class="fa fa-eye"></i></a></h3>
+    <h3 id="files">{% trans "files" %} {% if files %}<a href="/tickets/gallery/{{ ticket.id }}/"><i class="fa fa-eye"></i></a>{% endif %}</h3>
     <div id="clickable">
         {% trans "drop your files here..."%} <br />
     </div>

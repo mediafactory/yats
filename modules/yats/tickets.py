@@ -232,6 +232,23 @@ def action(request, mode, ticket):
 
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 
+    elif mode == 'move':
+        if not tic.closed:
+            old_state = tic.state
+
+            tic.state = ticket_flow.objects.get(pk=request.POST['state'])
+            tic.save(user=request.user)
+
+            touch_ticket(request.user, ticket)
+
+            history_data = {
+                            'old': {'comment': '', 'assigned': str(User.objects.get(pk=tic.assigned_id)), 'state': str(old_state)},
+                            'new': {'comment': _('ticket moved'), 'assigned': str(User.objects.get(pk=tic.assigned_id)), 'state': str(tic.state)}
+                            }
+            add_history(request, tic, 7, history_data)
+
+        return HttpResponse('OK')
+
     elif mode == 'reassign':
         if not tic.closed:
             if 'assigned' in request.POST:
