@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login as auth_login, logout as aut_logout
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search
@@ -220,6 +221,7 @@ def kanban(request):
 
     for flow in flows:
         search_params, flow.data = build_ticket_search(request, query, {}, {'state': flow.pk})
+        flow.data = flow.data.filter( Q(assigned=None) | Q(assigned=request.user) )
 
         if flow.type == 1:
             columns.insert(0, flow)
@@ -227,6 +229,12 @@ def kanban(request):
             columns.append(flow)
             if flow.type == 2:
                 finish_state = flow.pk
+
+                seen = tickets_participants.objects.filter(user=request.user, ticket__in=flow.data.values_list('id', flat=True)).values_list('ticket_id', 'seen')
+                seen_elements = {}
+                for see in seen:
+                    seen_elements[see[0]] = see[1]
+                flow.seen = seen_elements
 
     close = TicketCloseForm()
     reassign = TicketReassignForm()

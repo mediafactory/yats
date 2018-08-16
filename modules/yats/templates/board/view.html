@@ -26,7 +26,7 @@
                 </div>
                 <div class="panel-body">
                     <div id="{{ column.column }}" class="kanban-centered">
-                        {% for ticket in column.query %}{% lookup_seen column ticket %}{% if seen != 2 %}<article class="kanban-entry grab" id="item{{ ticket.pk }}">
+                        {% for ticket in column.query %}{% lookup_seen column.seen ticket %}{% if seen != 2 %}<article class="kanban-entry grab" id="item{{ ticket.pk }}">
                             <div class="kanban-entry-inner">
                                 <div class="kanban-label"{% if ticket.priority.color %} style="background-color:{{ ticket.priority.color }};"{% endif %}>
                                     <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> {{ ticket.caption }}</h2>

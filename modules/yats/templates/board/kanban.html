@@ -37,7 +37,7 @@
                 </div>
                 <div class="panel-body">
                     <div id="list{{ column.id }}" class="kanban-centered">
-                        {% for ticket in column.data %}<article class="kanban-entry grab" id="item{{ ticket.pk }}" draggable="true">
+                        {% for ticket in column.data %}{% lookup_seen column.seen ticket %}{% if seen != 2 %}<article class="kanban-entry grab" id="item{{ ticket.pk }}" draggable="true">
                             <div class="kanban-entry-inner">
                                 <div class="kanban-label"{% if ticket.priority.color %} style="background-color:{{ ticket.priority.color }};"{% endif %}>
                                     <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> {{ ticket.caption }}</h2>
@@ -47,7 +47,7 @@
                                 </div>
                             </div>
                         </article>
-                        {% endfor %}
+                        {% endif %}{% endfor %}
 
                     </div>
                 </div>
