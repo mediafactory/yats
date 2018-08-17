@@ -216,7 +216,7 @@ class tickets_history(base):
     ticket = models.ForeignKey(tickets)
     old = models.TextField()
     new = models.TextField()
-    action = models.SmallIntegerField(default=0)  # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 4 = ticket changed, 5 = file added, 6 = comment added, 7 = reassign, 8 = del file
+    action = models.SmallIntegerField(default=0)  # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 4 = ticket changed, 5 = file added, 6 = comment added, 7 = reassign, 8 = del file, 9 = todo
 
 class boards(base):
     name = models.CharField(max_length=255)
