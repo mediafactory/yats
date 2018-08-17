@@ -17,6 +17,7 @@ ln -fs /vagrant_modules/rpc4django $sites 2>/dev/null
 ln -fs /vagrant_modules/graph $sites 2>/dev/null
 ln -fs /vagrant_modules/simple_sso $sites 2>/dev/null
 ln -fs /vagrant_modules/djradicale $sites 2>/dev/null
+ln -fs /vagrant_modules/pyxmpp2 $sites 2>/dev/null
 
 pip install -r /vagrant/requirements.txt
 

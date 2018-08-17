@@ -11,6 +11,7 @@ if [ "$1" = "remove" ] ; then
     rm -r /usr/share/yats/site-packages/rpc4django 2>/dev/null
     rm -r /usr/share/yats/site-packages/graph 2>/dev/null
     rm -r /usr/share/yats/site-packages/simple_sso 2>/dev/null
+    rm -r /usr/share/yats/site-packages/pyxmpp2 2>/dev/null
 
 elif [ "$1" = "upgrade" ]; then
     rm -r /usr/share/yats/site-packages/django 2>/dev/null
@@ -21,6 +22,7 @@ elif [ "$1" = "upgrade" ]; then
     rm -r /usr/share/yats/site-packages/rpc4django 2>/dev/null
     rm -r /usr/share/yats/site-packages/graph 2>/dev/null
     rm -r /usr/share/yats/site-packages/simple_sso 2>/dev/null
+    rm -r /usr/share/yats/site-packages/pyxmpp2 2>/dev/null
 
 fi
 
