@@ -20,6 +20,13 @@
     {% block extra_head %}
     {% endblock %}
     <script>
+        $(function() {
+            $('input[data-bootstrap-widget=datepicker][data-provide!="datepicker"]').datepicker({
+                todayBtn: 'linked',
+                todayHighlight: true
+            });
+        })
+
         function delMe() {
             // ajax call -> clear session from breadcrumb
             $.ajax({
