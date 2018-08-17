@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import  url
 from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout, kanban
-from yats.tickets import new, action, table, search, reports, workflow, simple, create
+from yats.tickets import new, action, table, search, reports, workflow, simple, create, log
 from rpc4django.views import serve_rpc_request
 
 urlpatterns = [
@@ -75,6 +75,11 @@ urlpatterns = [
    url(r'^local_logout/$',
         view=logout,
         name='logout'),
+
+   # log
+   url(r'^log/$',
+        view=log,
+        name='log'),
 
    # yatse
    url(r'^yatse/$',

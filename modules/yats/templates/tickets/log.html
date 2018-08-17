@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n strings comments %}
+
+{% block title %}
+    {% trans "log" %}
+{% endblock %}
+
+{% block content %}
+    <h2>Logs</h2>
+
+    <p>&nbsp;</p>
+
+    {% if history %}
+    <section id="no-more-tables">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>{% trans "date" %}</th>
+                <th>{% trans "ticket" %}</th>
+                <th>{% trans "action" %}</th>
+                <th>{% trans "diff" %}</th>
+            </tr>
+            </thead>
+              {% for line in history %}
+                {% diff line %}
+                <tr>
+                    <td data-title="{% trans "date" %}">{{ line.c_date|date:"SHORT_DATETIME_FORMAT" }}</td>
+                    <td data-title="{% trans "name" %}"><a href="/tickets/view/{{ line.ticket_id }}/">#{{ line.ticket_id }}</a></td>
+                    <td data-title="{% trans "action" %}"><i class="fa {{ line.action|history_icon }}"></i></td>
+                    <td data-title="{% trans "diff" %}">
+                      <table>
+                      {% for key, value in elements.items  %}
+                      <tr>
+                      	<td valign="top">{{ key|prettify }}:</td>
+                          <td>{{ value|safe }}</td>
+                      </tr>
+                      {% endfor %}
+                      </table>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        {{ history|pagination }}
+    </section>
+    {% else %}
+    {% trans "no logs so far" %}
+    {% endif %}
+
+{% endblock %}

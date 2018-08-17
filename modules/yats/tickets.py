@@ -627,3 +627,19 @@ def workflow(request):
     max_y = max_y + min_y + (offset_y * 2)
 
     return render(request, 'tickets/workflow.html', {'layout': 'horizontal', 'flows': flows, 'edges': edges, 'nodes': nodes, 'width': max_x, 'height': max_y})
+
+def log(request):
+    history = tickets_history.objects.filter(c_user=request.user).order_by('-c_date')
+
+    paginator = Paginator(history, 10)
+    page = request.GET.get('page')
+    try:
+        history_lines = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        history_lines = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        history_lines = paginator.page(paginator.num_pages)
+
+    return render(request, 'tickets/log.html', {'history': history_lines})
