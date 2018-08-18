@@ -240,3 +240,13 @@ def kanban(request):
     reassign = TicketReassignForm()
     edges = ticket_flow_edges.objects.all().order_by('now')
     return render(request, 'board/kanban.html', {'layout': 'horizontal', 'columns': columns, 'edges': edges, 'finish_state': finish_state, 'close': close, 'reassign': reassign})
+
+def xptest(request, test):
+    if test == 'xmpp':
+        from pyxmpp2.simple import send_message
+        send_message('yats@miadi.net', 'Abakeline141', 'genssen_intern@miadi.net', 'moin hinnack 1')
+        send_message('yats@miadi.net', 'Abakeline141', 'genssen_intern@miadi.net', 'moin hinnack 2')
+        return HttpResponse('OK')
+
+    else:
+        return HttpResponseNotFound(test)
