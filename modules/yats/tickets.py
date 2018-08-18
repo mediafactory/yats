@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, mail_comment, mail_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, del_breadcrumbs, convertPDFtoImg, convertOfficeTpPDF
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, del_breadcrumbs, convertPDFtoImg, convertOfficeTpPDF
 import os
 import io
 import graph
@@ -62,6 +62,7 @@ def new(request):
             touch_ticket(request.user, tic.pk)
 
             mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+            jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
 
             if form.cleaned_data.get('file_addition', False):
                 return HttpResponseRedirect('/tickets/upload/%s/' % tic.pk)
@@ -139,6 +140,7 @@ def action(request, mode, ticket):
                 add_history(request, tic, 6, com.comment)
 
                 mail_comment(request, com.pk)
+                jabber_comment(request, com.pk)
 
             else:
                 if 'resolution' in request.POST:
@@ -162,6 +164,7 @@ def action(request, mode, ticket):
                         add_history(request, tic, 1, request.POST.get('close_comment', ''))
 
                         mail_comment(request, com.pk)
+                        jabber_comment(request, com.pk)
 
                     else:
                         messages.add_message(request, messages.ERROR, _('no resolution selected'))
@@ -229,6 +232,7 @@ def action(request, mode, ticket):
             add_history(request, tic, 2, None)
 
             mail_comment(request, com.pk)
+            jabber_comment(request, com.pk)
 
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 
@@ -275,6 +279,7 @@ def action(request, mode, ticket):
                         touch_ticket(newUser, ticket)
                     else:
                         mail_comment(request, com.pk)
+                        jabber_comment(request, com.pk)
 
                     history_data = {
                                     'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state)},
@@ -303,6 +308,7 @@ def action(request, mode, ticket):
                     touch_ticket(assigned, tic.pk)
                 else:
                     mail_ticket(request, tic.pk, form)
+                    jabber_ticket(request, tic.pk, form)
 
                 remember_changes(request, form, tic)
 
@@ -341,6 +347,7 @@ def action(request, mode, ticket):
                 touch_ticket(request.user, tic.pk)
 
                 mail_ticket(request, tic.pk, form)
+                jabber_ticket(request, tic.pk, form)
 
                 return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 

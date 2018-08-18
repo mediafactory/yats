@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import  url
-from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout, kanban
+from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout, kanban, xptest
 from yats.tickets import new, action, table, search, reports, workflow, simple, create, log
 from rpc4django.views import serve_rpc_request
 
@@ -85,4 +85,9 @@ urlpatterns = [
    url(r'^yatse/$',
         view=yatse_api,
         name='yatse_api'),
+
+   # xptest
+   url(r'^xptest/(?P<test>[\w|\W]+)/$',
+        view=xptest,
+        name='xptest'),
 ]

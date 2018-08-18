@@ -32,6 +32,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True)
 
     organisation = models.ForeignKey('organisation', null=True)
+    jabber = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:

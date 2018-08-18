@@ -10,6 +10,7 @@ import datetime
 import re
 import os
 import subprocess
+from pyxmpp2.simple import send_message
 
 try:
     import json
@@ -64,7 +65,27 @@ def touch_ticket(user, ticket_id):
     from yats.models import tickets_participants
     tickets_participants.objects.get_or_create(ticket_id=ticket_id, user=user)
 
-def get_recipient_list(request, ticket_id):
+def get_jabber_recipient_list(request, ticket_id):
+    from yats.models import tickets_participants, UserProfile
+    pub_result = []
+    int_result = []
+    error = []
+    rcpts = tickets_participants.objects.select_related('user').filter(ticket=ticket_id)
+    for rcpt in rcpts:
+        # leave out myself
+        if rcpt.user != request.user:
+            if rcpt.user.email:
+                if rcpt.user.is_staff:
+                    int_result.append(UserProfile.objects.get(user=rcpt.user).jabber)
+                else:
+                    pub_result.append(UserProfile.objects.get(user=rcpt.user).jabber)
+            else:
+                error.append(unicode(UserProfile.objects.get(user=rcpt.user).jabber))
+    if len(error) > 0:
+        messages.add_message(request, messages.ERROR, _('the following participants could not be reached by mail (address missing): %s') % ', '.join(error))
+    return int_result, pub_result
+
+def get_mail_recipient_list(request, ticket_id):
     from yats.models import tickets_participants
     pub_result = []
     int_result = []
@@ -147,8 +168,41 @@ def format_chanes(new, is_staff):
 
     return '\n'.join(result)
 
+def send_jabber(msg, rcpt_list):
+    if len(rcpt_list) == 0:
+        return
+
+    for rcpt in rcpt_list:
+        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, rcpt, msg)
+
+def jabber_ticket(request, ticket_id, form, **kwargs):
+    int_rcpt, pub_rcpt = list(get_jabber_recipient_list(request, ticket_id))
+    if 'rcpt' in kwargs and kwargs['rcpt']:
+        int_rcpt.append(kwargs['rcpt'])
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+
+    new, old = field_changes(form)
+
+    if len(int_rcpt) > 0:
+        try:
+            new['author'] = tic.c_user
+            send_jabber('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), int_rcpt)
+            send_jabber('%s\n\n%s' % (format_chanes(new, True), get_ticket_url(request, ticket_id)), int_rcpt)
+        except:
+            if not kwargs.get('is_api', False):
+                messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0 and has_public_fields(new):
+        try:
+            new['author'] = tic.u_user
+            send_jabber('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), pub_rcpt)
+            send_jabber('%s#%s - %s' % ('%s\n\n%s' % (format_chanes(new, False), get_ticket_url(request, ticket_id))), pub_rcpt)
+        except:
+            if not kwargs.get('is_api', False):
+                messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
+
 def mail_ticket(request, ticket_id, form, **kwargs):
-    int_rcpt, pub_rcpt = list(get_recipient_list(request, ticket_id))
+    int_rcpt, pub_rcpt = list(get_mail_recipient_list(request, ticket_id))
     if 'rcpt' in kwargs and kwargs['rcpt']:
         int_rcpt.append(kwargs['rcpt'])
     tic = get_ticket_model().objects.get(pk=ticket_id)
@@ -171,11 +225,28 @@ def mail_ticket(request, ticket_id, form, **kwargs):
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
+def jabber_comment(request, comment_id):
+    from yats.models import tickets_comments
+    com = tickets_comments.objects.get(pk=comment_id)
+    ticket_id = com.ticket_id
+    int_rcpt, pub_rcpt = get_jabber_recipient_list(request, ticket_id)
+    rcpt = int_rcpt + pub_rcpt
+    if len(rcpt) == 0:
+        return
+
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+
+    try:
+        send_jabber('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new comment'), tic.caption), rcpt)
+        send_jabber('%s\n\n%s' % (com.comment, get_ticket_url(request, ticket_id)), rcpt)
+    except:
+        messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
+
 def mail_comment(request, comment_id):
     from yats.models import tickets_comments
     com = tickets_comments.objects.get(pk=comment_id)
     ticket_id = com.ticket_id
-    int_rcpt, pub_rcpt = get_recipient_list(request, ticket_id)
+    int_rcpt, pub_rcpt = get_mail_recipient_list(request, ticket_id)
     rcpt = int_rcpt + pub_rcpt
     if len(rcpt) == 0:
         return
@@ -187,11 +258,28 @@ def mail_comment(request, comment_id):
     except:
         messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
+def jabber_file(request, file_id):
+    from yats.models import tickets_files
+    io = tickets_files.objects.get(pk=file_id)
+    ticket_id = io.ticket_id
+    int_rcpt, pub_rcpt = get_jabber_recipient_list(request, ticket_id)
+    rcpt = int_rcpt + pub_rcpt
+    if len(rcpt) == 0:
+        return
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+    body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
+
+    try:
+        send_jabber('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new file'), tic.caption), rcpt)
+        send_jabber(body, rcpt)
+    except:
+        messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
+
 def mail_file(request, file_id):
     from yats.models import tickets_files
     io = tickets_files.objects.get(pk=file_id)
     ticket_id = io.ticket_id
-    int_rcpt, pub_rcpt = get_recipient_list(request, ticket_id)
+    int_rcpt, pub_rcpt = get_mail_recipient_list(request, ticket_id)
     rcpt = int_rcpt + pub_rcpt
     if len(rcpt) == 0:
         return
@@ -226,6 +314,7 @@ def check_references(request, src_com):
         touch_ticket(request.user, ref)
 
         #mail_comment(request, com.pk)
+        #jabber_comment(request, com.pk)
 
 def remember_changes(request, form, ticket):
     from yats.models import tickets_history

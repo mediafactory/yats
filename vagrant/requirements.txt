@@ -8,3 +8,4 @@ itsdangerous
 webservices[django]
 defusedxml
 pyclamd
+dnspython

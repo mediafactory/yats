@@ -259,5 +259,6 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
 
     if notify:
         mail_ticket(request, ticket.pk, form, is_api=True)
+        jabber_ticket(request, ticket.pk, form, is_api=True)
 
     return get(id, **kwargs)
