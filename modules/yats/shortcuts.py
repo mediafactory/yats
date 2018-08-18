@@ -74,15 +74,18 @@ def get_jabber_recipient_list(request, ticket_id):
     for rcpt in rcpts:
         # leave out myself
         if rcpt.user != request.user:
-            if rcpt.user.email:
-                if rcpt.user.is_staff:
-                    int_result.append(UserProfile.objects.get(user=rcpt.user).jabber)
-                else:
-                    pub_result.append(UserProfile.objects.get(user=rcpt.user).jabber)
+            jabber = UserProfile.objects.get(user=rcpt.user).jabber
+            if jabber:
+                rcpts = jabber.split(',')
+                for an in rcpts:
+                    if rcpt.user.is_staff:
+                        int_result.append(an)
+                    else:
+                        pub_result.append(an)
             else:
-                error.append(unicode(UserProfile.objects.get(user=rcpt.user).jabber))
+                error.append(unicode(rcpt.user))
     if len(error) > 0:
-        messages.add_message(request, messages.ERROR, _('the following participants could not be reached by mail (address missing): %s') % ', '.join(error))
+        messages.add_message(request, messages.ERROR, _('the following participants could not be reached by jabber (address missing): %s') % ', '.join(error))
     return int_result, pub_result
 
 def get_mail_recipient_list(request, ticket_id):
