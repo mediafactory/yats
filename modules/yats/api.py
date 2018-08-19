@@ -3,7 +3,7 @@ from django.utils.translation import ugettext as _
 from django.apps import apps
 from django.conf import settings
 from django.http import QueryDict
-from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_changes, mail_ticket, check_references
+from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_changes, mail_ticket, jabber_ticket, check_references
 from rpc4django import rpcmethod
 from xmlrpclib import Fault
 import datetime
@@ -262,3 +262,85 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
         jabber_ticket(request, ticket.pk, form, is_api=True)
 
     return get(id, **kwargs)
+
+@rpcmethod(name='ticket.create', signature=['array', 'struct', 'bool'])
+def create(attributes={}, notify=False, **kwargs):
+    """
+    array ticket.create(struct attributes={}, boolean notify=False)
+    create a ticket, returning the new ticket in the same form as getTicket(). Requires a valid 'action' in attributes to support workflow.
+    """
+    from yats.forms import TicketsForm
+
+    excludes = ['resolution']
+
+    request = kwargs['request']
+    params = {}
+    for key, value in attributes.iteritems():
+        params[TracNameTofieldName(key)] = value
+
+    fakePOST = QueryDict(mutable=True)
+    fakePOST.update(params)
+
+    form = TicketsForm(fakePOST, exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
+    if form.is_valid():
+        tic = form.save()
+        if tic.keep_it_simple:
+            tic.keep_it_simple = False
+            tic.save(user=request.user)
+
+        assigned = form.cleaned_data.get('assigned')
+        if assigned:
+            touch_ticket(assigned, tic.pk)
+
+        for ele in form.changed_data:
+            form.initial[ele] = ''
+        remember_changes(request, form, tic)
+
+        touch_ticket(request.user, tic.pk)
+
+        mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+        jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+
+    return get(tic.id, **kwargs)
+
+@rpcmethod(name='ticket.createSimple', signature=['array', 'struct', 'bool'])
+def createSimple(attributes={}, notify=False, **kwargs):
+    from yats.forms import SimpleTickets
+
+    request = kwargs['request']
+    params = {}
+    for key, value in attributes.iteritems():
+        params[TracNameTofieldName(key)] = value
+
+    fakePOST = QueryDict(mutable=True)
+    fakePOST.update(params)
+
+    form = SimpleTickets(fakePOST)
+    if form.is_valid():
+        cd = form.cleaned_data
+        ticket = get_ticket_model()
+        tic = ticket()
+        tic.caption = cd['caption']
+        tic.description = cd['description']
+        tic.priority = cd['priority']
+        tic.assigned = cd['assigned']
+        if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER') and settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER:
+            if settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER == -1:
+                tic.customer = request.organisation
+            else:
+                tic.customer_id = settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOME
+        if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
+            tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
+        tic.deadline = cd['deadline']
+        tic.save(user=request.user)
+
+        if tic.assigned:
+            touch_ticket(tic.assigned, tic.pk)
+
+        for ele in form.changed_data:
+            form.initial[ele] = ''
+        remember_changes(request, form, tic)
+
+        touch_ticket(request.user, tic.pk)
+
+    return get(tic.id, **kwargs)
