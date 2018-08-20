@@ -84,8 +84,8 @@ def get_jabber_recipient_list(request, ticket_id):
                         pub_result.append(an)
             else:
                 error.append(unicode(rcpt.user))
-    # if len(error) > 0:
-    #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by jabber (address missing): %s') % ', '.join(error))
+    if len(error) > 0:
+        messages.add_message(request, messages.ERROR, _('the following participants could not be reached by jabber (address missing): %s') % ', '.join(error))
     return int_result, pub_result
 
 def get_mail_recipient_list(request, ticket_id):
@@ -104,8 +104,8 @@ def get_mail_recipient_list(request, ticket_id):
                     pub_result.append(rcpt.user.email)
             else:
                 error.append(unicode(rcpt.user))
-    # if len(error) > 0:
-    #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by mail (address missing): %s') % ', '.join(error))
+    if len(error) > 0:
+        messages.add_message(request, messages.ERROR, _('the following participants could not be reached by mail (address missing): %s') % ', '.join(error))
     return int_result, pub_result
 
 def get_ticket_url(request, ticket_id):
