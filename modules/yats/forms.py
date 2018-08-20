@@ -132,9 +132,9 @@ class TicketsForm(forms.ModelForm):
                              fail_message, commit, self._meta.exclude,
                              construct=False, user=self.user)
 
-    def description_clean(self):
+    def clean_description(self):
         description = self.cleaned_data['description']
-        return description.eplace(u"\u00A0", " ")
+        return description.replace(u"\u00A0", " ")
 
     class Meta:
         model = mod_cls
