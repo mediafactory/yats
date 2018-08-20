@@ -464,14 +464,34 @@ def action(request, mode, ticket):
         return HttpResponse('OK')
 
     elif mode == 'todo':
+        class local:
+            counter = 0
+
+        def ToDoDone(match):
+            local.counter += 1
+            group = match.groups()
+            if local.counter == pos:
+                return '[X]'
+            else:
+                return '[%s]' % group[0]
+
+        def ToDoUnDone(match):
+            local.counter += 1
+            group = match.groups()
+            if local.counter == pos:
+                return '[ ]'
+            else:
+                return '[%s]' % group[0]
+
         desc = tic.description
         text = urllib.unquote(request.GET['text']).decode('utf8')
+        pos = int(request.GET['item'])
         if request.GET['set'] == 'true':
-            tic.description = re.sub(r'\[[ ]\]%s' % text, '[X]%s' % text, desc)
+            tic.description = re.sub(r'\[([ Xx])\]', ToDoDone, desc)
             old = _('undone: %s') % text
             new = _('done: %s') % text
         else:
-            tic.description = re.sub(r'\[[Xx]\]%s' % text, '[ ]%s' % text, desc)
+            tic.description = re.sub(r'\[([ Xx])\]', ToDoUnDone, desc)
             new = _('undone: %s') % text
             old = _('done: %s') % text
 
