@@ -159,8 +159,6 @@ def show_board(request, name):
         query = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
         search_params, query = build_ticket_search(request, query, {}, column['query'])
         column['query'] = query.order_by('%s%s' % (column.get('order_dir', ''), column.get('order_by', 'id')))
-        if column['limit']:
-            column['query'] = column['query'][:column['limit']]
         if 'extra_filter' in column and 'days' in column and column['extra_filter'] and column['days']:
             if column['extra_filter'] == '1':  # days since closed
                 column['query'] = column['query'].filter(close_date__gte=datetime.date.today() - datetime.timedelta(days=column['days'])).exclude(close_date=None)
@@ -173,6 +171,8 @@ def show_board(request, name):
         if not request.user.is_staff:
             column['query'] = column['query'].filter(customer=request.organisation)
         seen = tickets_participants.objects.filter(user=request.user, ticket__in=column['query'].values_list('id', flat=True)).values_list('ticket_id', 'seen')
+        if column['limit']:
+            column['query'] = column['query'][:column['limit']]
         seen_elements = {}
         for see in seen:
             seen_elements[see[0]] = see[1]
