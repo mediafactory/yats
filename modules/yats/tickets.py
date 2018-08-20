@@ -245,9 +245,11 @@ def action(request, mode, ticket):
 
             touch_ticket(request.user, ticket)
 
+            oldUser = str(User.objects.get(pk=tic.assigned_id)) if tic.assigned_id else None
+
             history_data = {
-                            'old': {'comment': '', 'assigned': str(User.objects.get(pk=tic.assigned_id)), 'state': str(old_state)},
-                            'new': {'comment': _('ticket moved'), 'assigned': str(User.objects.get(pk=tic.assigned_id)), 'state': str(tic.state)}
+                            'old': {'comment': '', 'assigned': oldUser, 'state': str(old_state)},
+                            'new': {'comment': _('ticket moved'), 'assigned': oldUser, 'state': str(tic.state)}
                             }
             add_history(request, tic, 7, history_data)
 
