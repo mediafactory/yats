@@ -7,6 +7,7 @@ from bootstrap_toolkit.widgets import BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
 from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards, ticket_priority
+from web.models import ticket_component
 
 import importlib
 
@@ -148,6 +149,7 @@ class SimpleTickets(forms.Form):
     assigned = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label=_('assigned'))
     priority = forms.ModelChoiceField(queryset=ticket_priority.objects.all(), required=True, initial=get_simple_priority, label=_('priority'))
     deadline = forms.DateTimeField(widget=BootstrapDateInput(), required=False, label=_('deadline'))
+    component = forms.ModelChoiceField(queryset=ticket_component.objects.all(), required=False, label=_('component'))
 
 
 class SearchForm(forms.ModelForm):

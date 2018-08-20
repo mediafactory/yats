@@ -87,6 +87,7 @@ def simple(request):
             tic.description = cd['description']
             tic.priority = cd['priority']
             tic.assigned = cd['assigned']
+            tic.component = cd['component']
             if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER') and settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER:
                 if settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER == -1:
                     tic.customer = request.organisation
@@ -339,6 +340,7 @@ def action(request, mode, ticket):
                 tic.priority = cd['priority']
                 tic.assigned = cd['assigned']
                 tic.deadline = cd['deadline']
+                tic.component = cd['component']
                 tic.save(user=request.user)
 
                 if cd['assigned']:
@@ -360,6 +362,7 @@ def action(request, mode, ticket):
                     'priority': tic.priority,
                     'assigned': tic.assigned,
                     'deadline': tic.deadline,
+                    'component': tic.component,
                 })
         return render(request, 'tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form, 'mode': mode})
 
