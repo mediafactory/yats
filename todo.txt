@@ -1,10 +1,7 @@
----- BUGS
-- gleichnamige ToDos
-- ? in todos
-
+- Kanban in breadcrumb
 
 ---- WISHLIST
-- jabber statt Mail
+- CalDAV
 - Vorlangen von Tickets
 - Wiederkehrende Aufgaben
 => jeden Tag
