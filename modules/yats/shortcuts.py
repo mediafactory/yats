@@ -189,8 +189,13 @@ def jabber_ticket(request, ticket_id, form, **kwargs):
     if len(int_rcpt) > 0:
         try:
             new['author'] = tic.c_user
-            send_jabber('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), int_rcpt)
-            send_jabber('%s\n\n%s' % (format_chanes(new, True), get_ticket_url(request, ticket_id)), int_rcpt)
+            send_jabber('%s#%s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                tic.caption,
+                format_chanes(new, True),
+                get_ticket_url(request, ticket_id)
+            ), int_rcpt)
         except:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
@@ -198,8 +203,13 @@ def jabber_ticket(request, ticket_id, form, **kwargs):
     if len(pub_rcpt) > 0 and has_public_fields(new):
         try:
             new['author'] = tic.u_user
-            send_jabber('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), pub_rcpt)
-            send_jabber('%s#%s - %s' % ('%s\n\n%s' % (format_chanes(new, False), get_ticket_url(request, ticket_id))), pub_rcpt)
+            send_jabber('%s#%s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                tic.caption,
+                format_chanes(new, False),
+                get_ticket_url(request, ticket_id)
+            ), pub_rcpt)
         except:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
@@ -240,8 +250,14 @@ def jabber_comment(request, comment_id):
     tic = get_ticket_model().objects.get(pk=ticket_id)
 
     try:
-        send_jabber('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new comment'), tic.caption), rcpt)
-        send_jabber('%s\n\n%s' % (com.comment, get_ticket_url(request, ticket_id)), rcpt)
+        send_jabber('%s#%s: %s - %s\n\n%s\n\n%s' % (
+            settings.EMAIL_SUBJECT_PREFIX,
+            tic.id,
+            _('new comment'),
+            tic.caption,
+            com.comment,
+            get_ticket_url(request, ticket_id)
+        ), rcpt)
     except:
         messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
 
@@ -273,8 +289,13 @@ def jabber_file(request, file_id):
     body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
 
     try:
-        send_jabber('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new file'), tic.caption), rcpt)
-        send_jabber(body, rcpt)
+        send_jabber('%s#%s: %s - %s\n\n%s' % (
+            settings.EMAIL_SUBJECT_PREFIX,
+            tic.id,
+            _('new file'),
+            tic.caption,
+            body
+        ), rcpt)
     except:
         messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
 
