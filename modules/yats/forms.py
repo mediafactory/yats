@@ -132,6 +132,10 @@ class TicketsForm(forms.ModelForm):
                              fail_message, commit, self._meta.exclude,
                              construct=False, user=self.user)
 
+    def description_clean(self):
+        description = self.cleaned_data['description']
+        return description.eplace(u"\u00A0", " ")
+
     class Meta:
         model = mod_cls
         exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record', 'closed', 'close_date', 'last_action_date', 'keep_it_simple']
