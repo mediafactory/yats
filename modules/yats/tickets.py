@@ -84,7 +84,7 @@ def simple(request):
             ticket = get_ticket_model()
             tic = ticket()
             tic.caption = cd['caption']
-            tic.description = cd['description']
+            tic.description = cd['description'].replace(u"\u00A0", " ")
             tic.priority = cd['priority']
             tic.assigned = cd['assigned']
             tic.component = cd['component']
@@ -336,7 +336,7 @@ def action(request, mode, ticket):
             if form.is_valid():
                 cd = form.cleaned_data
                 tic.caption = cd['caption']
-                tic.description = cd['description']
+                tic.description = cd['description'].replace(u"\u00A0", " ")
                 tic.priority = cd['priority']
                 tic.assigned = cd['assigned']
                 tic.deadline = cd['deadline']
