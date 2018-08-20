@@ -23,13 +23,9 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser as ConfigParser
 
-try:
-    from io import StringIO as StringIO
-except ImportError:
-    from StringIO import StringIO as StringIO
+from StringIO import StringIO as StringIO
 
 from django.conf import settings
-
 
 class HashableConfigParser(ConfigParser):
     def __hash__(self):
