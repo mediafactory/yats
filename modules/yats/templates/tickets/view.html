@@ -175,7 +175,7 @@
       //alert(this.value);
       //console.log(this.nextSibling.data);
 
-      $.getJSON( "/tickets/todo/{{ ticket.id }}/", { set: this.checked, item: this.value, text: encodeURIComponent(this.nextSibling.data) } )
+      $.post( "/tickets/todo/{{ ticket.id }}/", { set: this.checked, item: this.value, text: this.nextSibling.data } )
         .done(function( json ) {
           console.log( json );
         })

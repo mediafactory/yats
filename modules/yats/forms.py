@@ -142,6 +142,10 @@ def get_simple_priority():
         return settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY
     else:
         return None
+class ToDo(forms.Form):
+    text = forms.CharField(required=True)
+    item = forms.IntegerField(required=True)
+    set = forms.BooleanField(required=False)
 
 class SimpleTickets(forms.Form):
     caption = forms.CharField(required=True, label=_('caption'))

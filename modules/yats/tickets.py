@@ -11,7 +11,7 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
 from django.utils import timezone
-from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets
+from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, del_breadcrumbs, convertPDFtoImg, convertOfficeTpPDF
 import os
@@ -471,43 +471,47 @@ def action(request, mode, ticket):
             local.counter += 1
             group = match.groups()
             if local.counter == pos:
-                return '[X]'
+                return u'[X]'
             else:
-                return '[%s]' % group[0]
+                return u'[%s]' % group[0]
 
         def ToDoUnDone(match):
             local.counter += 1
             group = match.groups()
             if local.counter == pos:
-                return '[ ]'
+                return u'[ ]'
             else:
-                return '[%s]' % group[0]
+                return u'[%s]' % group[0]
 
-        desc = tic.description
-        text = urllib.unquote(request.GET['text']).decode('utf8')
-        pos = int(request.GET['item'])
-        if request.GET['set'] == 'true':
-            tic.description = re.sub(r'\[([ Xx])\]', ToDoDone, desc)
-            old = _('undone: %s') % text
-            new = _('done: %s') % text
-        else:
-            tic.description = re.sub(r'\[([ Xx])\]', ToDoUnDone, desc)
-            new = _('undone: %s') % text
-            old = _('done: %s') % text
+        form = ToDo(request.POST)
+        if form.is_valid():
+            desc = tic.description
 
-        tic.save(user=request.user)
+            cd = form.cleaned_data
+            text = cd['text']
+            pos = cd['item']
+            set = cd['set']
+            if set:
+                tic.description = re.sub(r'\[([ Xx])\]', ToDoDone, desc)
+                old = _('undone: %s') % text
+                new = _('done: %s') % text
+            else:
+                tic.description = re.sub(r'\[([ Xx])\]', ToDoUnDone, desc)
+                new = _('undone: %s') % text
+                old = _('done: %s') % text
 
-        touch_ticket(request.user, ticket)
+            tic.save(user=request.user)
 
-        add_history(request, tic, 9, (new, old))
+            touch_ticket(request.user, ticket)
 
-        data = {
-            'set': request.GET['set'],
-            'item': request.GET['item'],
-            'text': urllib.unquote(request.GET['text']).decode('utf8'),
-            'desc': desc,
-        }
-        return JsonResponse(data, safe=False)
+            add_history(request, tic, 9, (new, old))
+
+            data = {
+                'set': set,
+                'item': pos,
+                'text': text,
+            }
+            return JsonResponse(data, safe=False)
 
 @login_required
 def table(request, **kwargs):
