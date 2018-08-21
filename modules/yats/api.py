@@ -276,7 +276,7 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
     return get(id, **kwargs)
 
 @rpcmethod(name='ticket.create', signature=['array', 'struct', 'bool'], login_required=True)
-def create(attributes={}, notify=False, **kwargs):
+def create(attributes={}, notify=True, **kwargs):
     """
     array ticket.create(struct attributes={}, boolean notify=False)
     create a ticket, returning the new ticket in the same form as getTicket(). Requires a valid 'action' in attributes to support workflow.
@@ -310,13 +310,17 @@ def create(attributes={}, notify=False, **kwargs):
 
         touch_ticket(request.user, tic.pk)
 
-        mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
-        jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+        if notify:
+            mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+            jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
 
-    return get(tic.id, **kwargs)
+        return get(tic.id, **kwargs)
+
+    else:
+        raise Exception('missing attributes')
 
 @rpcmethod(name='ticket.createSimple', signature=['array', 'struct', 'bool'], login_required=True)
-def createSimple(attributes={}, notify=False, **kwargs):
+def createSimple(attributes={}, notify=True, **kwargs):
     from yats.forms import SimpleTickets
 
     request = kwargs['request']
@@ -359,4 +363,11 @@ def createSimple(attributes={}, notify=False, **kwargs):
 
         touch_ticket(request.user, tic.pk)
 
-    return get(tic.id, **kwargs)
+        if notify:
+            mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+            jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
+
+        return get(tic.id, **kwargs)
+
+    else:
+        raise Exception('missing attributes')
