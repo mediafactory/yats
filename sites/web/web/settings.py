@@ -133,10 +133,10 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'yats.middleware.header.ResponseInjectHeader',
+    'yats.middleware.auth.TryBasicAuthMiddleware',
     # 'yats.middleware.auth.BasicAuthMiddleware',
     'yats.middleware.auth.OrgaAdditionMiddleware',
     'yats.middleware.error.ErrorCaptureMiddleware',
@@ -193,7 +193,8 @@ LOGGING = {
 }
 
 TICKET_CLASS = 'web.models.test'
-TICKET_NEW_MAIL_RCPT = 'develope@mediafactory.de'
+TICKET_NEW_MAIL_RCPT = ''
+TICKET_NEW_JABBER_RCPT = ''
 TICKET_NON_PUBLIC_FIELDS = ['billing_needed', 'billing_reason', 'billing_done', 'fixed_in_version', 'solution', 'assigned', 'priority']
 TICKET_SEARCH_FIELDS = ['caption', 'c_user', 'priority', 'type', 'customer', 'component', 'deadline', 'billing_needed', 'billing_done', 'closed', 'assigned', 'state']
 TICKET_EDITABLE_FIELDS_AFTER_CLOSE = ['billing_done']

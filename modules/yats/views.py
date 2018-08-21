@@ -239,6 +239,7 @@ def kanban(request):
     close = TicketCloseForm()
     reassign = TicketReassignForm()
     edges = ticket_flow_edges.objects.all().order_by('now')
+    add_breadcrumbs(request, 0, 'k')
     return render(request, 'board/kanban.html', {'layout': 'horizontal', 'columns': columns, 'edges': edges, 'finish_state': finish_state, 'close': close, 'reassign': reassign})
 
 def xptest(request, test):

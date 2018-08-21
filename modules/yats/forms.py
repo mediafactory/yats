@@ -155,7 +155,7 @@ class SimpleTickets(forms.Form):
     caption = forms.CharField(required=True, label=_('caption'))
     description = forms.CharField(widget=forms.Textarea(), required=False, label=_('description'))
     assigned = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label=_('assigned'))
-    priority = forms.ModelChoiceField(queryset=ticket_priority.objects.all(), required=True, initial=get_simple_priority, label=_('priority'))
+    priority = forms.ModelChoiceField(queryset=ticket_priority.objects.all(), required=False, initial=get_simple_priority, label=_('priority'), empty_label=None)
     deadline = forms.DateTimeField(widget=BootstrapDateInput(), required=False, label=_('deadline'))
     component = forms.ModelChoiceField(queryset=ticket_component.objects.all(), required=False, label=_('component'))
 
