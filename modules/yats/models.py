@@ -5,6 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.utils import timezone
 
+import uuid
+
 YES_NO_DONT_KNOW = (
     (None, '---------'),
     (True, _('yes')),
@@ -172,6 +174,7 @@ class tickets(base):
     close_date = models.DateTimeField(null=True)
     last_action_date = models.DateTimeField(null=True)
     keep_it_simple = models.BooleanField(default=True)
+    uuid = models.UUIDField(default=uuid.uuid4, null=False, blank=False)
 
     def save(self, *args, **kwargs):
         self.last_action_date = timezone.now()
