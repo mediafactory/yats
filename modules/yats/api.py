@@ -73,6 +73,18 @@ def buildFields(exclude_list):
     return (TracFields, TicketFields)
 
 def TracNameTofieldName(field):
+    if field == 'time created':
+        return 'c_date'
+    if field == 'reporter':
+        return 'c_user'
+    if field == 'time changed':
+        return 'u_date'
+    if field == 'owner':
+        return 'assigned'
+    if field == 'summary':
+        return 'caption'
+    if field == 'status':
+        return 'state'
     return field
 
 def add_search_terms(field_defs, parts, compare, results):
@@ -118,11 +130,11 @@ def search_terms(q):
 
     return results
 
-@rpcmethod(name='system.getAPIVersion', signature=['array'])
+@rpcmethod(name='system.getAPIVersion', signature=['array'], login_required=True)
 def getAPIVersion():
     return [-1,0,1]
 
-@rpcmethod(name='ticket.getTicketFields', signature=['array'])
+@rpcmethod(name='ticket.getTicketFields', signature=['array'], login_required=True)
 def getTicketFields(**kwargs):
     """
         array ticket.getTicketFields()
@@ -167,7 +179,7 @@ def getTicketFields(**kwargs):
 
     return buildFields(exclude_list)[0]
 
-@rpcmethod(name='ticket.query', signature=['array'])
+@rpcmethod(name='ticket.query', signature=['array'], login_required=True)
 def query(*args, **kwargs):
     """
     array ticket.query(string qstr="status!=closed")
@@ -181,7 +193,7 @@ def query(*args, **kwargs):
     ids = tickets.values_list('id', flat=True)
     return list(ids)
 
-@rpcmethod(name='ticket.get', signature=['array', 'int'])
+@rpcmethod(name='ticket.get', signature=['array', 'int'], login_required=True)
 def get(id, **kwargs):
     """
     array ticket.get(int id)
@@ -212,7 +224,7 @@ def get(id, **kwargs):
             attributes[fieldNameToTracName(field.name)] = unicode(getattr(ticket, field.name))
     return [id, ticket.c_date, ticket.last_action_date, attributes]
 
-@rpcmethod(name='ticket.update', signature=['array', 'int', 'string', 'struct', 'bool'])
+@rpcmethod(name='ticket.update', signature=['array', 'int', 'string', 'struct', 'bool'], login_required=True)
 def update(id, comment, attributes={}, notify=False, **kwargs):
     """
     array ticket.update(int id, string comment, struct attributes={}, boolean notify=False)
@@ -263,7 +275,7 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
 
     return get(id, **kwargs)
 
-@rpcmethod(name='ticket.create', signature=['array', 'struct', 'bool'])
+@rpcmethod(name='ticket.create', signature=['array', 'struct', 'bool'], login_required=True)
 def create(attributes={}, notify=False, **kwargs):
     """
     array ticket.create(struct attributes={}, boolean notify=False)
@@ -303,7 +315,7 @@ def create(attributes={}, notify=False, **kwargs):
 
     return get(tic.id, **kwargs)
 
-@rpcmethod(name='ticket.createSimple', signature=['array', 'struct', 'bool'])
+@rpcmethod(name='ticket.createSimple', signature=['array', 'struct', 'bool'], login_required=True)
 def createSimple(attributes={}, notify=False, **kwargs):
     from yats.forms import SimpleTickets
 
@@ -322,7 +334,11 @@ def createSimple(attributes={}, notify=False, **kwargs):
         tic = ticket()
         tic.caption = cd['caption']
         tic.description = cd['description']
-        tic.priority = cd['priority']
+        if 'priority' not in cd or not cd['priority']:
+            if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_PRIORITY') and settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY:
+                tic.priority_id = settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY
+        else:
+            tic.priority = cd['priority']
         tic.assigned = cd['assigned']
         if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER') and settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER:
             if settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER == -1:

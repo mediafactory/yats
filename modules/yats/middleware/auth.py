@@ -90,3 +90,36 @@ class BasicAuthMiddleware(object):
         response.status_code = 401
         response['WWW-Authenticate'] = 'Basic realm="%s"' % self.realm
         return response
+
+class TryBasicAuthMiddleware(BasicAuthMiddleware):
+    def process_request(self, request):
+        for url in self.public_urls:
+            if url.match(request.path[1:]):
+                return None
+
+        # lookup, if user was already authenticated
+        request.user = get_user(request)
+        if request.user.is_authenticated():
+            try:
+                request.organisation = UserProfile.objects.get(user=request.user).organisation
+            except:
+                pass
+            return
+
+        if 'HTTP_AUTHORIZATION' in request.META:
+            auth = request.META['HTTP_AUTHORIZATION'].split()
+            if len(auth) == 2:
+                # NOTE: We only support basic authentication for now.
+                #
+                if auth[0].lower() == "basic":
+                    uname, passwd = self._checkUnicode(base64.b64decode(auth[1]).split(':', 1))
+                    user = authenticate(username=uname, password=passwd)
+                    if user:
+                        if user.is_active:
+                            request.user = user
+                            try:
+                                request.organisation = UserProfile.objects.get(user=user).organisation
+                            except:
+                                pass
+                            login(request, user)
+                            return
