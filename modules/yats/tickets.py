@@ -62,7 +62,7 @@ def new(request):
             touch_ticket(request.user, tic.pk)
 
             mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
-            jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+            jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
 
             if form.cleaned_data.get('file_addition', False):
                 return HttpResponseRedirect('/tickets/upload/%s/' % tic.pk)
@@ -106,6 +106,9 @@ def simple(request):
             remember_changes(request, form, tic)
 
             touch_ticket(request.user, tic.pk)
+
+            mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+            jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
 
             return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
 
@@ -309,9 +312,9 @@ def action(request, mode, ticket):
                 assigned = form.cleaned_data.get('assigned')
                 if assigned:
                     touch_ticket(assigned, tic.pk)
-                else:
-                    mail_ticket(request, tic.pk, form)
-                    jabber_ticket(request, tic.pk, form)
+
+                mail_ticket(request, tic.pk, form)
+                jabber_ticket(request, tic.pk, form)
 
                 remember_changes(request, form, tic)
 
