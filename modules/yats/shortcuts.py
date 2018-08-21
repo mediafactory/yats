@@ -84,8 +84,8 @@ def get_jabber_recipient_list(request, ticket_id):
                         pub_result.append(an)
             else:
                 error.append(unicode(rcpt.user))
-    if len(error) > 0:
-        messages.add_message(request, messages.ERROR, _('the following participants could not be reached by jabber (address missing): %s') % ', '.join(error))
+    # if len(error) > 0:
+    #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by jabber (address missing): %s') % ', '.join(error))
     return int_result, pub_result
 
 def get_mail_recipient_list(request, ticket_id):
@@ -104,8 +104,8 @@ def get_mail_recipient_list(request, ticket_id):
                     pub_result.append(rcpt.user.email)
             else:
                 error.append(unicode(rcpt.user))
-    if len(error) > 0:
-        messages.add_message(request, messages.ERROR, _('the following participants could not be reached by mail (address missing): %s') % ', '.join(error))
+    # if len(error) > 0:
+    #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by mail (address missing): %s') % ', '.join(error))
     return int_result, pub_result
 
 def get_ticket_url(request, ticket_id):
@@ -180,9 +180,13 @@ def send_jabber(msg, rcpt_list):
 
 def jabber_ticket(request, ticket_id, form, **kwargs):
     int_rcpt, pub_rcpt = list(get_jabber_recipient_list(request, ticket_id))
-    if 'rcpt' in kwargs and kwargs['rcpt']:
-        int_rcpt.append(kwargs['rcpt'])
     tic = get_ticket_model().objects.get(pk=ticket_id)
+    if not tic.assigned:
+        if 'rcpt' in kwargs and kwargs['rcpt']:
+            rcpts = kwargs['rcpt'].split(',')
+            for rcpt in rcpts:
+                if rcpt not in int_rcpt:
+                    int_rcpt.append(rcpt)
 
     new, old = field_changes(form)
 
@@ -216,9 +220,13 @@ def jabber_ticket(request, ticket_id, form, **kwargs):
 
 def mail_ticket(request, ticket_id, form, **kwargs):
     int_rcpt, pub_rcpt = list(get_mail_recipient_list(request, ticket_id))
-    if 'rcpt' in kwargs and kwargs['rcpt']:
-        int_rcpt.append(kwargs['rcpt'])
     tic = get_ticket_model().objects.get(pk=ticket_id)
+    if not tic.assigned:
+        if 'rcpt' in kwargs and kwargs['rcpt']:
+            rcpts = kwargs['rcpt'].split(',')
+            for rcpt in rcpts:
+                if rcpt not in int_rcpt:
+                    int_rcpt.append(rcpt)
 
     new, old = field_changes(form)
 
