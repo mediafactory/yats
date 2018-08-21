@@ -159,6 +159,7 @@ INSTALLED_APPS = [
     'bootstrap_toolkit',
     'yats',
     'web',
+    'djradicale',
 ]
 
 LOGGING = {
@@ -215,3 +216,43 @@ KEEP_IT_SIMPLE_DEFAULT_CUSTOMER = -1  # auto from user
 KEEP_IT_SIMPLE_DEFAULT_COMPONENT = 1
 
 PROJECT_NAME = 'DEV'
+
+DJRADICALE_CONFIG = {
+    'server': {
+        'base_prefix': '/pim/',
+        'realm': 'Radicale - Password Required',
+    },
+    'encoding': {
+        'request': 'utf-8',
+        'stock': 'utf-8',
+    },
+    'auth': {
+        'type': 'custom',
+        'custom_handler': 'djradicale.auth.main',
+    },
+    'rights': {
+        'type': 'custom',
+        'custom_handler': 'djradicale.rights.main',
+    },
+    'storage': {
+        'type': 'custom',
+        'custom_handler': 'yats.caldav.storage',
+    },
+    'well-known': {
+        #'carddav': '/pim/%(user)s/addressbook.vcf',
+        'caldav': '/pim/%(user)s/calendar.ics',
+    },
+}
+
+DJRADICALE_RIGHTS = {
+    'rw': {
+        'user': '.+',
+        'collection': '^%(login)s/[a-z0-9\.\-_]+\.(vcf|ics)$',
+        'permission': 'rw',
+    },
+    'rw-root': {
+        'user': '.+',
+        'collection': '^%(login)s$',
+        'permission': 'rw',
+    },
+}
