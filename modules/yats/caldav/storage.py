@@ -17,11 +17,17 @@
 import json
 import os
 import logging
+import vobject
 
 from datetime import datetime
 
 from contextlib import contextmanager
 from radicale import ical
+
+from yats.shortcuts import get_ticket_model, build_ticket_search
+from yats.models import tickets_reports, UserProfile
+
+from django.contrib.auth.models import AnonymousUser, User
 
 from djradicale.models import DBCollection, DBItem, DBProperties
 
@@ -31,26 +37,51 @@ ICAL_TYPES = (
     ical.Event,
     ical.Todo,
     ical.Journal,
-    #ical.Card,
+    # ical.Card,
     ical.Timezone,
 )
 
+class FakeRequest:
+    def __init__(self):
+        self.GET = {}
+        self.POST = {}
+        self.session = {}
+        self.user = AnonymousUser()
 
 class Collection(ical.Collection):
     @property
     def headers(self):
         return (
-            ical.Header('PRODID:-//YATS//NONSGML Radicale Server//EN'),
+            ical.Header('PRODID:-//Radicale//NONSGML Radicale Server//EN'),
             ical.Header('VERSION:%s' % self.version))
 
     def delete(self):
-        raise NotImplementedError("does not make sense")
+        DBItem.objects.filter(collection__path=self.path).delete()
+        DBCollection.objects.filter(path=self.path).delete()
+        DBProperties.objects.filter(path=self.path).delete()
 
     def append(self, name, text):
-        raise NotImplementedError("TODO")
+        #import pydevd
+        #pydevd.settrace('192.168.33.1', 5678)
+        new_items = self._parse(text, ICAL_TYPES, name)
+        timezones = list(filter(
+            lambda x: x.tag == ical.Timezone.tag, new_items.values()))
+
+        for new_item in new_items.values():
+            if new_item.tag == ical.Timezone.tag:
+                continue
+
+            collection, ccreated = DBCollection.objects.get_or_create(
+                path=self.path, parent_path=os.path.dirname(self.path))
+            item, icreated = DBItem.objects.get_or_create(
+                collection=collection, name=name)
+
+            item.text = ical.serialize(
+                self.tag, self.headers, [new_item] + timezones)
+            item.save()
 
     def remove(self, name):
-        raise NotImplementedError("does not make sense")
+        DBItem.objects.filter(collection__path=self.path, name=name).delete()
 
     # def replace(self, name, text):
     #     raise NotImplementedError
@@ -78,6 +109,8 @@ class Collection(ical.Collection):
 
     @classmethod
     def is_leaf(cls, path):
+        #import pydevd
+        #pydevd.settrace('192.168.33.1', 5678)
         result = False
         if path:
             result = (
@@ -100,7 +133,10 @@ class Collection(ical.Collection):
     def tag(self):
         with self.props as props:
             if 'tag' not in props:
-                props['tag'] = 'VCALENDAR'
+                if self.path.endswith(('.vcf', '/carddav')):
+                    props['tag'] = 'VADDRESSBOOK'
+                else:
+                    props['tag'] = 'VCALENDAR'
             return props['tag']
 
     @property
@@ -125,6 +161,57 @@ class Collection(ical.Collection):
     @property
     def items(self):
         items = {}
-        for item in DBItem.objects.filter(collection__path=self.path):
-            items.update(self._parse(item.text, ICAL_TYPES))
+
+        try:
+            request = self._getRequestFromUrl(self.path)
+            rep = tickets_reports.objects.get(pk=self._getReportFromUrl(self.path))
+            tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
+            search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
+
+            #import pydevd
+            #pydevd.settrace('192.168.33.1', 5678)
+
+            for item in tic:
+                text = self._itemToICal(item)
+                items.update(self._parse(text, ICAL_TYPES))
+
+            #for item in DBItem.objects.filter(collection__path=self.path):
+            #    items.update(self._parse(item.text, ICAL_TYPES))
+
+        except:
+            import sys
+            a = sys.exc_info()
+
         return items
+
+    def _getRequestFromUrl(self, path):
+        request = FakeRequest()
+        request.user = User.objects.get(username='admin')
+        request.organisation = UserProfile.objects.get(user=request.user).organisation
+        return request
+
+    def _getReportFromUrl(self, path):
+        return 1
+
+    def _itemToICal(self, item):
+        cal = vobject.iCalendar()
+        cal.add('vtodo')
+        cal.vtodo.add('summary').value = item.caption
+        cal.vtodo.add('uid').value = str(item.uuid)
+        cal.vtodo.add('created').value = item.c_date
+        if item.description:
+            cal.vtodo.add('description').value = item.description
+        if item.deadline:
+            #cal.vtodo.add('dstart').value = item.deadline
+            cal.vtodo.add('due').value = item.deadline
+            cal.vtodo.add('valarm')
+            cal.vtodo.valarm.add('uuid').value = '%s-%s' % (str(item.uuid), item.pk)
+            cal.vtodo.valarm.add('x-wr-alarmuid').value = '%s-%s' % (str(item.uuid), item.pk)
+            cal.vtodo.valarm.add('action').value = 'DISPLAY'
+            cal.vtodo.valarm.add('x-apple-proximity').value = 'DEPART'
+            cal.vtodo.valarm.add('description').value = 'Erinnerung an ein Ereignis'
+            #cal.vtodo.valarm.add('trigger').value =
+            #TRIGGER;VALUE=DATE-TIME:20180821T200000Z
+
+        cal.vtodo.add('x-radicale-name').value = '%s.ics' % str(item.uuid)
+        return cal.serialize()
