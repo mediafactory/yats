@@ -86,7 +86,7 @@ class test(tickets):
     billing_type = models.CharField(max_length=255, choices=BILLING_TYPE_CHOICES, null=True, blank=True)
     solution = models.TextField(null=True, blank=True)
     fixed_in_version = models.CharField(max_length=255, choices=lazy(getGibthubTags, tuple)(), blank=True)
-    deadline = models.DateField(null=True, blank=True)
+    deadline = models.DateTimeField(null=True, blank=True)
 
     def is_late(self):
         if self.deadline < datetime.date.today():
