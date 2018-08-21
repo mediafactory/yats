@@ -1,4 +1,4 @@
-- Kanban in breadcrumb
+- Ticket änderung wird nicht gejabbert? mf#143
 
 ---- WISHLIST
 - CalDAV
