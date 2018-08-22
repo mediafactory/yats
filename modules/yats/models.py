@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 import uuid
+import json
 
 YES_NO_DONT_KNOW = (
     (None, '---------'),
@@ -221,6 +222,14 @@ class tickets_reports(base):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(tickets_reports, self).save(*args, **kwargs)
+
+        from djradicale.models import DBProperties
+        text = {'tag': 'VCALENDAR', 'D:displayname': self.name}
+        props, created = DBProperties.objects.get_or_create(path='%s/%s.ics' % (kwargs['user'].username, self.slug), defaults={'text': json.dumps(text)})
+
+    def delete(self, *args, **kwargs):
+        from djradicale.models import DBProperties
+        DBProperties.objects.filter(path='%s/%s.ics' % (kwargs['user'].username, self.slug)).delete()
 
 class tickets_history(base):
     ticket = models.ForeignKey(tickets)
