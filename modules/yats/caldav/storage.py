@@ -18,6 +18,7 @@ import json
 import os
 import logging
 import vobject
+import urllib
 
 from datetime import datetime
 
@@ -56,11 +57,11 @@ class Collection(ical.Collection):
             ical.Header('VERSION:%s' % self.version))
 
     def delete(self):
-        DBItem.objects.filter(collection__path=self.path).delete()
-        DBCollection.objects.filter(path=self.path).delete()
-        DBProperties.objects.filter(path=self.path).delete()
+        raise NotImplementedError
 
     def append(self, name, text):
+        raise NotImplementedError
+
         new_items = self._parse(text, ICAL_TYPES, name)
         timezones = list(filter(
             lambda x: x.tag == ical.Timezone.tag, new_items.values()))
@@ -79,7 +80,7 @@ class Collection(ical.Collection):
             item.save()
 
     def remove(self, name):
-        DBItem.objects.filter(collection__path=self.path, name=name).delete()
+        raise NotImplementedError
 
     # def replace(self, name, text):
     #     raise NotImplementedError
@@ -90,30 +91,36 @@ class Collection(ical.Collection):
 
     @classmethod
     def children(cls, path):
+        """Yield the children of the collection at local ``path``."""
         request = cls._getRequestFromUrl(path)
-
         children = list(tickets_reports.objects.filter(c_user=request.user).values_list('name', flat=True))
-        children = ['%s/%s.ics' % (request.user.username, itm) for itm in children]
+        # urllib.quote(itm.lower().encode('utf-8'))
+        children = ['%s/%s.ics' % (request.user.username, urllib.quote(itm.lower().encode('utf-8'))) for itm in children]
         return map(cls, children)
 
     @classmethod
     def is_node(cls, path):
+        """Return ``True`` if relative ``path`` is a node.
+
+        A node is a WebDAV collection whose members are other collections.
+
+        """
         request = cls._getRequestFromUrl(path)
 
-        result = True
-        if path == request.user.username or 'ics' in path:
-            return result
-
-        if path:
-            result = (
-                DBCollection.objects
-                .filter(parent_path=path or '').exists())
-        return result
+        if path == request.user.username:
+            return True
+        else:
+            return False
 
     @classmethod
     def is_leaf(cls, path):
+        """Return ``True`` if relative ``path`` is a leaf.
+
+        A leaf is a WebDAV collection whose members are not collections.
+
+        """
         result = False
-        if path and len(path.split('/')) > 1:
+        if '.ics' in path:
             try:
                 request = cls._getRequestFromUrl(path)
                 rep = tickets_reports.objects.get(pk=cls._getReportFromUrl(path))
@@ -143,10 +150,7 @@ class Collection(ical.Collection):
     def tag(self):
         with self.props as props:
             if 'tag' not in props:
-                if self.path.endswith(('.vcf', '/carddav')):
-                    props['tag'] = 'VADDRESSBOOK'
-                else:
-                    props['tag'] = 'VCALENDAR'
+                props['tag'] = 'VCALENDAR'
             return props['tag']
 
     @property
@@ -202,7 +206,7 @@ class Collection(ical.Collection):
         if '.ics' in path:
             file = path.split('/')[-1]
             file = file.replace('.ics', '')
-            repid = tickets_reports.objects.get(name=file).pk
+            repid = tickets_reports.objects.get(name__iexact=file).pk
             return repid
         return 0
 
