@@ -61,8 +61,6 @@ class Collection(ical.Collection):
         DBProperties.objects.filter(path=self.path).delete()
 
     def append(self, name, text):
-        #import pydevd
-        #pydevd.settrace('192.168.33.1', 5678)
         new_items = self._parse(text, ICAL_TYPES, name)
         timezones = list(filter(
             lambda x: x.tag == ical.Timezone.tag, new_items.values()))
@@ -92,21 +90,18 @@ class Collection(ical.Collection):
 
     @classmethod
     def children(cls, path):
-        #import pydevd
-        #pydevd.settrace('192.168.33.1', 5678)
-
         request = cls._getRequestFromUrl(path)
 
         children = list(tickets_reports.objects.filter(c_user=request.user).values_list('name', flat=True))
-        children = ['admin/%s.ics' % itm for itm in children]
+        children = ['%s/%s.ics' % (request.user.username, itm) for itm in children]
         return map(cls, children)
 
     @classmethod
     def is_node(cls, path):
-        #import pydevd
-        #pydevd.settrace('192.168.33.1', 5678)
+        request = cls._getRequestFromUrl(path)
+
         result = True
-        if path == 'admin' or 'ics' in path:
+        if path == request.user.username or 'ics' in path:
             return result
 
         if path:
@@ -117,8 +112,6 @@ class Collection(ical.Collection):
 
     @classmethod
     def is_leaf(cls, path):
-        #import pydevd
-        #pydevd.settrace('192.168.33.1', 5678)
         result = False
         if path and len(path.split('/')) > 1:
             try:
@@ -186,9 +179,6 @@ class Collection(ical.Collection):
             tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
             search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
 
-            #import pydevd
-            #pydevd.settrace('192.168.33.1', 5678)
-
             for item in tic:
                 text = self._itemToICal(item)
                 items.update(self._parse(text, ICAL_TYPES))
@@ -201,8 +191,9 @@ class Collection(ical.Collection):
 
     @classmethod
     def _getRequestFromUrl(cls, path):
+        user = path.split('/')[0]
         request = FakeRequest()
-        request.user = User.objects.get(username='admin')
+        request.user = User.objects.get(username=user)
         request.organisation = UserProfile.objects.get(user=request.user).organisation
         return request
 
