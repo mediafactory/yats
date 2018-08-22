@@ -7,11 +7,11 @@
 {% endblock %}
 
 {% block content %}
-    
+
     <h2>{% trans "reports" %}</h2>
-    
+    <p><small class="text-muted">{% trans "alle reports are populated via CalDAV. click here to copy URL:" %} <i class="fa fa-copy"></i></small></p>
     <p>&nbsp;</p>
-    
+
     {% if lines %}
     <p>{{ lines.start_index }} - {{ lines.end_index }} {% trans "of" %} {{ lines.paginator.count }}</p>
     <section id="no-more-tables">
@@ -27,14 +27,14 @@
                 </tr>
             {% endfor %}
         </table>
-    
+
         {{ lines|pagination }}
     </section>
     {% endif %}
     {% if lines.paginator.count == 0 %}
     {% trans "no reports found!" %}
     {% endif %}
-    
+
 <div id="delDlg" class="modal hide fade">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -48,14 +48,14 @@
     <a href="javascript: doDelReportDone()" class="btn btn-danger">{% trans "delete" %}</a>
   </div>
 </div>
-    
+
 <script type="text/javascript">
     var report;
 	function doDelReport(repid) {
 		report = repid;
 		$('#delDlg').modal();
 	}
-	
+
 	function doDelReportDone() {
 		$('#delDlg').modal('hide');
 		window.location.href = '?delReport=' + report;
