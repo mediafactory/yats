@@ -92,15 +92,23 @@ class Collection(ical.Collection):
 
     @classmethod
     def children(cls, path):
-        children = list(
-            DBCollection.objects
-            .filter(parent_path=path or '')
-            .values_list('path', flat=True))
+        #import pydevd
+        #pydevd.settrace('192.168.33.1', 5678)
+
+        request = cls._getRequestFromUrl(path)
+
+        children = list(tickets_reports.objects.filter(c_user=request.user).values_list('name', flat=True))
+        children = ['admin/%s.ics' % itm for itm in children]
         return map(cls, children)
 
     @classmethod
     def is_node(cls, path):
+        #import pydevd
+        #pydevd.settrace('192.168.33.1', 5678)
         result = True
+        if path == 'admin' or 'ics' in path:
+            return result
+
         if path:
             result = (
                 DBCollection.objects
@@ -112,10 +120,19 @@ class Collection(ical.Collection):
         #import pydevd
         #pydevd.settrace('192.168.33.1', 5678)
         result = False
-        if path:
-            result = (
-                DBItem.objects
-                .filter(collection__path=path or '').exists())
+        if path and len(path.split('/')) > 1:
+            try:
+                request = cls._getRequestFromUrl(path)
+                rep = tickets_reports.objects.get(pk=cls._getReportFromUrl(path))
+                tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
+                search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
+
+                result = (tic.exists())
+
+            except:
+                import sys
+                a = sys.exc_info()
+
         return result
 
     @property
@@ -161,9 +178,10 @@ class Collection(ical.Collection):
     @property
     def items(self):
         items = {}
-
         try:
             request = self._getRequestFromUrl(self.path)
+            if self.path == request.user.username:
+                return items
             rep = tickets_reports.objects.get(pk=self._getReportFromUrl(self.path))
             tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
             search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
@@ -175,25 +193,30 @@ class Collection(ical.Collection):
                 text = self._itemToICal(item)
                 items.update(self._parse(text, ICAL_TYPES))
 
-            #for item in DBItem.objects.filter(collection__path=self.path):
-            #    items.update(self._parse(item.text, ICAL_TYPES))
-
         except:
             import sys
             a = sys.exc_info()
 
         return items
 
-    def _getRequestFromUrl(self, path):
+    @classmethod
+    def _getRequestFromUrl(cls, path):
         request = FakeRequest()
         request.user = User.objects.get(username='admin')
         request.organisation = UserProfile.objects.get(user=request.user).organisation
         return request
 
-    def _getReportFromUrl(self, path):
-        return 1
+    @classmethod
+    def _getReportFromUrl(cls, path):
+        if '.ics' in path:
+            file = path.split('/')[-1]
+            file = file.replace('.ics', '')
+            repid = tickets_reports.objects.get(name=file).pk
+            return repid
+        return 0
 
-    def _itemToICal(self, item):
+    @classmethod
+    def _itemToICal(cls, item):
         cal = vobject.iCalendar()
         cal.add('vtodo')
         cal.vtodo.add('summary').value = item.caption
