@@ -5,7 +5,7 @@
 <project name="YATS" default="nightly" basedir=".">
 	<description>YATS</description>
 
-	<property name="yatsversion" value="2.2.3" />
+	<property name="yatsversion" value="2.2.4" />
 
 	<tstamp>
 		<format property="TODAY"
@@ -64,6 +64,14 @@
 		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/pyxmpp2">
 			<fileset dir="${basedir}/modules/pyxmpp2" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
 		</copy>
+		<echo message="copy module djradicale" level="info" />
+		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/djradicale">
+			<fileset dir="${basedir}/modules/djradicale" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
+		</copy>
+		<echo message="copy module radicale" level="info" />
+		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/radicale">
+			<fileset dir="${basedir}/modules/radicale" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
+		</copy>
 
 		<echo message="copy sites setup" level="info" />
 		<copy verbose="false" todir="${basedir}/distribution/nightly/sites/static">
@@ -97,6 +105,8 @@
 				<tarfileset dir="${basedir}/distribution/nightly/modules/rpc4django" prefix="usr/share/yats/site-packages/rpc4django" />
 				<tarfileset dir="${basedir}/distribution/nightly/modules/graph" prefix="usr/share/yats/site-packages/graph" />
 				<tarfileset dir="${basedir}/distribution/nightly/modules/pyxmpp2" prefix="usr/share/yats/site-packages/pyxmpp2" />
+				<tarfileset dir="${basedir}/distribution/nightly/modules/djradicale" prefix="usr/share/yats/site-packages/djradicale" />
+				<tarfileset dir="${basedir}/distribution/nightly/modules/radicale" prefix="usr/share/yats/site-packages/radicale" />
 		</deb>
    </target>
 
