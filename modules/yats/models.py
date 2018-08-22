@@ -4,6 +4,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.utils import timezone
+from django.utils.text import slugify
 
 import uuid
 
@@ -214,7 +215,12 @@ class tickets_files(base):
 
 class tickets_reports(base):
     name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255)
     search = models.TextField()
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(tickets_reports, self).save(*args, **kwargs)
 
 class tickets_history(base):
     ticket = models.ForeignKey(tickets)

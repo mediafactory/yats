@@ -93,9 +93,8 @@ class Collection(ical.Collection):
     def children(cls, path):
         """Yield the children of the collection at local ``path``."""
         request = cls._getRequestFromUrl(path)
-        children = list(tickets_reports.objects.filter(c_user=request.user).values_list('name', flat=True))
-        # urllib.quote(itm.lower().encode('utf-8'))
-        children = ['%s/%s.ics' % (request.user.username, urllib.quote(itm.lower().encode('utf-8'))) for itm in children]
+        children = list(tickets_reports.objects.filter(c_user=request.user).values_list('slug', flat=True))
+        children = ['%s/%s.ics' % (request.user.username, itm) for itm in children]
         return map(cls, children)
 
     @classmethod
@@ -167,7 +166,7 @@ class Collection(ical.Collection):
         old_properties = properties.copy()
         yield properties
         # On exit
-        if old_properties != properties and DBCollection.objects.filter(path=self.path).exists():
+        if old_properties != properties:
             props, created = DBProperties.objects.get_or_create(path=self.path)
             props.text = json.dumps(properties)
             props.save()
@@ -206,7 +205,7 @@ class Collection(ical.Collection):
         if '.ics' in path:
             file = path.split('/')[-1]
             file = file.replace('.ics', '')
-            repid = tickets_reports.objects.get(name__iexact=file).pk
+            repid = tickets_reports.objects.get(slug=file).pk
             return repid
         return 0
 
