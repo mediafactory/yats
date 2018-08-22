@@ -220,8 +220,8 @@ PROJECT_NAME = 'DEV'
 
 DJRADICALE_CONFIG = {
     'server': {
-        'base_prefix': '/pim/',
-        'realm': 'Radicale - Password Required',
+        'base_prefix': '/tickets/dav/',
+        'realm': 'YATS Tickets - Password Required',
     },
     'encoding': {
         'request': 'utf-8',
@@ -241,7 +241,7 @@ DJRADICALE_CONFIG = {
     },
     'well-known': {
         #'carddav': '/pim/%(user)s/addressbook.vcf',
-        'caldav': '/pim/%(user)s/calendar.ics',
+        'caldav': '/tickets/dav/%(user)s/calendar.ics',
     },
 }
 
