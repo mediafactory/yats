@@ -10,4 +10,3 @@ defusedxml
 pyclamd
 dnspython
 vobject
-Radicale==1.1.1
