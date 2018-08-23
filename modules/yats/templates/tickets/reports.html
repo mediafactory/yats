@@ -1,15 +1,26 @@
 {% extends "base.html" %}
 
-{% load bootstrap_toolkit i18n %}
+{% load bootstrap_toolkit i18n menu %}
 
 {% block title %}
     {% trans "reports" %}
 {% endblock %}
 
+{% block extra_head %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+{% endblock %}
+
 {% block content %}
 
     <h2>{% trans "reports" %}</h2>
-    <p><small class="text-muted">{% trans "alle reports are populated via CalDAV. click here to copy URL:" %} <i class="fa fa-copy"></i></small></p>
+    <p>
+        <small id="cop" class="text-muted" data-clipboard-text="{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}/tickets/dav/{{ request.user }}/">
+            {% trans "alle reports are populated via CalDAV. click here to copy URL:" %}
+            <a href="#">
+                <i class="fa fa-copy fa-lg"></i>
+            </a>
+        </small>
+    </p>
     <p>&nbsp;</p>
 
     {% if lines %}
@@ -50,6 +61,16 @@
 </div>
 
 <script type="text/javascript">
+    var clipboard = new ClipboardJS('#cop');
+    clipboard.on('success', function(e) {
+        // alert(e.text + " copied!")
+        e.clearSelection();
+    });
+
+    clipboard.on('error', function(e) {
+        alert("error! copy to clipboard did not work")
+    });
+
     var report;
 	function doDelReport(repid) {
 		report = repid;
