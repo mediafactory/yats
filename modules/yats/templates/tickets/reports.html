@@ -14,10 +14,10 @@
 
     <h2>{% trans "reports" %}</h2>
     <p>
-        <small id="cop" class="text-muted" data-clipboard-text="{% YATSServer %}/tickets/dav/{{ request.user }}/">
+        <small id="cop" class="text-muted" data-clipboard-text="{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}/tickets/dav/{{ request.user }}/">
             {% trans "alle reports are populated via CalDAV. click here to copy URL:" %}
             <a href="#">
-                <i class="fa fa-copy"></i>
+                <i class="fa fa-copy fa-lg"></i>
             </a>
         </small>
     </p>
@@ -63,7 +63,7 @@
 <script type="text/javascript">
     var clipboard = new ClipboardJS('#cop');
     clipboard.on('success', function(e) {
-        alert(e.text + " copied!")
+        // alert(e.text + " copied!")
         e.clearSelection();
     });
 
