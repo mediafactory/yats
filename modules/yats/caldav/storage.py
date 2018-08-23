@@ -25,10 +25,14 @@ from datetime import datetime
 from contextlib import contextmanager
 from radicale import ical
 
-from yats.shortcuts import get_ticket_model, build_ticket_search
+from yats.shortcuts import get_ticket_model, build_ticket_search, touch_ticket, remember_changes, mail_ticket, jabber_ticket
+
 from yats.models import tickets_reports, UserProfile
+from yats.forms import SimpleTickets
 
 from django.contrib.auth.models import AnonymousUser, User
+from django.http import QueryDict
+from django.conf import settings
 
 from djradicale.models import DBCollection, DBItem, DBProperties
 
@@ -57,33 +61,85 @@ class Collection(ical.Collection):
             ical.Header('VERSION:%s' % self.version))
 
     def delete(self):
-        raise NotImplementedError
+        repid = self._getReportFromUrl(self.path)
+        tickets_reports.objects.get(pk=repid).delete()
 
     def append(self, name, text):
-        raise NotImplementedError
-
         new_items = self._parse(text, ICAL_TYPES, name)
         timezones = list(filter(
             lambda x: x.tag == ical.Timezone.tag, new_items.values()))
+
+        request = self._getRequestFromUrl(self.path)
 
         for new_item in new_items.values():
             if new_item.tag == ical.Timezone.tag:
                 continue
 
-            collection, ccreated = DBCollection.objects.get_or_create(
-                path=self.path, parent_path=os.path.dirname(self.path))
-            item, icreated = DBItem.objects.get_or_create(
-                collection=collection, name=name)
+            text = ical.serialize(self.tag, self.headers, [new_item] + timezones)
+            cal = vobject.readOne(text)
 
-            item.text = ical.serialize(
-                self.tag, self.headers, [new_item] + timezones)
-            item.save()
+            params = {
+                'caption': cal.vtodo.summary.value,
+                'description': cal.vtodo.description.value if hasattr(cal.vtodo, 'description') else None,
+                'uuid': cal.vtodo.uid.value,
+            }
+
+            fakePOST = QueryDict(mutable=True)
+            fakePOST.update(params)
+
+            form = SimpleTickets(fakePOST)
+            if form.is_valid():
+                cd = form.cleaned_data
+                ticket = get_ticket_model()
+
+                # change ticket
+                try:
+                    tic = ticket.objects.get(uuid=cal.vtodo.uid.value)
+                    tic.caption = cd['caption']
+                    tic.description = cd['description']
+                    tic.priority = cd['priority']
+                    tic.assigned = cd['assigned']
+                    tic.deadline = cd['deadline']
+                    tic.save(user=request.user)
+
+                # new ticket
+                except ticket.DoesNotExist:
+                    tic = ticket()
+                    tic.caption = cd['caption']
+                    tic.description = cd['description']
+                    if 'priority' not in cd or not cd['priority']:
+                        if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_PRIORITY') and settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY:
+                            tic.priority_id = settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY
+                    else:
+                        tic.priority = cd['priority']
+                    tic.assigned = cd['assigned']
+                    if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER') and settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER:
+                        if settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER == -1:
+                            tic.customer = request.organisation
+                        else:
+                            tic.customer_id = settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOME
+                    if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
+                        tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
+                    tic.deadline = cd['deadline']
+                    tic.save(user=request.user)
+
+                if tic.assigned:
+                    touch_ticket(tic.assigned, tic.pk)
+
+                for ele in form.changed_data:
+                    form.initial[ele] = ''
+                remember_changes(request, form, tic)
+
+                touch_ticket(request.user, tic.pk)
+
+                mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+                jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
 
     def remove(self, name):
-        raise NotImplementedError
+        pass
 
-    # def replace(self, name, text):
-    #     raise NotImplementedError
+    def replace(self, name, text):
+        self.append(name, text)
 
     @property
     def text(self):
@@ -229,6 +285,10 @@ class Collection(ical.Collection):
             cal.vtodo.valarm.add('description').value = 'Erinnerung an ein Ereignis'
             #cal.vtodo.valarm.add('trigger').value =
             #TRIGGER;VALUE=DATE-TIME:20180821T200000Z
+
+            # todo:
+            # closed
+            # priority
 
         cal.vtodo.add('x-radicale-name').value = '%s.ics' % str(item.uuid)
         return cal.serialize()
