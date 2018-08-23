@@ -1,8 +1,8 @@
-- change ticket
-- special fields => prio, close
+- edit ticket cuts time from deadline
+- special fields => prio, geo
+- check, if close is allowed
 
 ---- WISHLIST
-- CalDAV
 - Vorlangen von Tickets
 - Wiederkehrende Aufgaben
 => jeden Tag
@@ -10,7 +10,7 @@
 => jeder x. des Monats
 
 - neuer Comment von wem in Mail
-- change collision..
+- change collision.. => even in CalDAV => recheck ETag again in PUT (1 == 1)
 - api ticket change after close...
 - Lösung gelöscht: won&#39;t fix in comment
 - move deadline to tickets => change to datetime...? + func - datetime
