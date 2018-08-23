@@ -1,4 +1,5 @@
-- Ticket änderung wird nicht gejabbert? mf#143
+- change ticket
+- special fields => prio, close
 
 ---- WISHLIST
 - CalDAV
