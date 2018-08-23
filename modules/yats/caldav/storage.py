@@ -84,7 +84,7 @@ class Collection(ical.Collection):
                     tic.caption = cd['caption']
                     tic.description = cd['description']
                     tic.priority = cd['priority']
-                    tic.assigned = cd['assigned']
+                    # tic.assigned = cd['assigned']
                     tic.deadline = cd['deadline']
                     tic.save(user=request.user)
 
@@ -98,7 +98,7 @@ class Collection(ical.Collection):
                             tic.priority_id = settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY
                     else:
                         tic.priority = cd['priority']
-                    tic.assigned = cd['assigned']
+                    tic.assigned = request.user
                     if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER') and settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER:
                         if settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER == -1:
                             tic.customer = request.organisation
