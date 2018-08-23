@@ -37,6 +37,20 @@ def get_next_flow(current_state):
 def get_default_resolution():
     return ticket_resolution.objects.first()
 
+def convertPrio(value):
+    if value:
+        try:
+            return ticket_priority.objects.get(caldav=value)
+        except ticket_priority.DoesNotExist:
+            prios = ticket_priority.objects.get(caldav__gt=value).order_by('caldav')
+            try:
+                return prios[0]
+            except:
+                return convertPrio(0)
+    else:
+        return ticket_priority.objects.filter(caldav=0).first()
+
+
 # user profiles
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True)
@@ -134,8 +148,11 @@ class ticket_type(base):
         verbose_name_plural = _(u'ticket types')
 
 class ticket_priority(base):
+    list_display = ('name', 'caldav')
+
     name = models.CharField(max_length=255)
     color = models.CharField(max_length=255, default='transparent')
+    caldav = models.SmallIntegerField(default=0)  # defined from 0-9 0=undefined, 1=highest, 9=lowest
 
     def __unicode__(self):
         return self.name

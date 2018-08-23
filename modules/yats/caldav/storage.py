@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from radicale import ical
 
 from yats.shortcuts import get_ticket_model, build_ticket_search, touch_ticket, remember_changes, mail_ticket, jabber_ticket, check_references, add_history, mail_comment, jabber_comment
-from yats.models import tickets_reports, UserProfile, get_flow_end, tickets_comments, ticket_resolution, get_default_resolution
+from yats.models import tickets_reports, UserProfile, get_flow_end, tickets_comments, ticket_resolution, get_default_resolution, convertPrio
 from yats.forms import SimpleTickets
 
 from django.contrib.auth.models import AnonymousUser, User
@@ -105,8 +105,8 @@ class Collection(ical.Collection):
                     'description': cal.vtodo.description.value if hasattr(cal.vtodo, 'description') else None,
                     'uuid': cal.vtodo.uid.value,
                     'deadline': cal.vtodo.due.value if hasattr(cal.vtodo, 'due') else None,
+                    'priority': convertPrio(cal.vtodo.priority.value) if hasattr(cal.vtodo, 'priority') else None
                 }
-
                 fakePOST = QueryDict(mutable=True)
                 fakePOST.update(params)
 
@@ -300,6 +300,8 @@ class Collection(ical.Collection):
         cal.vtodo.add('summary').value = item.caption
         cal.vtodo.add('uid').value = str(item.uuid)
         cal.vtodo.add('created').value = item.c_date
+        if item.priority:
+            cal.vtodo.add('priority').value = str(item.priority.caldav)
         if item.description:
             cal.vtodo.add('description').value = item.description
         if item.deadline:
@@ -314,9 +316,5 @@ class Collection(ical.Collection):
             #cal.vtodo.valarm.add('trigger').value =
             #TRIGGER;VALUE=DATE-TIME:20180821T200000Z
 
-            # todo:
-            # closed
-            # priority
-
-        cal.vtodo.add('x-radicale-name').value = '%s.ics' % str(item.uuid)
+        cal.vtodo.add('x-radicale-name').value = '%s.ics' % str(item.uuid)        
         return cal.serialize().decode('utf-8')
