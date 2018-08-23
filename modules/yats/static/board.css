@@ -381,3 +381,13 @@ h2 {
 .kanban-label h2 {
   color: #222222 !important;
 }
+
+/*test */
+div.panel-body {
+    /*min-height: 65vh !important;*/
+    max-height: 65vh !important;
+    background-color: #eff1f3;
+}
+.kanban-entry {
+    background-color: #ffffff;
+}
