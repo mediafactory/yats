@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
-import os
 import logging
 import vobject
-import urllib
 
 from datetime import datetime
 
@@ -19,7 +17,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.http import QueryDict
 from django.conf import settings
 
-from djradicale.models import DBCollection, DBItem, DBProperties
+from djradicale.models import DBProperties
 
 logger = logging.getLogger('djradicale')
 
@@ -59,6 +57,9 @@ class Collection(ical.Collection):
         for new_item in new_items.values():
             if new_item.tag == ical.Timezone.tag:
                 continue
+
+            if new_item.name not in self.items:
+                self.items[new_item.name] = new_item
 
             text = ical.serialize(self.tag, self.headers, [new_item] + timezones)
             cal = vobject.readOne(text)
@@ -106,6 +107,7 @@ class Collection(ical.Collection):
                     if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
                         tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
                     tic.deadline = cd['deadline']
+                    tic.uuid = cal.vtodo.uid.value
                     tic.save(user=request.user)
 
                 if tic.assigned:
@@ -177,14 +179,21 @@ class Collection(ical.Collection):
 
     @property
     def last_modified(self):
+        import pydevd
+        pydevd.settrace('192.168.33.1', 5678)
+
         try:
-            collection = DBCollection.objects.get(path=self.path)
-        except DBCollection.DoesNotExist:
-            pass
-        else:
-            if collection.last_modified:
-                return datetime.strftime(
-                    collection.last_modified, '%a, %d %b %Y %H:%M:%S %z')
+            request = self._getRequestFromUrl(self.path)
+            rep = tickets_reports.objects.get(active_record=True, pk=self._getReportFromUrl(self.path))
+            tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
+            search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
+            date = tic.latest('u_date')
+            return datetime.strftime(
+                date, '%a, %d %b %Y %H:%M:%S %z')
+
+        except:
+            import sys
+            a = sys.exc_info()
 
     @property
     def tag(self):

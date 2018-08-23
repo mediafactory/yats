@@ -6,8 +6,8 @@ from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.text import slugify
 
-import uuid
 import json
+import uuid
 
 YES_NO_DONT_KNOW = (
     (None, '---------'),
@@ -176,10 +176,12 @@ class tickets(base):
     close_date = models.DateTimeField(null=True)
     last_action_date = models.DateTimeField(null=True)
     keep_it_simple = models.BooleanField(default=True)
-    uuid = models.UUIDField(default=uuid.uuid4, null=False, blank=False)
+    uuid = models.CharField(max_length=255, null=False, blank=False)
 
     def save(self, *args, **kwargs):
         self.last_action_date = timezone.now()
+        if not self.uuid:
+            self.uuid = uuid.uuid4()
         tickets_participants.objects.filter(ticket=self).update(seen=False)
         super(tickets, self).save(*args, **kwargs)
 
