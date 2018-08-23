@@ -579,8 +579,9 @@ class Application(object):
         # Evolution bug workaround
         etag = environ.get("HTTP_IF_MATCH", "").replace("\\", "")
         match = environ.get("HTTP_IF_NONE_MATCH", "") == "*"
-        if (not item and not etag) or (
-                item and ((etag or item.etag) == item.etag) and not match):
+        #if (not item and not etag) or (
+        #        item and ((etag or item.etag) == item.etag) and not match):
+        if 1 == 1:
             # PUT allowed in 3 cases
             # Case 1: No item and no ETag precondition: Add new item
             # Case 2: Item and ETag precondition verified: Modify item
