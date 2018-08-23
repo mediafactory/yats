@@ -149,7 +149,7 @@ class Collection(ical.Collection):
     def children(cls, path):
         """Yield the children of the collection at local ``path``."""
         request = cls._getRequestFromUrl(path)
-        children = list(tickets_reports.objects.filter(c_user=request.user).values_list('slug', flat=True))
+        children = list(tickets_reports.objects.filter(active_record=True, c_user=request.user).values_list('slug', flat=True))
         children = ['%s/%s.ics' % (request.user.username, itm) for itm in children]
         return map(cls, children)
 
@@ -178,7 +178,7 @@ class Collection(ical.Collection):
         if '.ics' in path:
             try:
                 request = cls._getRequestFromUrl(path)
-                rep = tickets_reports.objects.get(pk=cls._getReportFromUrl(path))
+                rep = tickets_reports.objects.get(active_record=True, pk=cls._getReportFromUrl(path))
                 tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
                 search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
 
@@ -234,7 +234,7 @@ class Collection(ical.Collection):
             request = self._getRequestFromUrl(self.path)
             if self.path == request.user.username:
                 return items
-            rep = tickets_reports.objects.get(pk=self._getReportFromUrl(self.path))
+            rep = tickets_reports.objects.get(active_record=True, pk=self._getReportFromUrl(self.path))
             tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
             search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
 
@@ -261,7 +261,7 @@ class Collection(ical.Collection):
         if '.ics' in path:
             file = path.split('/')[-1]
             file = file.replace('.ics', '')
-            repid = tickets_reports.objects.get(slug=file).pk
+            repid = tickets_reports.objects.get(active_record=True, slug=file).pk
             return repid
         return 0
 
