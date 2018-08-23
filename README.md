@@ -51,12 +51,13 @@ Today all our web projects are build on top of django. So it is much easier to c
 
 KEY FEATURES
 -----
+- CalDAV support - reports are populated as todo lists in external ToDo Tools
 - custom fields (mandatory fields and default values configurable)
 - different view of tickets for customers - fields hideable from customers (even in emails)
 - mails for ticket changes, comments, close, reopen, reassign
 - searchable fields configurable
 - searches saveable as reports
-- ticket history
+- ticket history and general logs of what you have done
 - ticket references (including back references)
 - complex workflows (create the workflow you need)
 - multiple kanban boards with columns saved from searches
