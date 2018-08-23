@@ -8,14 +8,15 @@ from datetime import datetime
 from contextlib import contextmanager
 from radicale import ical
 
-from yats.shortcuts import get_ticket_model, build_ticket_search, touch_ticket, remember_changes, mail_ticket, jabber_ticket
-
-from yats.models import tickets_reports, UserProfile
+from yats.shortcuts import get_ticket_model, build_ticket_search, touch_ticket, remember_changes, mail_ticket, jabber_ticket, check_references, add_history, mail_comment, jabber_comment
+from yats.models import tickets_reports, UserProfile, get_flow_end, tickets_comments, ticket_resolution, get_default_resolution
 from yats.forms import SimpleTickets
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import QueryDict
 from django.conf import settings
+from django.utils import timezone
+from django.utils.translation import ugettext as _
 
 from djradicale.models import DBProperties
 
@@ -40,7 +41,7 @@ class Collection(ical.Collection):
     @property
     def headers(self):
         return (
-            ical.Header('PRODID:-//Radicale//NONSGML Radicale Server//EN'),
+            ical.Header('PRODID:-//YATS//NONSGML Radicale Server//EN'),
             ical.Header('VERSION:%s' % self.version))
 
     def delete(self):
@@ -64,63 +65,99 @@ class Collection(ical.Collection):
             text = ical.serialize(self.tag, self.headers, [new_item] + timezones)
             cal = vobject.readOne(text)
 
-            params = {
-                'caption': cal.vtodo.summary.value,
-                'description': cal.vtodo.description.value if hasattr(cal.vtodo, 'description') else None,
-                'uuid': cal.vtodo.uid.value,
-            }
-
-            fakePOST = QueryDict(mutable=True)
-            fakePOST.update(params)
-
-            form = SimpleTickets(fakePOST)
-            if form.is_valid():
-                cd = form.cleaned_data
+            # close ticket
+            if hasattr(cal.vtodo, 'status') and cal.vtodo.status.value == 'COMPLETED':
                 ticket = get_ticket_model()
-
-                # change ticket
                 try:
+                    flow_end = get_flow_end()
+                    resolution = get_default_resolution()
+                    close_comment = _('closed via CalDAV')
+
                     tic = ticket.objects.get(uuid=cal.vtodo.uid.value)
-                    tic.caption = cd['caption']
-                    tic.description = cd['description']
-                    tic.priority = cd['priority']
-                    # tic.assigned = cd['assigned']
-                    tic.deadline = cd['deadline']
+                    tic.resolution = resolution
+                    tic.closed = True
+                    tic.close_date = timezone.now()
+                    tic.state = flow_end
                     tic.save(user=request.user)
 
-                # new ticket
-                except ticket.DoesNotExist:
-                    tic = ticket()
-                    tic.caption = cd['caption']
-                    tic.description = cd['description']
-                    if 'priority' not in cd or not cd['priority']:
-                        if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_PRIORITY') and settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY:
-                            tic.priority_id = settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY
-                    else:
+                    com = tickets_comments()
+                    com.comment = _('ticket closed - resolution: %(resolution)s\n\n%(comment)s') % {'resolution': resolution.name, 'comment': close_comment}
+                    com.ticket = tic
+                    com.action = 1
+                    com.save(user=request.user)
+
+                    check_references(request, com)
+
+                    touch_ticket(request.user, tic.id)
+
+                    add_history(request, tic, 1, close_comment)
+
+                    mail_comment(request, com.pk)
+                    jabber_comment(request, com.pk)
+
+                except:
+                    pass
+
+            # change or new
+            else:
+                params = {
+                    'caption': cal.vtodo.summary.value,
+                    'description': cal.vtodo.description.value if hasattr(cal.vtodo, 'description') else None,
+                    'uuid': cal.vtodo.uid.value,
+                    'deadline': cal.vtodo.due.value if hasattr(cal.vtodo, 'due') else None,
+                }
+
+                fakePOST = QueryDict(mutable=True)
+                fakePOST.update(params)
+
+                form = SimpleTickets(fakePOST)
+                if form.is_valid():
+                    cd = form.cleaned_data
+                    ticket = get_ticket_model()
+
+                    # change ticket
+                    try:
+                        tic = ticket.objects.get(uuid=cal.vtodo.uid.value)
+                        tic.caption = cd['caption']
+                        tic.description = cd['description']
                         tic.priority = cd['priority']
-                    tic.assigned = request.user
-                    if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER') and settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER:
-                        if settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER == -1:
-                            tic.customer = request.organisation
+                        # tic.assigned = cd['assigned']
+                        tic.deadline = cd['deadline']
+                        tic.save(user=request.user)
+
+                    # new ticket
+                    except ticket.DoesNotExist:
+                        tic = ticket()
+                        tic.caption = cd['caption']
+                        tic.description = cd['description']
+                        if 'priority' not in cd or not cd['priority']:
+                            if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_PRIORITY') and settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY:
+                                tic.priority_id = settings.KEEP_IT_SIMPLE_DEFAULT_PRIORITY
                         else:
-                            tic.customer_id = settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOME
-                    if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
-                        tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
-                    tic.deadline = cd['deadline']
-                    tic.uuid = cal.vtodo.uid.value
-                    tic.save(user=request.user)
+                            tic.priority = cd['priority']
+                        tic.assigned = request.user
+                        if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER') and settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER:
+                            if settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER == -1:
+                                tic.customer = request.organisation
+                            else:
+                                tic.customer_id = settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOME
+                        if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
+                            tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
+                        tic.deadline = cd['deadline']
+                        tic.uuid = cal.vtodo.uid.value
+                        tic.save(user=request.user)
 
-                if tic.assigned:
-                    touch_ticket(tic.assigned, tic.pk)
+                    if tic.assigned:
+                        touch_ticket(tic.assigned, tic.pk)
 
-                for ele in form.changed_data:
-                    form.initial[ele] = ''
-                remember_changes(request, form, tic)
+                    for ele in form.changed_data:
+                        form.initial[ele] = ''
+                    remember_changes(request, form, tic)
 
-                touch_ticket(request.user, tic.pk)
+                    touch_ticket(request.user, tic.pk)
 
-                mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
-                jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
+                    mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
+                    jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
 
     def remove(self, name):
         pass
@@ -179,9 +216,6 @@ class Collection(ical.Collection):
 
     @property
     def last_modified(self):
-        import pydevd
-        pydevd.settrace('192.168.33.1', 5678)
-
         try:
             request = self._getRequestFromUrl(self.path)
             rep = tickets_reports.objects.get(active_record=True, pk=self._getReportFromUrl(self.path))
@@ -189,7 +223,7 @@ class Collection(ical.Collection):
             search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
             date = tic.latest('u_date')
             return datetime.strftime(
-                date, '%a, %d %b %Y %H:%M:%S %z')
+                date.last_action_date, '%a, %d %b %Y %H:%M:%S %z')
 
         except:
             import sys
@@ -275,7 +309,7 @@ class Collection(ical.Collection):
             cal.vtodo.valarm.add('uuid').value = '%s-%s' % (str(item.uuid), item.pk)
             cal.vtodo.valarm.add('x-wr-alarmuid').value = '%s-%s' % (str(item.uuid), item.pk)
             cal.vtodo.valarm.add('action').value = 'DISPLAY'
-            cal.vtodo.valarm.add('x-apple-proximity').value = 'DEPART'
+            #cal.vtodo.valarm.add('x-apple-proximity').value = 'DEPART'
             cal.vtodo.valarm.add('description').value = 'Erinnerung an ein Ereignis'
             #cal.vtodo.valarm.add('trigger').value =
             #TRIGGER;VALUE=DATE-TIME:20180821T200000Z

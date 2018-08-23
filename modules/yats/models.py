@@ -31,6 +31,12 @@ def get_flow_end():
     if len(end) > 0:
         return end[0]
 
+def get_next_flow(current_state):
+    pass
+
+def get_default_resolution():
+    return ticket_resolution.objects.first()
+
 # user profiles
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True)
