@@ -31,6 +31,8 @@ from radicale import Application
 class ApplicationResponse(HttpResponse):
     def start_response(self, status, headers):
         self.status_code = int(status.split(' ')[0])
+        if self.status_code == 207:
+            self.reason_phrase = 'Multi-Status'
         for k, v in dict(headers).items():
             self[k] = v
 
