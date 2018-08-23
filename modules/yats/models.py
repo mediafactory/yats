@@ -229,7 +229,11 @@ class tickets_reports(base):
 
     def delete(self, *args, **kwargs):
         from djradicale.models import DBProperties
-        DBProperties.objects.filter(path='%s/%s.ics' % (kwargs['user'].username, self.slug)).delete()
+
+        path = '%s/%s.ics' % (kwargs['user'].username, self.slug)
+        DBProperties.objects.filter(path=path).delete()
+
+        super(tickets_reports, self).delete(*args, **kwargs)
 
 class tickets_history(base):
     ticket = models.ForeignKey(tickets)

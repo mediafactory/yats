@@ -589,10 +589,10 @@ def reports(request):
         return HttpResponseRedirect('/tickets/search/?report=%s' % request.GET['report'])
 
     if 'delReport' in request.GET:
-        tickets_reports.objects.filter(c_user=request.user, pk=request.GET['delReport']).delete()
+        tickets_reports.objects.get(c_user=request.user, pk=request.GET['delReport']).delete(user=request.user)
         return HttpResponseRedirect('/reports/')
 
-    reps = tickets_reports.objects.filter(c_user=request.user).order_by('name')
+    reps = tickets_reports.objects.filter(active_record=True, c_user=request.user).order_by('name')
 
     paginator = Paginator(reps, 10)
     page = request.GET.get('page')
