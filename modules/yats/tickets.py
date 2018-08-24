@@ -87,13 +87,13 @@ def simple(request):
             tic.description = cd['description'].replace(u"\u00A0", " ")
             tic.priority = cd['priority']
             tic.assigned = cd['assigned']
-            tic.component = cd['component']
             if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER') and settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER:
                 if settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER == -1:
                     tic.customer = request.organisation
                 else:
                     tic.customer_id = settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOME
-            if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
+            tic.component = cd['component']
+            if not tic.component and hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
                 tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
             tic.deadline = cd['deadline']
             tic.save(user=request.user)
