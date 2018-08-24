@@ -2,7 +2,7 @@
     $(function() {
          $('.form_datetime').datetimepicker(
            {
-                   format: "dd.mm.yyyy HH:ii",
+                   format: "dd.mm.yyyy hh:ii",
                    autoclose: true,
                    todayBtn: true
             }
