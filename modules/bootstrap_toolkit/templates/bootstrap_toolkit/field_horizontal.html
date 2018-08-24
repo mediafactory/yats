@@ -13,8 +13,13 @@
                     {% include "bootstrap_toolkit/field_choices.html" with type="radio" %}
                     {% include "bootstrap_toolkit/field_errors.html" with display="block" %}
                 {% else %}
-                    {% include "bootstrap_toolkit/field_default.html" %}
-                    {% include "bootstrap_toolkit/field_errors.html" with display="inline" %}
+                    {% if "datetime" in field.field.widget|lower %}
+                        {% include "bootstrap_toolkit/field_datetime.html" %}
+                        {% include "bootstrap_toolkit/field_errors.html" with display="inline" %}
+                    {% else %}
+                        {% include "bootstrap_toolkit/field_default.html" %}
+                        {% include "bootstrap_toolkit/field_errors.html" with display="inline" %}
+                    {% endif %}
                 {% endif %}
             {% endif %}
         {% endif %}

@@ -53,12 +53,20 @@ def get_language():
     return lang
 
 
-def get_locale_js_url(lang):
+def get_locale_js_url_date(lang):
     url = 'datepicker/js/locales/bootstrap-datepicker.%s.js' % lang
     if finders.find(url):
         return settings.STATIC_URL + url
     if '-' in lang:
-        return get_locale_js_url(lang.split('-')[0].lower())
+        return get_locale_js_url_date(lang.split('-')[0].lower())
+    return ''
+
+def get_locale_js_url_datetime(lang):
+    url = 'datetimepicker/js/locales/bootstrap-datepicker.%s.js' % lang
+    if finders.find(url):
+        return settings.STATIC_URL + url
+    if '-' in lang:
+        return get_locale_js_url_datetime(lang.split('-')[0].lower())
     return ''
 
 
@@ -102,7 +110,7 @@ class BootstrapDateInput(forms.DateInput):
         )
         lang = get_language()
         if lang != 'en':
-            locale_js_url = get_locale_js_url(lang)
+            locale_js_url = get_locale_js_url_date(lang)
             if locale_js_url:
                 js = js + (
                     locale_js_url,
@@ -130,3 +138,46 @@ class BootstrapDateInput(forms.DateInput):
             'data-bootstrap-widget': 'datepicker',
         })
         return super(BootstrapDateInput, self).render(name, value, attrs=date_input_attrs)
+
+class BootstrapDateTimeInput(forms.DateTimeInput):
+    bootstrap = {
+        'append': None,
+        'prepend': None,
+    }
+
+    @property
+    def media(self):
+        js = (
+            settings.STATIC_URL + 'datetimepicker/js/bootstrap-datetimepicker.js',
+        )
+        lang = get_language()
+        if lang != 'en':
+            locale_js_url = get_locale_js_url_datetime(lang)
+            if locale_js_url:
+                js = js + (
+                    locale_js_url,
+                )
+        js = js + (
+            settings.STATIC_URL + 'bootstrap_toolkit/js/init_datetimepicker.js',
+        )
+        css = {
+            'screen': (
+                settings.STATIC_URL + 'datetimepicker/css/bootstrap-datetimepicker.css',
+            )
+        }
+        return forms.Media(css=css, js=js)
+
+    def render(self, name, value, attrs=None):
+        date_input_attrs = {'readonly': '', 'size': 16}
+        if attrs:
+            date_input_attrs.update(attrs)
+        date_format = self.format
+        if not date_format:
+            date_format = default_date_format
+        date_input_attrs.update({
+            'data-date-format': javascript_date_format(date_format),
+            'data-date-language': get_language(),
+            'data-bootstrap-widget': 'datetimepicker',
+        })
+        self.format = '%d.%m.%Y %H:%M'
+        return super(BootstrapDateTimeInput, self).render(name, value, attrs=date_input_attrs)

@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.forms.models import construct_instance
-from bootstrap_toolkit.widgets import BootstrapDateInput
+from bootstrap_toolkit.widgets import BootstrapDateTimeInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
 from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards, ticket_priority
@@ -156,7 +156,7 @@ class SimpleTickets(forms.Form):
     description = forms.CharField(widget=forms.Textarea(), required=False, label=_('description'))
     assigned = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label=_('assigned'))
     priority = forms.ModelChoiceField(queryset=ticket_priority.objects.all(), required=False, initial=get_simple_priority, label=_('priority'), empty_label=None)
-    deadline = forms.DateTimeField(widget=BootstrapDateInput(), required=False, label=_('deadline'))
+    deadline = forms.DateTimeField(widget=BootstrapDateTimeInput(format='dd.mm.yyyy hh:ii'), required=False, label=_('deadline'))
     component = forms.ModelChoiceField(queryset=ticket_component.objects.all(), required=False, label=_('component'))
 
 
