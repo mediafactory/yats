@@ -1,6 +1,5 @@
-- edit ticket cuts time from deadline
-- special fields => prio, geo
-- check, if close is allowed
+- special fields => geo
+- check, if close is allowed in DAV
 
 ---- WISHLIST
 - Vorlangen von Tickets
