@@ -39,6 +39,8 @@ def get_default_resolution():
 
 def convertPrio(value):
     if value:
+        if value == 0:
+            return None
         try:
             return ticket_priority.objects.get(caldav=value)
         except ticket_priority.DoesNotExist:
@@ -46,9 +48,9 @@ def convertPrio(value):
             try:
                 return prios[0]
             except:
-                return convertPrio(0)
+                return None
     else:
-        return ticket_priority.objects.filter(caldav=0).first()
+        return None
 
 
 # user profiles
