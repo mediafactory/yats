@@ -1,3 +1,4 @@
+- move extra search in search from yatse
 - Ticketliste + edit & view
 - highlight ticket view if deadline
 - edit ticket cuts time from deadline
@@ -6,6 +7,7 @@
 - Kanban Board Settings: limit Columns, my or my and non asssigned, max days finished
 - boards für andere Spalten: z.B. Komponenten + eine mit unassigned
 - Filter über dem Board: Assigned (my, my and none, all or even user), Componenten
+- Fulltext search - maybe Haystack
 
 ---- WISHLIST
 - Vorlangen von Tickets
