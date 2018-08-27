@@ -16,6 +16,7 @@ except ImportError:
     from django.utils import simplejson as json
 
 class ticket_component(base):
+
     name = models.CharField(max_length=255)
 
     def __unicode__(self):
@@ -24,6 +25,7 @@ class ticket_component(base):
     class Meta:
         verbose_name = _('module')
         verbose_name_plural = _(u'modules')
+        ordering = ['name']
 
 def getGibthubTags():
     owner = settings.GITHUB_OWNER

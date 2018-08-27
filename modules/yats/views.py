@@ -221,7 +221,7 @@ def kanban(request):
 
     for flow in flows:
         search_params, flow.data = build_ticket_search(request, query, {}, {'state': flow.pk})
-        flow.data = flow.data.filter( Q(assigned=None) | Q(assigned=request.user) )
+        flow.data = flow.data.filter( Q(assigned=None) | Q(assigned=request.user) ).extra(select={"prio":"COALESCE(caldav, 10)"}, order_by=["prio", "-c_date"])
 
         if flow.type == 1:
             columns.insert(0, flow)

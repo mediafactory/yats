@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.forms.models import construct_instance
-from bootstrap_toolkit.widgets import BootstrapDateTimeInput
+from bootstrap_toolkit.widgets import BootstrapDateTimeInput, BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
 from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards, ticket_priority
@@ -95,6 +95,9 @@ class TicketsForm(forms.ModelForm):
         for field in self.fields:
             if type(self.fields[field]) is forms.fields.DateField:
                 self.fields[field].widget = BootstrapDateInput()
+
+            if type(self.fields[field]) is forms.fields.DateTimeField:
+                self.fields[field].widget = BootstrapDateTimeInput()
 
         # remove fields after close
         if not self.instance.pk is None and self.instance.closed and not self.view_only:

@@ -181,3 +181,7 @@
             right: auto;
         }
 }
+
+.timeline-body {
+    word-wrap: break-word;
+}
