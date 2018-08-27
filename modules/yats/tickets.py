@@ -283,9 +283,9 @@ def action(request, mode, ticket):
                     touch_ticket(request.user, ticket)
                     if request.POST['assigned']:
                         touch_ticket(newUser, ticket)
-                    else:
-                        mail_comment(request, com.pk)
-                        jabber_comment(request, com.pk)
+
+                    mail_comment(request, com.pk)
+                    jabber_comment(request, com.pk)
 
                     history_data = {
                                     'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state)},
