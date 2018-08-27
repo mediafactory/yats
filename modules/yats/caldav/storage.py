@@ -300,6 +300,8 @@ class Collection(ical.Collection):
         cal.vtodo.add('summary').value = item.caption
         cal.vtodo.add('uid').value = str(item.uuid)
         cal.vtodo.add('created').value = item.c_date
+        if item.closed:
+            cal.vtodo.add('status').value = 'COMPLETED'
         if item.priority:
             cal.vtodo.add('priority').value = str(item.priority.caldav)
         if item.description:
@@ -316,5 +318,5 @@ class Collection(ical.Collection):
             #cal.vtodo.valarm.add('trigger').value =
             #TRIGGER;VALUE=DATE-TIME:20180821T200000Z
 
-        cal.vtodo.add('x-radicale-name').value = '%s.ics' % str(item.uuid)        
+        cal.vtodo.add('x-radicale-name').value = '%s.ics' % str(item.uuid)
         return cal.serialize().decode('utf-8')
