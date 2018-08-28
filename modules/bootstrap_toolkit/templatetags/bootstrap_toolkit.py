@@ -91,8 +91,7 @@ def as_querybuilder_fieldtype(field):
     elif type(field.field) is forms.fields.DateField:
         return u'\'date\', validation: {format: \'DD.MM.YYY\'}'
     elif type(field.field) is forms.fields.DateTimeField:
-        return u'\'datetime\', validation: {format: \'DD.MM.YYYY hh:nn\'}, operators: [\'equal\', \'not_equal\', \'less\', \'less_or_equal\', \'greater\', \'greater_or_equal\', \'between\', \'not_between\', \'is_null\', \'is_not_null\']'
-        #return u'\'datetime\', plugin: \'datepicker\', plugin_config: {format: \'dd.mm.yyy hh:nn\', todayBtn: \'linked\', todayHighlight: true, autoclose: true}'
+        return u'\'datetime\', plugin: \'datetimepicker\', plugin_config: {format: \'dd.mm.yyyy hh:ii\', todayBtn: \'linked\', todayHighlight: true, autoclose: true}, validation: {format: \'DD.MM.YYYY hh:nn\'}, operators: [\'equal\', \'not_equal\', \'less\', \'less_or_equal\', \'greater\', \'greater_or_equal\', \'between\', \'not_between\', \'is_null\', \'is_not_null\']'
     elif type(field.field) is forms.fields.IntegerField:
         return u'\'integer\''
     elif type(field.field) is forms.fields.FloatField:
