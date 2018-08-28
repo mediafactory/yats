@@ -8,3 +8,5 @@ ticket = {
 }
 rpc_srv = xmlrpclib.ServerProxy('http://admin:admin@192.168.33.11:8080/rpc/', allow_none=True, use_datetime=True)
 info = rpc_srv.ticket.createSimple(ticket, True)
+
+print 'ticket created #%s' % info[0]
