@@ -527,11 +527,19 @@ def build_ticket_search_ext(request, base_query, search):
 
         elif rule['operator'] == 'equal':
             compare = '%s' % rule['field']
-            q = Q(**{compare: rule['value']})
+            if rule['type'] == 'datetime':
+                value = parser.parse(rule['value'])
+            else:
+                value = rule['value']
+            q = Q(**{compare: value})
 
         elif rule['operator'] == 'not_equal':
             compare = '%s' % rule['field']
-            q = ~Q(**{compare: rule['value']})
+            if rule['type'] == 'datetime':
+                value = parser.parse(rule['value'])
+            else:
+                value = rule['value']
+            q = ~Q(**{compare: value})
 
         elif rule['operator'] == 'begins_with':
             compare = '%s__istartswith' % rule['field']
