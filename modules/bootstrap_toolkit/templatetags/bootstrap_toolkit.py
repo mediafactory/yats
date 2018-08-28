@@ -89,9 +89,10 @@ def as_querybuilder_fieldtype(field):
         choices = ['false: \'%s\'' % _('False'), 'true: \'%s\'' % _('True')]
         return u'\'boolean\', input: \'select\', values: {%s}, operators: [\'equal\', \'not_equal\']' % ','.join(choices)
     elif type(field.field) is forms.fields.DateField:
-        return u'\'date\''
+        return u'\'date\', validation: {format: \'DD.MM.YYY\'}'
     elif type(field.field) is forms.fields.DateTimeField:
-        return u'\'datetime\''
+        return u'\'datetime\', validation: {format: \'DD.MM.YYYY hh:nn\'}, operators: [\'equal\', \'not_equal\', \'less\', \'less_or_equal\', \'greater\', \'greater_or_equal\', \'between\', \'not_between\', \'is_null\', \'is_not_null\']'
+        return u'\'datetime\', plugin: \'datetimepicker\', plugin_config: {format: \'dd.mm.yyy hh:nn\', todayBtn: \'linked\', todayHighlight: true, autoclose: true}'
     elif type(field.field) is forms.fields.IntegerField:
         return u'\'integer\''
     elif type(field.field) is forms.fields.FloatField:

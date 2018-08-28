@@ -24,6 +24,22 @@
   $('#builder').queryBuilder({
     filters: [
       {% for field in form %}{% if not forloop.first %},{% endif %}{id:'{{ field.name }}', label:'{{ field.label }}', type: {{ field|as_querybuilder_fieldtype|safe }}}{% endfor %}
-    ]
+    ],
+    plugins: {
+      //'datepicker': null,
+      //'datetimepicker': null,
+    }
   });
+
+  // Fix for Bootstrap Datepicker
+  $('#builder-widgets').on('afterUpdateRuleValue.queryBuilder', function(e, rule) {
+    if (rule.filter.plugin === 'datepicker') {
+      rule.$el.find('.rule-value-container input').datepicker('update');
+    }
+    if (rule.filter.plugin === 'datetimepicker') {
+      rule.$el.find('.rule-value-container input').datetimepicker('update');
+    }
+
+  });
+
 </script>

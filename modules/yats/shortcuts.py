@@ -564,6 +564,32 @@ def build_ticket_search_ext(request, base_query, search):
             compare = '%s__exact' % rule['field']
             q = ~Q(**{compare: ''})
 
+        elif rule['operator'] == 'less_or_equal':
+            compare = '%s__lte' % rule['field']
+            q = Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'less':
+            compare = '%s__lt' % rule['field']
+            q = Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'greater_or_equal':
+            compare = '%s__gte' % rule['field']
+            q = Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'greater':
+            compare = '%s__gt' % rule['field']
+            q = Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'between':
+            start = '%s__gte' % rule['field']
+            end = '%s__lte' % rule['field']
+            q = Q(**{start: rule['value'][0], end: rule['value'][1]})
+
+        elif rule['operator'] == 'not_between':
+            start = '%s__gte' % rule['field']
+            end = '%s__lte' % rule['field']
+            q = ~Q(**{start: rule['value'][0], end: rule['value'][1]})
+
         if Qr:
             if condition == 'AND':
                 Qr = Qr & q
