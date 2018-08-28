@@ -417,6 +417,7 @@ def action(request, mode, ticket):
                 add_history(request, tic, 5, request.FILES['file'].name)
 
                 mail_file(request, f.pk)
+                jabber_file(request, f.pk)
 
                 dest = settings.FILE_UPLOAD_PATH
                 if not os.path.exists(dest):
@@ -443,6 +444,92 @@ def action(request, mode, ticket):
                 if request.GET.get('Ajax') == '1':
                     return HttpResponse('OK')
                 return HttpResponseRedirect('/tickets/view/%s/' % ticket)
+        elif request.method == 'PUT':
+            # /tickets/upload/XXX/?filename=test1.txt
+            upload_handlers = request.upload_handlers
+            content_type = str(request.META.get('CONTENT_TYPE', ""))
+            content_length = int(request.META.get('CONTENT_LENGTH', 0))
+
+            if content_type == "":
+                return HttpResponse(status=400)
+            if content_length == 0:
+                # both returned 0
+                return HttpResponse(status=400)
+
+            content_type = content_type.split(";")[0].strip()
+            try:
+                charset = content_type.split(";")[1].strip()
+            except IndexError:
+                charset = ""
+
+            # we can get the file name via the path, we don't actually
+            file_name = request.GET['filename']
+            field_name = file_name
+
+            counters = [0]*len(upload_handlers)
+
+            for handler in upload_handlers:
+                result = handler.handle_raw_input("", request.META, content_length, "", "")
+
+            from django.core.files.uploadhandler import StopFutureHandlers
+            for handler in upload_handlers:
+                try:
+                    handler.new_file(field_name, file_name,
+                                     content_type, content_length, charset)
+                except StopFutureHandlers:
+                    break
+
+            for i, handler in enumerate(upload_handlers):
+                while True:
+                    chunk = request.read(handler.chunk_size)
+                    if chunk:
+
+                        handler.receive_data_chunk(chunk, counters[i])
+                        counters[i] += len(chunk)
+                    else:
+                        # no chunk
+                        break
+
+            for i, handler in enumerate(upload_handlers):
+                file_obj = handler.file_complete(counters[i])
+                if file_obj:
+                    f = tickets_files()
+                    f.name = file_obj.name
+                    f.size = file_obj.size
+                    #f.checksum = request.FILES['file'].hash
+                    f.content_type = content_type
+                    f.ticket_id = ticket
+                    f.public = True
+                    f.save(user=request.user)
+
+                    touch_ticket(request.user, ticket)
+
+                    add_history(request, tic, 5, file_obj.name)
+
+                    mail_file(request, f.pk)
+                    jabber_file(request, f.pk)
+
+                    dest = settings.FILE_UPLOAD_PATH
+                    if not os.path.exists(dest):
+                        os.makedirs(dest)
+
+                    with open('%s%s.dat' % (dest, f.id), 'wb+') as destination:
+                        for chunk in file_obj.chunks():
+                            destination.write(chunk)
+
+                    if 'pdf' in f.content_type:
+                        convertPDFtoImg('%s/%s.dat' % (dest, f.id), '%s/%s.preview' % (dest, f.id))
+                    else:
+                        if 'image' not in f.content_type:
+                            tmp = convertOfficeTpPDF('%s/%s.dat' % (dest, f.id))
+                            convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
+                            os.unlink(tmp)
+                    return HttpResponse(status=201)
+
+                else:
+                    # some indication this didn't work?
+                    return HttpResponse(status=500)
+
         else:
             form = UploadFileForm()
 

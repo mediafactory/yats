@@ -8,6 +8,7 @@
 - boards für andere Spalten: z.B. Komponenten + eine mit unassigned
 - Filter über dem Board: Assigned (my, my and none, all or even user), Componenten
 - Fulltext search - maybe Haystack
+- checksum & virusscan in PUT
 
 ---- WISHLIST
 - Vorlangen von Tickets
