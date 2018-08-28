@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block extra_head %}
+   {{ form.media }}
     <script src="//cdn.jsdelivr.net/npm/jquery-extendext@0.1.2/jQuery.extendext.min.js"></script>
     <link href="{{ STATIC_URL }}querybuilder/css/query-builder.default.css" type="text/css" rel="stylesheet" media="all">
     <script src="{{ STATIC_URL }}querybuilder/js/query-builder.standalone.js"></script>

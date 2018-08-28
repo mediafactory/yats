@@ -110,8 +110,8 @@ def as_querybuilder_fieldtype(field):
 
 @register.filter
 def as_querybuilder(form):
-    form.media._css['all'] = settings.STATIC_URL + 'querybuilder/css/query-builder.default.css'
-    form.media._js.append(settings.STATIC_URL + 'querybuilder/js/query-builder.js')
+    #form.media._css['all'] = settings.STATIC_URL + 'querybuilder/css/query-builder.default.css'
+    #form.media._js.append(settings.STATIC_URL + 'querybuilder/js/query-builder.js')
     return get_template("bootstrap_toolkit/querybuilder.html").render(
         {
             'form': form,
