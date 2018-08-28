@@ -520,13 +520,33 @@ def action(request, mode, ticket):
                     if 'pdf' in f.content_type:
                         convertPDFtoImg('%s/%s.dat' % (dest, f.id), '%s/%s.preview' % (dest, f.id))
                     else:
-                        if 'image' not in f.content_type:
+                        if 'image' not in f.content_type and 'audio' not in f.content_type:
                             try:
                                 tmp = convertOfficeTpPDF('%s/%s.dat' % (dest, f.id))
                                 convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
                                 os.unlink(tmp)
                             except:
                                 pass
+
+                        if 'audio' in f.content_type:
+                            try:
+                                # https://realpython.com/python-speech-recognition/
+                                import speech_recognition as sr
+                                AUDIO_FILE = '%s%s.dat' % (dest, f.id)
+                                r = sr.Recognizer()
+                                with sr.AudioFile(AUDIO_FILE) as source:
+                                    audio = r.record(source)  # read the entire audio file
+
+                                text = r.recognize_google(audio, language='de-DE')
+                                if text:
+                                    com = tickets_comments()
+                                    com.comment = text
+                                    com.ticket_id = ticket
+                                    com.action = 6
+                                    com.save(user=request.user)
+                            except:
+                                pass
+
                     return HttpResponse(status=201)
 
                 else:
