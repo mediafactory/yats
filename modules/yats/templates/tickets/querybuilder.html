@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block extra_head %}
-    <script src="https://cdn.jsdelivr.net/npm/jquery-extendext@0.1.2/jQuery.extendext.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/jquery-extendext@0.1.2/jQuery.extendext.min.js"></script>
     <link href="{{ STATIC_URL }}querybuilder/css/query-builder.default.css" type="text/css" rel="stylesheet" media="all">
     <script src="{{ STATIC_URL }}querybuilder/js/query-builder.standalone.js"></script>
     <script src="{{ STATIC_URL }}querybuilder/i18n/query-builder.de.js"></script>
@@ -19,6 +19,7 @@
 {% block content %}
 
     <h2>{% trans "search for tickets" %}</h2>
+    <p style="margin-top: -15px;"><small class="text-muted"><a href="/tickets/search/">switch to simple search</a></small></p>
 
     <p>&nbsp;</p>
 

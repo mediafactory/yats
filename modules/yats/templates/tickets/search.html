@@ -13,7 +13,8 @@
 {% block content %}
 
     <h2>{% trans "search for tickets" %}</h2>
-    
+    <p style="margin-top: -15px;"><small class="text-muted"><a href="/tickets/search/extended/">switch to extended search</a></small></p>
+
     <p>&nbsp;</p>
 
     <form class="form-{{ layout }}" action="{{ request.path }}" method="post">
@@ -26,6 +27,6 @@
         {% else %}
             <input type="submit" value="{% trans "search" %}" class="btn btn-primary">
         {% endif %}
-    </form>        
+    </form>
 
 {% endblock %}

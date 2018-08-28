@@ -687,6 +687,13 @@ def search(request):
     return render(request, 'tickets/search.html', {'layout': 'horizontal', 'form': form})
 
 @login_required
+def search_ex(request):
+    searchable_fields = settings.TICKET_SEARCH_FIELDS
+
+    form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
+    return render(request, 'tickets/querybuilder.html', {'form': form})
+
+@login_required
 def reports(request):
     if 'report' in request.GET:
         rep = tickets_reports.objects.get(pk=request.GET['report'])
