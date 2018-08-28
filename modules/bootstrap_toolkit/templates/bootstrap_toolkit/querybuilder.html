@@ -25,10 +25,7 @@
     filters: [
       {% for field in form %}{% if not forloop.first %},{% endif %}{id:'{{ field.name }}', label:'{{ field.label }}', type: {{ field|as_querybuilder_fieldtype|safe }}}{% endfor %}
     ],
-    plugins: {
-      //'datepicker': null,
-      //'datetimepicker': null,
-    }
+    plugins: ['bt-tooltip-errors']
   });
 
   // Fix for Bootstrap Datepicker

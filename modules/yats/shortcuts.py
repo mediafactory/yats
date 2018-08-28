@@ -12,6 +12,7 @@ import re
 import os
 import subprocess
 from pyxmpp2.simple import send_message
+from dateutil import parser
 
 try:
     import json
@@ -566,29 +567,57 @@ def build_ticket_search_ext(request, base_query, search):
 
         elif rule['operator'] == 'less_or_equal':
             compare = '%s__lte' % rule['field']
-            q = Q(**{compare: rule['value']})
+            if rule['type'] == 'datetime':
+                value = parser.parse(rule['value'])
+            else:
+                value = rule['value']
+            q = Q(**{compare: value})
 
         elif rule['operator'] == 'less':
             compare = '%s__lt' % rule['field']
-            q = Q(**{compare: rule['value']})
+            if rule['type'] == 'datetime':
+                value = parser.parse(rule['value'])
+            else:
+                value = rule['value']
+            q = Q(**{compare: value})
 
         elif rule['operator'] == 'greater_or_equal':
             compare = '%s__gte' % rule['field']
-            q = Q(**{compare: rule['value']})
+            if rule['type'] == 'datetime':
+                value = parser.parse(rule['value'])
+            else:
+                value = rule['value']
+            q = Q(**{compare: value})
 
         elif rule['operator'] == 'greater':
             compare = '%s__gt' % rule['field']
-            q = Q(**{compare: rule['value']})
+            if rule['type'] == 'datetime':
+                value = parser.parse(rule['value'])
+            else:
+                value = rule['value']
+            q = Q(**{compare: value})
 
         elif rule['operator'] == 'between':
             start = '%s__gte' % rule['field']
             end = '%s__lte' % rule['field']
-            q = Q(**{start: rule['value'][0], end: rule['value'][1]})
+            if rule['type'] == 'datetime':
+                start_val = parser.parse(rule['value'][0])
+                end_val = parser.parse(rule['value'][1])
+            else:
+                start_val = rule['value'][0]
+                end_val = rule['value'][1]
+            q = Q(**{start: start_val, end: end_val})
 
         elif rule['operator'] == 'not_between':
             start = '%s__gte' % rule['field']
             end = '%s__lte' % rule['field']
-            q = ~Q(**{start: rule['value'][0], end: rule['value'][1]})
+            if rule['type'] == 'datetime':
+                start_val = parser.parse(rule['value'][0])
+                end_val = parser.parse(rule['value'][1])
+            else:
+                start_val = rule['value'][0]
+                end_val = rule['value'][1]
+            q = ~Q(**{start: start_val, end: end_val})
 
         if Qr:
             if condition == 'AND':
