@@ -451,10 +451,10 @@ def action(request, mode, ticket):
             content_length = int(request.META.get('CONTENT_LENGTH', 0))
 
             if content_type == "":
-                return HttpResponse(status=400)
+                return HttpResponse('missing ContentType', status=400)
             if content_length == 0:
                 # both returned 0
-                return HttpResponse(status=400)
+                return HttpResponse('missing ContentLength', status=400)
 
             content_type = content_type.split(";")[0].strip()
             try:
@@ -521,9 +521,12 @@ def action(request, mode, ticket):
                         convertPDFtoImg('%s/%s.dat' % (dest, f.id), '%s/%s.preview' % (dest, f.id))
                     else:
                         if 'image' not in f.content_type:
-                            tmp = convertOfficeTpPDF('%s/%s.dat' % (dest, f.id))
-                            convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
-                            os.unlink(tmp)
+                            try:
+                                tmp = convertOfficeTpPDF('%s/%s.dat' % (dest, f.id))
+                                convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
+                                os.unlink(tmp)
+                            except:
+                                pass
                     return HttpResponse(status=201)
 
                 else:
