@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, del_breadcrumbs, convertPDFtoImg, convertOfficeTpPDF
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, build_ticket_search_ext, del_breadcrumbs, convertPDFtoImg, convertOfficeTpPDF
 import os
 import io
 import graph
@@ -689,6 +689,17 @@ def search(request):
 @login_required
 def search_ex(request):
     searchable_fields = settings.TICKET_SEARCH_FIELDS
+
+    if request.method == 'POST':
+        search = json.loads(request.POST['query'])
+
+        tickets = get_ticket_model().objects.select_related('type').all()
+        search, query = build_ticket_search_ext(request, tickets, search)
+
+        query.count()
+        
+        from django.db import connection
+        return render(request, 'tickets/debug.html', {'query': json.dumps(search), 'queries': connection.queries})
 
     form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
     return render(request, 'tickets/querybuilder.html', {'form': form})

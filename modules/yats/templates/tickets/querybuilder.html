@@ -26,15 +26,24 @@
     <div class="container">
 
     {{ form|as_querybuilder }}
-    <button class="btn btn-primary parse-json" id="btn-get">Get rules</button>
+
+      <p class="form-actions">
+        <button class="btn btn-primary parse-json" id="btn-get">{% trans "search" %}</button>
+      </p>
     </div>
+
+    <form method="post" name="data">
+      <input type="hidden" id="query" name="query" />
+    </form>
 
     <script>
       $('#btn-get').on('click', function() {
       var result = $('#builder').queryBuilder('getRules');
 
       if (!$.isEmptyObject(result)) {
-        alert(JSON.stringify(result, null, 2));
+        $('#query').val(JSON.stringify(result));
+        document.data.submit();
+        //alert(JSON.stringify(result, null, 2));
       }
     });
     </script>

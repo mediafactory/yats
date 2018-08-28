@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.utils.translation import ugettext as _
+from django.db.models import Q
 
 from PIL import Image  # ImageOps
 import sys
@@ -474,6 +475,106 @@ def build_ticket_search(request, base_query, search_params, params):
 
     base_query = base_query.filter(**search_params)
     return (search_params, base_query)
+
+def build_ticket_search_ext(request, base_query, search):
+    """
+    {
+        "rules": [{
+            "value": null,
+            "field": "assigned",
+            "operator": "is_null",
+            "input": "select",
+            "type": "string",
+            "id": "assigned"
+        }, {
+            "value": "1",
+            "field": "assigned",
+            "operator": "equal",
+            "input": "select",
+            "type": "string",
+            "id": "assigned"
+        }],
+        "valid": true,
+        "condition": "AND"
+    }
+    """
+
+    if not request.user.is_staff:
+        base_query = base_query.filter(customer=request.organisation)
+
+    if not request.user.is_staff:
+        used_fields = []
+        for ele in settings.TICKET_SEARCH_FIELDS:
+            if ele not in settings.TICKET_NON_PUBLIC_FIELDS:
+                used_fields.append(ele)
+    else:
+        used_fields = settings.TICKET_SEARCH_FIELDS
+
+    rules = search['rules']
+    condition = search['condition']
+    Qr = None
+
+    for rule in rules:
+        q = None
+        if rule['operator'] == 'is_null':
+            compare = '%s__isnull' % rule['field']
+            q = Q(**{compare: True})
+
+        elif rule['operator'] == 'is_not_null':
+            compare = '%s__isnull' % rule['field']
+            q = Q(**{compare: False})
+
+        elif rule['operator'] == 'equal':
+            compare = '%s' % rule['field']
+            q = Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'not_equal':
+            compare = '%s' % rule['field']
+            q = ~Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'begins_with':
+            compare = '%s__istartswith' % rule['field']
+            q = Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'not_begins_with':
+            compare = '%s__istartswith' % rule['field']
+            q = ~Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'contains':
+            compare = '%s__icontains' % rule['field']
+            q = Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'not_contains':
+            compare = '%s__icontains' % rule['field']
+            q = ~Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'ends_with':
+            compare = '%s__iendswith' % rule['field']
+            q = Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'not_ends_with':
+            compare = '%s__iendswith' % rule['field']
+            q = ~Q(**{compare: rule['value']})
+
+        elif rule['operator'] == 'is_empty':
+            compare = '%s__exact' % rule['field']
+            q = Q(**{compare: ''})
+
+        elif rule['operator'] == 'is_not_empty':
+            compare = '%s__exact' % rule['field']
+            q = ~Q(**{compare: ''})
+
+        if Qr:
+            if condition == 'AND':
+                Qr = Qr & q
+            else:
+                Qr = Qr | q
+        else:
+            Qr = q
+
+    base_query = base_query.filter(Qr)
+    return (search, base_query)
+
 
 def convertPDFtoImg(pdf, dest=None):
     try:
