@@ -1,0 +1,29 @@
+{% load bootstrap_toolkit %}<div id="builder"></div>
+
+<script>
+  var rules_basic = {
+    condition: 'AND',
+    rules: [{
+      id: 'price',
+      operator: 'less',
+      value: 10.25
+    }, {
+      condition: 'OR',
+      rules: [{
+        id: 'category',
+        operator: 'equal',
+        value: 2
+      }, {
+        id: 'category',
+        operator: 'equal',
+        value: 1
+      }]
+    }]
+  };
+
+  $('#builder').queryBuilder({
+    filters: [
+      {% for field in form %}{% if not forloop.first %},{% endif %}{id:'{{ field.name }}', label:'{{ field.label }}', type: {{ field|as_querybuilder_fieldtype|safe }}}{% endfor %}
+    ]
+  });
+</script>

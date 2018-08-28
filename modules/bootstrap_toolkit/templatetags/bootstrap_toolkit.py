@@ -11,6 +11,7 @@ from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
+from django import forms
 
 
 BOOTSTRAP_BASE_URL = getattr(settings, 'BOOTSTRAP_BASE_URL',
@@ -79,6 +80,40 @@ def bootstrap_javascript_tag(name=None):
     if url:
         return mark_safe(u'<script src="%s"></script>' % url)
     return u''
+
+@register.filter(is_safe=True)
+def as_querybuilder_fieldtype(field):
+    # string, integer, double, date, time, datetime and boolean
+    if type(field.field) is forms.fields.BooleanField or type(field.field) is forms.fields.NullBooleanField:
+        return u'\'boolean\''
+    elif type(field.field) is forms.fields.DateField:
+        return u'\'date\''
+    elif type(field.field) is forms.fields.DateTimeField:
+        return u'\'datetime\''
+    elif type(field.field) is forms.fields.IntegerField:
+        return u'\'integer\''
+    elif type(field.field) is forms.fields.FloatField:
+        return u'\'double\''
+    elif type(field.field) is forms.fields.CharField:
+        return u'\'string\''
+    elif type(field.field) is forms.models.ModelChoiceField:
+        choices = []
+        for id, name in field.field.choices:
+            if id:
+                choices.append( '%s: \'%s\'' % (id, name) )
+        return u'\'string\', input: \'select\', values: {%s}, operators: [\'equal\', \'not_equal\', \'is_null\', \'is_not_null\']' % ','.join(choices)
+    else:
+        return u'\'%s\'' % field.field.__class__
+
+@register.filter
+def as_querybuilder(form):
+    form.media._css['all'] = settings.STATIC_URL + 'querybuilder/css/query-builder.default.css'
+    form.media._js.append(settings.STATIC_URL + 'querybuilder/js/query-builder.js')
+    return get_template("bootstrap_toolkit/querybuilder.html").render(
+        {
+            'form': form,
+        }
+    )
 
 
 @register.filter
