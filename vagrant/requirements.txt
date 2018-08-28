@@ -10,3 +10,5 @@ defusedxml
 pyclamd
 dnspython
 vobject
+monotonic
+SpeechRecognition
