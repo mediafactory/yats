@@ -12,13 +12,14 @@ import json
 def convertOldStyleSearch(apps, schema_editor):
     boards = apps.get_model('yats', 'boards')
     for board in boards.objects.all():
-        columns = json.loads(board.columns)
-        for column in columns:
-            search = column['query']
-            column['query'] = convert_sarch(clean_search_values(search))
+        if board.columns:
+            columns = json.loads(board.columns)
+            for column in columns:
+                search = column['query']
+                column['query'] = convert_sarch(clean_search_values(search))
 
-        board.columns = json.dumps(columns, cls=DjangoJSONEncoder)
-        board.save()
+            board.columns = json.dumps(columns, cls=DjangoJSONEncoder)
+            board.save()
 
 class Migration(migrations.Migration):
 
