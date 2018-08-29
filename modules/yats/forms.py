@@ -212,6 +212,7 @@ class SearchForm(forms.ModelForm):
 
             self.fields[field].required = False
 
+        """
         # add fulltext
         field = forms.CharField(required=False, label=_('full text search'))
         setattr(self, 'fulltext', field)
@@ -221,6 +222,7 @@ class SearchForm(forms.ModelForm):
         for field in self.fields:
             self.field_order.append(field)
         self.field_order.pop()
+        """
 
         # unset initial
         for field in self.fields:
