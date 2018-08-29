@@ -13,12 +13,12 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, build_ticket_search_ext, del_breadcrumbs, convertPDFtoImg, convertOfficeTpPDF
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF
 import os
 import io
 import graph
 import re
-import urllib
+import copy
 try:
     import json
 except ImportError:
@@ -624,7 +624,7 @@ def action(request, mode, ticket):
 
 @login_required
 def table(request, **kwargs):
-    search_params = {}
+
     tic = get_ticket_model().objects.select_related('type').all()
 
     if 'search' in kwargs:
@@ -633,9 +633,9 @@ def table(request, **kwargs):
 
     else:
         tic = tic.filter(closed=False)
+        search_params = convert_sarch({'closed':False})
         is_search = False
 
-    pretty = prettyValues(search_params)
     list_caption = kwargs.get('list_caption')
     if 'report' in request.GET:
         list_caption = tickets_reports.objects.get(pk=request.GET['report']).name
@@ -654,7 +654,8 @@ def table(request, **kwargs):
     board_form = AddToBordForm()
     board_form.fields['board'].queryset = board_form.fields['board'].queryset.filter(c_user=request.user)
     from django.db import connection
-    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption, 'board_form': board_form, 'queries': connection.queries, 'query': json.dumps(search_params)})
+    pretty_params =prettyValues(copy.deepcopy(search_params))
+    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'search_params': pretty_params, 'list_caption': list_caption, 'board_form': board_form, 'queries': connection.queries, 'query': json.dumps(search_params)})
 
 @login_required
 def search(request):

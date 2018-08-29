@@ -48,8 +48,9 @@
     {% if lines.paginator.count == 0 %}
     {% trans "no tickets found!" %}
     {% endif %}
+    <p><small class="text-muted">{% trans "You searched for:" %} {% for rule in search_params.rules %}{{ rule.field|prettify }} {{ rule.operator }} {{ rule.value|default:"" }}{% if not forloop.last %} {{ search_params.condition }} {% endif %}{% endfor %}
 
-    <p><small class="text-muted">{% trans "You searched for:" %} {% for key, value in pretty.iteritems %}
+      {% for key, value in pretty.iteritems %}
         {{ key|prettify }}: {{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}</small></p>
 
     {% if is_search %}

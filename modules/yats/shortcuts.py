@@ -419,21 +419,24 @@ def getTicketField(field):
         return None
 
 def prettyValues(data):
-    from django.contrib.auth.models import User
-
-    result = {}
-    for ele in data:
-        ticket_field = getTicketField(ele)
-        if type(ticket_field).__name__ == 'ForeignKey':
-            if ele == 'c_user':
-                result['creator'] = User.objects.get(pk=data[ele])
-            elif ele == 'assigned':
-                result['assigned'] = User.objects.get(pk=data[ele])
+    def prettyData(rules):
+        for rule in rules:
+            if 'rules' in rule:
+                rule['rules'] = prettyData(rule['rules'])
             else:
-                result[ele] = getModelValue(ticket_field.rel.to.__module__, ticket_field.rel.to.__name__, data[ele])
-        else:
-            result[ele] = data[ele]
-    return result
+                ticket_field = getTicketField(rule['field'])
+                if type(ticket_field).__name__ == 'ForeignKey':
+                    if rule['field'] in ['c_user', 'assigned']:
+                        if rule['value']:
+                            rule['value'] = User.objects.get(pk=rule['value'])
+                    else:
+                        rule['value'] = getModelValue(ticket_field.rel.to.__module__, ticket_field.rel.to.__name__, rule['value'])
+
+        return rules
+
+    from django.contrib.auth.models import User
+    data['rules'] = prettyData(data['rules'])
+    return data
 
 def add_breadcrumbs(request, pk, typ):
     breadcrumbs = request.session.get('breadcrumbs', [])
@@ -558,7 +561,11 @@ def build_ticket_search_ext(request, base_query, search):
     condition = search['condition']
     Qr = None
 
+    print search
+
     for rule in rules:
+        if 'rules' in rules:
+            condition = search['condition']
         q = None
         if rule['operator'] == 'is_null':
             compare = '%s__isnull' % rule['field']
