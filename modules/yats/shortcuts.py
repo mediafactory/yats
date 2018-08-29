@@ -561,8 +561,6 @@ def build_ticket_search_ext(request, base_query, search):
     condition = search['condition']
     Qr = None
 
-    print search
-
     for rule in rules:
         if 'rules' in rules:
             condition = search['condition']
