@@ -326,6 +326,10 @@ def mail_file(request, file_id):
         messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
 def clean_search_values(search):
+    # clean only old
+    if 'valid' in search:
+        return search
+
     result = {}
     for ele in search:
         if type(search[ele]) not in [bool, int, str, unicode, long, None, datetime.date]:
