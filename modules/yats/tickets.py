@@ -682,6 +682,11 @@ def search(request):
     if 'last_search' in request.session and 'new' not in request.GET:
         return table(request, search=request.session['last_search'], list_caption=request.session.get('last_search_caption', ''))
 
+    return HttpResponseRedirect('/tickets/search/extended/')
+
+@login_required
+def search_simple(request):
+    searchable_fields = settings.TICKET_SEARCH_FIELDS
     form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
 
     return render(request, 'tickets/search.html', {'layout': 'horizontal', 'form': form})

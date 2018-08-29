@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import  url
 from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout, kanban, xptest
-from yats.tickets import new, action, table, search, search_ex, reports, workflow, simple, create, log
+from yats.tickets import new, action, table, search, search_ex, search_simple, reports, workflow, simple, create, log
 from rpc4django.views import serve_rpc_request
 
 urlpatterns = [
@@ -33,6 +33,10 @@ urlpatterns = [
    url(r'^tickets/search/$',
         view=search,
         name='search'),
+
+   url(r'^tickets/search/simple/$',
+        view=search_simple,
+        name='search_simple'),
 
    url(r'^tickets/search/extended/$',
         view=search_ex,
