@@ -624,7 +624,78 @@ def action(request, mode, ticket):
 
 @login_required
 def table(request, **kwargs):
+    def pretty_condition(condition):
+        if condition == 'AND':
+            return _('AND')
+        else:
+            return _('OR')
 
+    def pretty_operator(operator):
+        if operator == 'is_null':
+            return _('is null')
+        elif operator == 'is_not_null':
+            return _('is not null')
+        elif operator == 'equal':
+            return _('equal')
+        elif operator == 'not_equal':
+            return _('not equal')
+        elif operator == 'begins_with':
+            return _('begins with')
+        elif operator == 'not_begins_with':
+            return _('not begins with')
+        elif operator == 'contains':
+            return _('contains')
+        elif operator == 'not_contains':
+            return _('not contains')
+        elif operator == 'ends_with':
+            return _('ends with')
+        elif operator == 'not_ends_with':
+            return _('not ends with')
+        elif operator == 'is_empty':
+            return _('is empty')
+        elif operator == 'is_not_empty':
+            return _('is not empty')
+        elif operator == 'less_or_equal':
+            return _('less or equal')
+        elif operator == 'less':
+            return _('less')
+        elif operator == 'greater_or_equal':
+            return _('greater or equal')
+        elif operator == 'greater':
+            return _('greater')
+        elif operator == 'between':
+            return _('between')
+        elif operator == 'not_between':
+            return _('not between')
+
+        return operator
+
+    def pretty_value(value):
+        if value is None:
+            return ''
+        if isinstance(value, (bool)):
+            if value:
+                return _('yes')
+            else:
+                return _('no')
+        return unicode(value)
+
+    def formatQuery(rules, condition):
+        result = '('
+        for rule in rules:
+            if 'rules' in rule:
+                result = ('%s %s %s' % (result, pretty_condition(condition), formatQuery(rule['rules'], rule['condition']))).strip()
+                continue
+
+            param = ('%s %s %s' % (pretty_name(rule['field']), pretty_operator(rule['operator']), pretty_value(rule['value']))).strip()
+            if result != '(':
+                result = '%s %s %s' % (result, pretty_condition(condition), param)
+            else:
+                result = ('%s%s' % (result, param)).strip()
+
+        return '%s)' % result
+
+    from django.forms.forms import pretty_name
     tic = get_ticket_model().objects.select_related('type').all()
 
     if 'search' in kwargs:
@@ -654,8 +725,9 @@ def table(request, **kwargs):
     board_form = AddToBordForm()
     board_form.fields['board'].queryset = board_form.fields['board'].queryset.filter(c_user=request.user)
     from django.db import connection
-    pretty_params =prettyValues(copy.deepcopy(search_params))
-    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'search_params': pretty_params, 'list_caption': list_caption, 'board_form': board_form, 'queries': connection.queries, 'query': json.dumps(search_params)})
+    pretty_params = prettyValues(copy.deepcopy(search_params))
+    pretty_query = formatQuery(pretty_params['rules'], pretty_params['condition'])
+    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'search_params': pretty_params, 'list_caption': list_caption, 'board_form': board_form, 'queries': connection.queries, 'query': json.dumps(search_params), 'sql': tic.query, 'pretty_query': pretty_query})
 
 @login_required
 def search(request):

@@ -546,6 +546,142 @@ def build_ticket_search_ext(request, base_query, search):
     }
     """
 
+    def createQuery(rules, condition):
+        Qr = None
+
+        for rule in rules:
+            if 'rules' in rule:
+                if Qr:
+                    if condition == 'AND':
+                        Qr = Qr & (createQuery(rule['rules'], rule['condition']))
+                    else:
+                        Qr = Qr | (createQuery(rule['rules'], rule['condition']))
+                else:
+                    Qr = (createQuery(rule['rules'], rule['condition']))
+
+                continue
+
+            q = None
+            if rule['operator'] == 'is_null':
+                compare = '%s__isnull' % rule['field']
+                q = Q(**{compare: True})
+
+            elif rule['operator'] == 'is_not_null':
+                compare = '%s__isnull' % rule['field']
+                q = Q(**{compare: False})
+
+            elif rule['operator'] == 'equal':
+                compare = '%s' % rule['field']
+                if rule['type'] == 'datetime':
+                    value = parser.parse(rule['value'])
+                else:
+                    value = rule['value']
+                q = Q(**{compare: value})
+
+            elif rule['operator'] == 'not_equal':
+                compare = '%s' % rule['field']
+                if rule['type'] == 'datetime':
+                    value = parser.parse(rule['value'])
+                else:
+                    value = rule['value']
+                q = ~Q(**{compare: value})
+
+            elif rule['operator'] == 'begins_with':
+                compare = '%s__istartswith' % rule['field']
+                q = Q(**{compare: rule['value']})
+
+            elif rule['operator'] == 'not_begins_with':
+                compare = '%s__istartswith' % rule['field']
+                q = ~Q(**{compare: rule['value']})
+
+            elif rule['operator'] == 'contains':
+                compare = '%s__icontains' % rule['field']
+                q = Q(**{compare: rule['value']})
+
+            elif rule['operator'] == 'not_contains':
+                compare = '%s__icontains' % rule['field']
+                q = ~Q(**{compare: rule['value']})
+
+            elif rule['operator'] == 'ends_with':
+                compare = '%s__iendswith' % rule['field']
+                q = Q(**{compare: rule['value']})
+
+            elif rule['operator'] == 'not_ends_with':
+                compare = '%s__iendswith' % rule['field']
+                q = ~Q(**{compare: rule['value']})
+
+            elif rule['operator'] == 'is_empty':
+                compare = '%s__exact' % rule['field']
+                q = Q(**{compare: ''})
+
+            elif rule['operator'] == 'is_not_empty':
+                compare = '%s__exact' % rule['field']
+                q = ~Q(**{compare: ''})
+
+            elif rule['operator'] == 'less_or_equal':
+                compare = '%s__lte' % rule['field']
+                if rule['type'] == 'datetime':
+                    value = parser.parse(rule['value'])
+                else:
+                    value = rule['value']
+                q = Q(**{compare: value})
+
+            elif rule['operator'] == 'less':
+                compare = '%s__lt' % rule['field']
+                if rule['type'] == 'datetime':
+                    value = parser.parse(rule['value'])
+                else:
+                    value = rule['value']
+                q = Q(**{compare: value})
+
+            elif rule['operator'] == 'greater_or_equal':
+                compare = '%s__gte' % rule['field']
+                if rule['type'] == 'datetime':
+                    value = parser.parse(rule['value'])
+                else:
+                    value = rule['value']
+                q = Q(**{compare: value})
+
+            elif rule['operator'] == 'greater':
+                compare = '%s__gt' % rule['field']
+                if rule['type'] == 'datetime':
+                    value = parser.parse(rule['value'])
+                else:
+                    value = rule['value']
+                q = Q(**{compare: value})
+
+            elif rule['operator'] == 'between':
+                start = '%s__gte' % rule['field']
+                end = '%s__lte' % rule['field']
+                if rule['type'] == 'datetime':
+                    start_val = parser.parse(rule['value'][0])
+                    end_val = parser.parse(rule['value'][1])
+                else:
+                    start_val = rule['value'][0]
+                    end_val = rule['value'][1]
+                q = Q(**{start: start_val, end: end_val})
+
+            elif rule['operator'] == 'not_between':
+                start = '%s__gte' % rule['field']
+                end = '%s__lte' % rule['field']
+                if rule['type'] == 'datetime':
+                    start_val = parser.parse(rule['value'][0])
+                    end_val = parser.parse(rule['value'][1])
+                else:
+                    start_val = rule['value'][0]
+                    end_val = rule['value'][1]
+                q = ~Q(**{start: start_val, end: end_val})
+
+            if Qr:
+                if condition == 'AND':
+                    Qr = Qr & q
+                else:
+                    Qr = Qr | q
+            else:
+                Qr = q
+
+        return Qr
+
     if not request.user.is_staff:
         base_query = base_query.filter(customer=request.organisation)
 
@@ -557,134 +693,10 @@ def build_ticket_search_ext(request, base_query, search):
     else:
         used_fields = settings.TICKET_SEARCH_FIELDS
 
-    rules = search['rules']
-    condition = search['condition']
-    Qr = None
+    Query = createQuery(search['rules'], search['condition'])
 
-    for rule in rules:
-        if 'rules' in rules:
-            condition = search['condition']
-        q = None
-        if rule['operator'] == 'is_null':
-            compare = '%s__isnull' % rule['field']
-            q = Q(**{compare: True})
-
-        elif rule['operator'] == 'is_not_null':
-            compare = '%s__isnull' % rule['field']
-            q = Q(**{compare: False})
-
-        elif rule['operator'] == 'equal':
-            compare = '%s' % rule['field']
-            if rule['type'] == 'datetime':
-                value = parser.parse(rule['value'])
-            else:
-                value = rule['value']
-            q = Q(**{compare: value})
-
-        elif rule['operator'] == 'not_equal':
-            compare = '%s' % rule['field']
-            if rule['type'] == 'datetime':
-                value = parser.parse(rule['value'])
-            else:
-                value = rule['value']
-            q = ~Q(**{compare: value})
-
-        elif rule['operator'] == 'begins_with':
-            compare = '%s__istartswith' % rule['field']
-            q = Q(**{compare: rule['value']})
-
-        elif rule['operator'] == 'not_begins_with':
-            compare = '%s__istartswith' % rule['field']
-            q = ~Q(**{compare: rule['value']})
-
-        elif rule['operator'] == 'contains':
-            compare = '%s__icontains' % rule['field']
-            q = Q(**{compare: rule['value']})
-
-        elif rule['operator'] == 'not_contains':
-            compare = '%s__icontains' % rule['field']
-            q = ~Q(**{compare: rule['value']})
-
-        elif rule['operator'] == 'ends_with':
-            compare = '%s__iendswith' % rule['field']
-            q = Q(**{compare: rule['value']})
-
-        elif rule['operator'] == 'not_ends_with':
-            compare = '%s__iendswith' % rule['field']
-            q = ~Q(**{compare: rule['value']})
-
-        elif rule['operator'] == 'is_empty':
-            compare = '%s__exact' % rule['field']
-            q = Q(**{compare: ''})
-
-        elif rule['operator'] == 'is_not_empty':
-            compare = '%s__exact' % rule['field']
-            q = ~Q(**{compare: ''})
-
-        elif rule['operator'] == 'less_or_equal':
-            compare = '%s__lte' % rule['field']
-            if rule['type'] == 'datetime':
-                value = parser.parse(rule['value'])
-            else:
-                value = rule['value']
-            q = Q(**{compare: value})
-
-        elif rule['operator'] == 'less':
-            compare = '%s__lt' % rule['field']
-            if rule['type'] == 'datetime':
-                value = parser.parse(rule['value'])
-            else:
-                value = rule['value']
-            q = Q(**{compare: value})
-
-        elif rule['operator'] == 'greater_or_equal':
-            compare = '%s__gte' % rule['field']
-            if rule['type'] == 'datetime':
-                value = parser.parse(rule['value'])
-            else:
-                value = rule['value']
-            q = Q(**{compare: value})
-
-        elif rule['operator'] == 'greater':
-            compare = '%s__gt' % rule['field']
-            if rule['type'] == 'datetime':
-                value = parser.parse(rule['value'])
-            else:
-                value = rule['value']
-            q = Q(**{compare: value})
-
-        elif rule['operator'] == 'between':
-            start = '%s__gte' % rule['field']
-            end = '%s__lte' % rule['field']
-            if rule['type'] == 'datetime':
-                start_val = parser.parse(rule['value'][0])
-                end_val = parser.parse(rule['value'][1])
-            else:
-                start_val = rule['value'][0]
-                end_val = rule['value'][1]
-            q = Q(**{start: start_val, end: end_val})
-
-        elif rule['operator'] == 'not_between':
-            start = '%s__gte' % rule['field']
-            end = '%s__lte' % rule['field']
-            if rule['type'] == 'datetime':
-                start_val = parser.parse(rule['value'][0])
-                end_val = parser.parse(rule['value'][1])
-            else:
-                start_val = rule['value'][0]
-                end_val = rule['value'][1]
-            q = ~Q(**{start: start_val, end: end_val})
-
-        if Qr:
-            if condition == 'AND':
-                Qr = Qr & q
-            else:
-                Qr = Qr | q
-        else:
-            Qr = q
-
-    if Qr:
-        base_query = base_query.filter(Qr)
+    if Query:
+        base_query = base_query.filter(Query)
     return (search, base_query)
 
 
