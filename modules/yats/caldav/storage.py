@@ -159,6 +159,9 @@ class Collection(ical.Collection):
                     mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
                     jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
 
+                else:
+                    raise Exception(form.errors)
+
     def remove(self, name):
         pass
 
