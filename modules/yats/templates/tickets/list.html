@@ -8,7 +8,7 @@
 
 {% block content %}
 
-    <h2>{% if is_search %}{% trans "search results for tickets" %}&nbsp;<a class="btn btn-small" href="/tickets/search/?new=1">{% trans "new search" %}</a>&nbsp;<a role="button" data-toggle="modal" class="btn btn-small" href="#saveDlg">{% trans "save search" %}</a>&nbsp;<a role="button" data-toggle="modal" class="btn btn-small" href="#saveToBoardDlg">{% trans "save to board" %}</a>{% else %}{% trans "tickets" %}{% endif %}</h2>
+    <h2>{% if is_search %}{% trans "search results for tickets" %}&nbsp;<a class="btn btn-small" href="/tickets/search/?new=1">{% trans "new search" %}</a>&nbsp;<a role="button" data-toggle="modal" class="btn btn-small" href="#saveDlg">{% trans "save search" %}</a>{% if boards|length > 0 %}&nbsp;<a role="button" data-toggle="modal" class="btn btn-small" href="#saveToBoardDlg">{% trans "save to board" %}</a>{% endif %}{% else %}{% trans "tickets" %}{% endif %}</h2>
     {% if list_caption %}<p><small class="text-muted">{% trans "report" %}: {{ list_caption }}</small></p>{% endif %}
     <p>&nbsp;</p>
 
