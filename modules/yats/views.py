@@ -12,9 +12,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login as auth_login, logout as aut_logout
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.conf import settings
 from yats import get_version, get_python_version
 from yats.tickets import table
-from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search
+from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search_ext, convert_sarch
 from yats.models import boards, tickets_participants, ticket_flow, ticket_flow_edges
 from yats.forms import AddToBordForm, PasswordForm, TicketCloseForm, TicketReassignForm
 from yats.yatse import api_login, buildYATSFields, YATSSearch
@@ -157,7 +158,7 @@ def show_board(request, name):
 
     for column in columns:
         query = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
-        search_params, query = build_ticket_search(request, query, {}, column['query'])
+        search_params, query = build_ticket_search_ext(request, query, column['query'])
         column['query'] = query.order_by('%s%s' % (column.get('order_dir', ''), column.get('order_by', 'id')))
         if 'extra_filter' in column and 'days' in column and column['extra_filter'] and column['days']:
             if column['extra_filter'] == '1':  # days since closed
@@ -220,7 +221,7 @@ def kanban(request):
     query = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
 
     for flow in flows:
-        search_params, flow.data = build_ticket_search(request, query, {}, {'state': flow.pk})
+        search_params, flow.data = build_ticket_search_ext(request, query, convert_sarch({'state': flow.pk}))
         flow.data = flow.data.filter( Q(assigned=None) | Q(assigned=request.user) ).extra(select={"prio":"COALESCE(caldav, 10)"}, order_by=["prio", "-c_date"])
 
         if flow.type == 1:
@@ -245,8 +246,8 @@ def kanban(request):
 def xptest(request, test):
     if test == 'xmpp':
         from pyxmpp2.simple import send_message
-        send_message('yats@miadi.net', 'Abakeline141', 'genssen_intern@miadi.net', 'moin hinnack 1')
-        send_message('yats@miadi.net', 'Abakeline141', 'genssen_intern@miadi.net', 'moin hinnack 2')
+        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, 'genssen_intern@miadi.net', 'moin hinnack 1')
+        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, 'genssen_intern@miadi.net', 'moin hinnack 2')
         return HttpResponse('OK')
 
     else:

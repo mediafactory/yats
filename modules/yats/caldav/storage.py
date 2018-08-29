@@ -8,7 +8,7 @@ from datetime import datetime
 from contextlib import contextmanager
 from radicale import ical
 
-from yats.shortcuts import get_ticket_model, build_ticket_search, touch_ticket, remember_changes, mail_ticket, jabber_ticket, check_references, add_history, mail_comment, jabber_comment
+from yats.shortcuts import get_ticket_model, build_ticket_search_ext, touch_ticket, remember_changes, mail_ticket, jabber_ticket, check_references, add_history, mail_comment, jabber_comment
 from yats.models import tickets_reports, UserProfile, get_flow_end, tickets_comments, ticket_resolution, get_default_resolution, convertPrio
 from yats.forms import SimpleTickets
 
@@ -204,7 +204,7 @@ class Collection(ical.Collection):
                 request = cls._getRequestFromUrl(path)
                 rep = tickets_reports.objects.get(active_record=True, pk=cls._getReportFromUrl(path))
                 tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
-                search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
+                search_params, tic = build_ticket_search_ext(request, tic, json.loads(rep.search))
 
                 result = (tic.exists())
 
@@ -220,7 +220,7 @@ class Collection(ical.Collection):
             request = self._getRequestFromUrl(self.path)
             rep = tickets_reports.objects.get(active_record=True, pk=self._getReportFromUrl(self.path))
             tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
-            search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
+            search_params, tic = build_ticket_search_ext(request, tic, json.loads(rep.search))
             date = tic.latest('u_date')
             return datetime.strftime(
                 date.last_action_date, '%a, %d %b %Y %H:%M:%S %z')
@@ -264,7 +264,7 @@ class Collection(ical.Collection):
                 return items
             rep = tickets_reports.objects.get(active_record=True, pk=self._getReportFromUrl(self.path))
             tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
-            search_params, tic = build_ticket_search(request, tic, {}, json.loads(rep.search))
+            search_params, tic = build_ticket_search_ext(request, tic, json.loads(rep.search))
 
             for item in tic:
                 text = self._itemToICal(item)

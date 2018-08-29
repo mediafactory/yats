@@ -1,4 +1,5 @@
 import re
+import json
 
 from math import floor
 
@@ -108,12 +109,29 @@ def as_querybuilder_fieldtype(field):
         return u'\'%s\'' % field.field.__class__
 
 @register.filter
-def as_querybuilder(form):
-    #form.media._css['all'] = settings.STATIC_URL + 'querybuilder/css/query-builder.default.css'
-    #form.media._js.append(settings.STATIC_URL + 'querybuilder/js/query-builder.js')
+def as_querybuilder(form, request):
+    last_search = request.session.get('last_search')
+    if last_search:
+        if 'valid' in last_search:
+            del last_search['valid']
+
+        rules = last_search['rules']
+        if len(rules) > 0:
+            for rule in rules:
+                if 'input' in rule:
+                    del rule['input']
+                if 'type' in rule:
+                    del rule['type']
+                if 'field' in rule:
+                    del rule['field']
+        else:
+            last_search = None
+        last_search = json.dumps(last_search)
+
     return get_template("bootstrap_toolkit/querybuilder.html").render(
         {
             'form': form,
+            'last_search': last_search,
         }
     )
 

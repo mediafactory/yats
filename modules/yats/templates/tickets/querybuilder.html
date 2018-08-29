@@ -28,7 +28,7 @@
 
     <div class="container">
 
-    {{ form|as_querybuilder }}
+    {{ form|as_querybuilder:request }}
 
       <p class="form-actions">
         <button class="btn btn-primary parse-json" id="btn-get">{% trans "search" %}</button>

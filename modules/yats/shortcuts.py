@@ -477,6 +477,45 @@ def build_ticket_search(request, base_query, search_params, params):
     base_query = base_query.filter(**search_params)
     return (search_params, base_query)
 
+def convert_sarch(search):
+    def getType(fieldname):
+        if fieldname in ['closed', 'billing_done', 'billing_needed']:
+            return 'boolean'
+        elif fieldname == 'caption':
+            return 'string'
+        elif fieldname in ['c_date', 'u_date', 'd_date', 'close_date', 'last_action_date', 'deadline']:
+            return 'datetime'
+        return 'integer'
+
+    def getOperator(fieldname):
+        if fieldname == 'caption':
+            return 'contains'
+        return 'equal'
+
+    # prevent convert loop
+    if 'valid' in search:
+        return search
+
+    result = {
+        'rules': [],
+        'valid': True,
+        'condition': 'AND'
+    }
+    for element in search:
+        # {"caption": "", "component": 6, "closed": false}
+        if element == 'caption' and not search[element]:
+            pass
+        else:
+            rule = {
+                'value': search[element],
+                'field': element,
+                'operator': getOperator(element),
+                'type': getType(element),
+                'id': element,
+            }
+            result['rules'].append(rule)
+    return result
+
 def build_ticket_search_ext(request, base_query, search):
     """
     {
@@ -635,7 +674,8 @@ def build_ticket_search_ext(request, base_query, search):
         else:
             Qr = q
 
-    base_query = base_query.filter(Qr)
+    if Qr:
+        base_query = base_query.filter(Qr)
     return (search, base_query)
 
 
