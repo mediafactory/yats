@@ -88,7 +88,7 @@ def as_querybuilder_fieldtype(field):
     # string, integer, double, date, time, datetime and boolean
     if type(field.field) is forms.fields.BooleanField or type(field.field) is forms.fields.NullBooleanField:
         choices = ['false: \'%s\'' % _('False'), 'true: \'%s\'' % _('True')]
-        return u'\'boolean\', input: \'select\', values: {%s}, operators: [\'equal\', \'not_equal\']' % ','.join(choices)
+        return u'\'boolean\', input: \'radio\', values: [true, false]'
     elif type(field.field) is forms.fields.DateField:
         return u'\'date\', validation: {format: \'DD.MM.YYY\'}'
     elif type(field.field) is forms.fields.DateTimeField:
