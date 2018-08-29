@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, del_breadcrumbs, convertPDFtoImg, convertOfficeTpPDF
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search, build_ticket_search_ext, del_breadcrumbs, convertPDFtoImg, convertOfficeTpPDF
 import os
 import io
 import graph
@@ -629,7 +629,7 @@ def table(request, **kwargs):
 
     if 'search' in kwargs:
         is_search = True
-        search_params, tic = build_ticket_search(request, tic, search_params, kwargs['search'])
+        search_params, tic = build_ticket_search_ext(request, tic, kwargs['search'])
 
     else:
         tic = tic.filter(closed=False)
@@ -653,8 +653,8 @@ def table(request, **kwargs):
 
     board_form = AddToBordForm()
     board_form.fields['board'].queryset = board_form.fields['board'].queryset.filter(c_user=request.user)
-
-    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption, 'board_form': board_form})
+    from django.db import connection
+    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'pretty': pretty, 'list_caption': list_caption, 'board_form': board_form, 'queries': connection.queries, 'query': json.dumps(search_params)})
 
 @login_required
 def search(request):
@@ -666,7 +666,7 @@ def search(request):
         rep.search = json.dumps(request.session['last_search'], cls=DjangoJSONEncoder)
         rep.save(user=request.user)
 
-        request.session['last_search'] = clean_search_values(request.session['last_search'])
+        request.session['last_search'] = convert_sarch(clean_search_values(request.session['last_search']))
         request.session['last_search_caption'] = request.POST['reportname']
 
         return table(request, search=request.session['last_search'], list_caption=request.session['last_search_caption'])
@@ -674,7 +674,7 @@ def search(request):
     if request.method == 'POST':
         form = SearchForm(request.POST, include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
         form.is_valid()
-        request.session['last_search'] = clean_search_values(form.cleaned_data)
+        request.session['last_search'] = convert_sarch(clean_search_values(form.cleaned_data))
         request.session['last_search_caption'] = ''
 
         return table(request, search=request.session['last_search'])
@@ -689,6 +689,10 @@ def search(request):
 @login_required
 def search_ex(request):
     searchable_fields = settings.TICKET_SEARCH_FIELDS
+
+    if request.method == 'POST':
+        request.session['last_search'] = json.loads(request.POST['query'])
+        return table(request, search=request.session['last_search'])
 
     form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
     return render(request, 'tickets/querybuilder.html', {'form': form})

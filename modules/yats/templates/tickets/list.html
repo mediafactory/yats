@@ -97,6 +97,10 @@
         </div>
         </form>
     </div>
-
     {% endif %}
+
+    {% for q in queries %}
+    {{ q }}<br /><br />
+    {% endfor %}
+
 {% endblock %}

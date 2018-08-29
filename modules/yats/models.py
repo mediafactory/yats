@@ -42,9 +42,9 @@ def convertPrio(value):
         if value == 0:
             return None
         try:
-            return ticket_priority.objects.get(caldav=value)
+            return ticket_priority.objects.get(caldav=value).pk
         except ticket_priority.DoesNotExist:
-            prios = ticket_priority.objects.get(caldav__gt=value).order_by('caldav')
+            prios = ticket_priority.objects.get(caldav__gt=value).order_by('caldav').pk
             try:
                 return prios[0]
             except:

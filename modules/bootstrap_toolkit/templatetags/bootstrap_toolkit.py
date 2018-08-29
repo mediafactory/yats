@@ -1,4 +1,5 @@
 import re
+import json
 
 from math import floor
 
@@ -11,6 +12,7 @@ from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
+from django.utils.translation import ugettext as _
 from django import forms
 
 
@@ -85,33 +87,51 @@ def bootstrap_javascript_tag(name=None):
 def as_querybuilder_fieldtype(field):
     # string, integer, double, date, time, datetime and boolean
     if type(field.field) is forms.fields.BooleanField or type(field.field) is forms.fields.NullBooleanField:
-        return u'\'boolean\''
+        choices = ['false: \'%s\'' % _('False'), 'true: \'%s\'' % _('True')]
+        return u'\'boolean\', input: \'select\', values: {%s}, operators: [\'equal\', \'not_equal\']' % ','.join(choices)
     elif type(field.field) is forms.fields.DateField:
-        return u'\'date\''
+        return u'\'date\', validation: {format: \'DD.MM.YYY\'}'
     elif type(field.field) is forms.fields.DateTimeField:
-        return u'\'datetime\''
+        return u'\'datetime\', plugin: \'datetimepicker\', plugin_config: {format: \'dd.mm.yyyy hh:ii\', todayBtn: \'linked\', todayHighlight: true, autoclose: true}, validation: {format: \'DD.MM.YYYY hh:nn\'}, operators: [\'equal\', \'not_equal\', \'less\', \'less_or_equal\', \'greater\', \'greater_or_equal\', \'between\', \'not_between\', \'is_null\', \'is_not_null\']'
     elif type(field.field) is forms.fields.IntegerField:
         return u'\'integer\''
     elif type(field.field) is forms.fields.FloatField:
         return u'\'double\''
     elif type(field.field) is forms.fields.CharField:
-        return u'\'string\''
+        return u'\'string\', operators: [\'equal\', \'not_equal\', \'is_null\', \'is_not_null\', \'begins_with\', \'not_begins_with\', \'contains\', \'not_contains\', \'ends_with\', \'not_ends_with\', \'is_empty\', \'is_not_empty\']'
     elif type(field.field) is forms.models.ModelChoiceField:
         choices = []
         for id, name in field.field.choices:
             if id:
-                choices.append( '%s: \'%s\'' % (id, name) )
+                choices.append('%s: \'%s\'' % (id, name))
         return u'\'string\', input: \'select\', values: {%s}, operators: [\'equal\', \'not_equal\', \'is_null\', \'is_not_null\']' % ','.join(choices)
     else:
         return u'\'%s\'' % field.field.__class__
 
 @register.filter
-def as_querybuilder(form):
-    form.media._css['all'] = settings.STATIC_URL + 'querybuilder/css/query-builder.default.css'
-    form.media._js.append(settings.STATIC_URL + 'querybuilder/js/query-builder.js')
+def as_querybuilder(form, request):
+    last_search = request.session.get('last_search')
+    if last_search:
+        if 'valid' in last_search:
+            del last_search['valid']
+
+        rules = last_search['rules']
+        if len(rules) > 0:
+            for rule in rules:
+                if 'input' in rule:
+                    del rule['input']
+                if 'type' in rule:
+                    del rule['type']
+                if 'field' in rule:
+                    del rule['field']
+        else:
+            last_search = None
+        last_search = json.dumps(last_search)
+
     return get_template("bootstrap_toolkit/querybuilder.html").render(
         {
             'form': form,
+            'last_search': last_search,
         }
     )
 

@@ -204,6 +204,9 @@ class SearchForm(forms.ModelForm):
             if type(self.fields[field]) is forms.fields.DateField:
                 self.fields[field].widget = BootstrapDateInput()
 
+            if type(self.fields[field]) is forms.fields.DateTimeField:
+                self.fields[field].widget = BootstrapDateTimeInput()
+
             if type(self.fields[field]) is forms.fields.BooleanField:
                 self.fields[field] = forms.NullBooleanField()
 

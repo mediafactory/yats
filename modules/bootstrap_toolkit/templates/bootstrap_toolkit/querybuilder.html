@@ -1,29 +1,24 @@
 {% load bootstrap_toolkit %}<div id="builder"></div>
-
 <script>
-  var rules_basic = {
-    condition: 'AND',
-    rules: [{
-      id: 'price',
-      operator: 'less',
-      value: 10.25
-    }, {
-      condition: 'OR',
-      rules: [{
-        id: 'category',
-        operator: 'equal',
-        value: 2
-      }, {
-        id: 'category',
-        operator: 'equal',
-        value: 1
-      }]
-    }]
-  };
+  {% if last_search %}var rules_basic = {{ last_search|safe }};{% endif %}
 
   $('#builder').queryBuilder({
     filters: [
       {% for field in form %}{% if not forloop.first %},{% endif %}{id:'{{ field.name }}', label:'{{ field.label }}', type: {{ field|as_querybuilder_fieldtype|safe }}}{% endfor %}
-    ]
+    ],
+    {% if last_search %}rules: rules_basic,{% endif %}
+    plugins: ['bt-tooltip-errors']
   });
+
+  // Fix for Bootstrap Datepicker
+  $('#builder-widgets').on('afterUpdateRuleValue.queryBuilder', function(e, rule) {
+    if (rule.filter.plugin === 'datepicker') {
+      rule.$el.find('.rule-value-container input').datepicker('update');
+    }
+    if (rule.filter.plugin === 'datetimepicker') {
+      rule.$el.find('.rule-value-container input').datetimepicker('update');
+    }
+
+  });
+
 </script>
