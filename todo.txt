@@ -1,8 +1,9 @@
+- better map prio of apple to yats
+- boolean are not corrct looked up in extended search
 - move extra search in search from yatse
 - Ticketliste + edit & view
 - highlight ticket view if deadline
-- edit ticket cuts time from deadline
-- special fields => prio, geo
+- special fields => prio, geo in DAV
 - check, if close is allowed in DAV
 - Kanban Board Settings: limit Columns, my or my and non asssigned, max days finished
 - boards für andere Spalten: z.B. Komponenten + eine mit unassigned
