@@ -1,4 +1,4 @@
-- group search
+- trans field-names in search
 - better map prio of apple to yats
 - move extra search in search from yatse
 - Ticketliste + edit & view
