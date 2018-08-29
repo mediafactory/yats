@@ -32,6 +32,7 @@
 
       <p class="form-actions">
         <button class="btn btn-primary parse-json" id="btn-get">{% trans "search" %}</button>
+        <button class="btn btn-warning reset" id="btn-reset">{% trans "reset" %}</button>
       </p>
     </div>
 
@@ -47,6 +48,10 @@
         $('#query').val(JSON.stringify(result));
         document.data.submit();
       }
+    });
+
+    $('#btn-reset').on('click', function() {
+      $('#builder').queryBuilder('reset');
     });
     </script>
 {% endblock %}
