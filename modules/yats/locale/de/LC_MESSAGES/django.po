@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-07 18:56+0000\n"
-"PO-Revision-Date: 2018-08-07 20:56+0200\n"
+"POT-Creation-Date: 2018-08-29 18:57+0000\n"
+"PO-Revision-Date: 2018-08-29 21:09+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -17,6 +17,283 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 2.1.1\n"
+
+#: api.py:242
+msgid "ticket already closed"
+msgstr "Ticket schon geschlossen"
+
+#: api.py:265
+#, python-format
+msgid ""
+"ticket changed by %(user)s\n"
+"\n"
+"%(comment)s"
+msgstr ""
+"Ticket geändert von %(user)s\n"
+"\n"
+"%(comment)s"
+
+#: caldav/storage.py:74
+msgid "closed via CalDAV"
+msgstr "geschlossen via CalDAV"
+
+#: caldav/storage.py:84 tickets.py:159
+#, python-format
+msgid ""
+"ticket closed - resolution: %(resolution)s\n"
+"\n"
+"%(comment)s"
+msgstr ""
+"Ticket geschlossen - Lösung: %(resolution)s\n"
+"\n"
+"%(comment)s"
+
+#: fields.py:15
+#, python-format
+msgid "file is infected by virus: %s"
+msgstr "die Datei ist mit dem \"%s\" Virus infiziert"
+
+#: fields.py:16
+#, python-format
+msgid "unable to initialize scan engine on host %s"
+msgstr "der Virusscanner kann auf dem Server %s nicht initialisiert werden"
+
+#: forms.py:158 templates/tickets/list.html:28 templates/tickets/list.html:40
+msgid "caption"
+msgstr "Betreff"
+
+#: forms.py:159
+msgid "description"
+msgstr "Beschreibung"
+
+#: forms.py:160 forms.py:270 templates/tickets/list.html:27
+#: templates/tickets/list.html:39
+msgid "assigned"
+msgstr "zugeordnet"
+
+#: forms.py:161
+msgid "priority"
+msgstr "Priorität"
+
+#: forms.py:162
+msgid "deadline"
+msgstr "Abgabetermin"
+
+#: forms.py:163
+msgid "component"
+msgstr "Komponente"
+
+#: forms.py:251 templates/tickets/edit.html:17
+#: templates/tickets/history.html:19 templates/tickets/list.html:24
+#: templates/tickets/list.html:36 templates/tickets/view.html:21
+msgid "created"
+msgstr "erstellt"
+
+#: forms.py:252
+msgid "updated"
+msgstr "geändert"
+
+#: forms.py:253
+msgid "deleted"
+msgstr "gelöscht"
+
+#: forms.py:254
+msgid "created by"
+msgstr "erstellt von"
+
+#: forms.py:255
+msgid "last updated by"
+msgstr "zuletzt geändert von"
+
+#: forms.py:256
+msgid "deleted by"
+msgstr "gelöscht von"
+
+#: forms.py:260 forms.py:267 forms.py:272
+msgid "comment"
+msgstr "Kommentar"
+
+#: forms.py:263
+msgid "file"
+msgstr "Datei"
+
+#: forms.py:266
+msgid "resolution"
+msgstr "Lösung"
+
+#: forms.py:271
+msgid "next"
+msgstr "als nächstes"
+
+#: forms.py:275
+msgid "ticket number"
+msgstr "Ticketnummer"
+
+#: forms.py:276
+msgid "closing date"
+msgstr "Abschlußdatum"
+
+#: forms.py:277
+msgid "last changed"
+msgstr "letzte Änderung"
+
+#: forms.py:281
+msgid "ascending"
+msgstr "aufsteigend"
+
+#: forms.py:282
+msgid "descending"
+msgstr "absteigend"
+
+#: forms.py:287
+msgid "days since closed"
+msgstr "seit X Tagen geschlossen"
+
+#: forms.py:288
+msgid "days since created"
+msgstr "erstellt vor X Tagen"
+
+#: forms.py:289
+msgid "days since last changed"
+msgstr "zuletzt geändert vor X Tage"
+
+#: forms.py:290
+msgid "days since last action"
+msgstr "letzte Aktion vor X Tagen"
+
+#: forms.py:295 templates/base.html:39 templates/board/view.html:6
+#: templates/board/view.html:16
+msgid "board"
+msgstr "Bord"
+
+#: forms.py:296
+msgid "column"
+msgstr "Spalte"
+
+#: forms.py:297
+msgid "limit"
+msgstr "begrenzen"
+
+#: forms.py:298
+msgid "extra filter"
+msgstr "extra Filter"
+
+#: forms.py:299
+msgid "days"
+msgstr "Tage"
+
+#: forms.py:300
+msgid "order by"
+msgstr "Sortierreihenfolge"
+
+#: forms.py:301
+msgid "order direction"
+msgstr "Sortierrichtung"
+
+#: forms.py:312
+msgid "passwords did not match!"
+msgstr "Passwort-Wiederholung falsch!"
+
+#: models.py:14 templatetags/strings.py:69 templatetags/strings.py:71
+#: tickets.py:678
+msgid "yes"
+msgstr "ja"
+
+#: models.py:15 templatetags/strings.py:74 templatetags/strings.py:76
+#: tickets.py:680
+msgid "no"
+msgstr "nein"
+
+#: models.py:19
+msgid "working state"
+msgstr "Arbeitsstatus"
+
+#: models.py:20
+msgid "first state"
+msgstr "erster Status"
+
+#: models.py:21
+msgid "last state"
+msgstr "letzter Status"
+
+#: models.py:74
+msgid "user profile"
+msgstr "Benutzerprofil"
+
+#: models.py:75
+msgid "user profiles"
+msgstr "Benutzerprofile"
+
+#: models.py:149
+msgid "ticket type"
+msgstr "Ticketart"
+
+#: models.py:150
+msgid "ticket types"
+msgstr "Ticketarten"
+
+#: models.py:163
+msgid "ticket priority"
+msgstr "Ticket-Priorität"
+
+#: models.py:164
+msgid "ticket priorities"
+msgstr "Ticket-Prioritäten"
+
+#: models.py:173
+msgid "ticket resolution"
+msgstr "Ticket-Lösung"
+
+#: models.py:174
+msgid "ticket resolutions"
+msgstr "Ticket-Lösungen"
+
+#: models.py:184
+msgid "ticket state"
+msgstr "Ticketstatus"
+
+#: models.py:185
+msgid "ticket states"
+msgstr "Ticketstatus"
+
+#: shortcuts.py:207 shortcuts.py:221 shortcuts.py:272 shortcuts.py:310
+#, python-format
+msgid "jabber not send: %s"
+msgstr "Jabber nicht gesendet: %s"
+
+#: shortcuts.py:241 shortcuts.py:249 shortcuts.py:288 shortcuts.py:326
+#, python-format
+msgid "mail not send: %s"
+msgstr "Email nicht gesendet: %s"
+
+#: shortcuts.py:266 shortcuts.py:286
+msgid "new comment"
+msgstr "neuer Kommentar"
+
+#: shortcuts.py:299 shortcuts.py:321
+msgid "new file added"
+msgstr "neue Datei angefügt"
+
+#: shortcuts.py:299 shortcuts.py:321
+msgid "file name"
+msgstr "Dateiname"
+
+#: shortcuts.py:299 shortcuts.py:321
+msgid "file size"
+msgstr "Dateigröße"
+
+#: shortcuts.py:299 shortcuts.py:321
+msgid "content type"
+msgstr "Dateityp"
+
+#: shortcuts.py:305 shortcuts.py:324
+msgid "new file"
+msgstr "neue Datei"
+
+#: shortcuts.py:347
+#, python-format
+msgid "ticket mentioned by #%s"
+msgstr "Ticket referenziert von #%s"
 
 #: templates/401.html:7
 msgid "not authenticated"
@@ -30,91 +307,144 @@ msgstr "nicht gefunden"
 msgid "System Error"
 msgstr "Systemfehler"
 
-#: templates/base.html:46
-msgid "Reports"
-msgstr "Berichte"
+#: templates/base.html:40 templates/tickets/querybuilder.html:34
+#: templates/tickets/search.html:25 templates/tickets/search.html:28
+msgid "search"
+msgstr "suchen"
 
-#: templates/base.html:48
-msgid "Boards"
-msgstr "Borde"
-
-#: templates/base.html:50
-msgid "add new board"
-msgstr "neues Board hinzufügen"
-
-#: templates/base.html:59 templates/base.html:66
-msgid "Search"
-msgstr "Suche"
-
-#: templates/base.html:61
-msgid "local"
-msgstr "lokal"
-
-#: templates/base.html:62
-msgid "global"
-msgstr "global"
-
-#: templates/base.html:69
+#: templates/base.html:41 templates/base.html:77
 msgid "New"
 msgstr "Neu"
 
-#: templates/base.html:70
+#: templates/base.html:43
+msgid "local"
+msgstr "lokal"
+
+#: templates/base.html:45 templates/base.html:64
+msgid "Reports"
+msgstr "Berichte"
+
+#: templates/base.html:47 templates/base.html:66
+msgid "Boards"
+msgstr "Borde"
+
+#: templates/base.html:49 templates/base.html:68
+msgid "add new board"
+msgstr "neues Board hinzufügen"
+
+#: templates/base.html:55 templates/base.html:75
+msgid "Kanban"
+msgstr ""
+
+#: templates/base.html:56 templates/base.html:76
+msgid "Search"
+msgstr "Suche"
+
+#: templates/base.html:57 templates/base.html:78
+msgid "Logs"
+msgstr ""
+
+#: templates/base.html:58 templates/base.html:79
 msgid "Workflow"
 msgstr "Workflow"
 
-#: templates/base.html:71
+#: templates/base.html:59 templates/base.html:80
 msgid "Info"
 msgstr "Info"
 
-#: templates/base.html:72
+#: templates/base.html:60 templates/base.html:81
 msgid "Admin"
 msgstr "Admin"
 
-#: templates/base.html:79 templates/base.html:131
+#: templates/base.html:89 templates/base.html:144
 msgid "change password"
 msgstr "Passwort ändern"
 
-#: templates/base.html:81
+#: templates/base.html:91
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:137 templates/login.html:23
+#: templates/base.html:150 templates/login.html:23
 msgid "Password"
 msgstr "Passwort"
 
-#: templates/base.html:138
+#: templates/base.html:151
 msgid "Validate password"
 msgstr "Passwort überprüfen"
 
-#: templates/base.html:143 templates/base.html:169
-#: templates/tickets/list.html:76 templates/tickets/list.html:95
-#: templates/tickets/reports.html:47 templates/tickets/view.html:118
+#: templates/base.html:156 templates/base.html:182
+#: templates/board/kanban.html:90 templates/board/kanban.html:110
+#: templates/tickets/list.html:77 templates/tickets/list.html:96
+#: templates/tickets/reports.html:58 templates/tickets/view.html:118
 #: templates/tickets/view.html:138
 msgid "cancel"
 msgstr "abbrechen"
 
-#: templates/base.html:144
+#: templates/base.html:157
 msgid "change"
 msgstr "ändern"
 
-#: templates/base.html:153
+#: templates/base.html:166
 msgid "new board"
 msgstr "neues Bord"
 
-#: templates/base.html:159
+#: templates/base.html:172
 msgid "board name"
 msgstr "Bord-Name"
 
-#: templates/base.html:170 templates/tickets/edit.html:26
-#: templates/tickets/edit.html:29 templates/tickets/list.html:77
-#: templates/tickets/list.html:96 templates/tickets/new.html:25
+#: templates/base.html:183 templates/tickets/edit.html:26
+#: templates/tickets/edit.html:29 templates/tickets/list.html:78
+#: templates/tickets/list.html:97 templates/tickets/new.html:25
 #: templates/tickets/new.html:28
 msgid "save"
 msgstr "speichern"
 
-#: templates/board/view.html:6 templates/board/view.html:16
-msgid "board"
-msgstr "Bord"
+#: templates/board/kanban.html:6
+msgid "kanban"
+msgstr ""
+
+#: templates/board/kanban.html:26
+msgid "getting things done"
+msgstr ""
+
+#: templates/board/kanban.html:28
+msgid ""
+"Drag and drop tickets from one state to the next one accoring to the "
+"workflow. Use CTRL or ALT for moving only (no reassign)"
+msgstr ""
+"Drag and drop Tickets von einem Status zum nächsten wie es der Workflow "
+"vorgibt. Mit CTRL oder ALT Tickets direkt verschieben (ohne es neu "
+"zuzuordnen)"
+
+#: templates/board/kanban.html:80 templates/tickets/view.html:108
+msgid "close ticket"
+msgstr "Ticket schließen"
+
+#: templates/board/kanban.html:91 templates/tickets/view.html:20
+#: templates/tickets/view.html:119
+msgid "close"
+msgstr "schliessen"
+
+#: templates/board/kanban.html:100 templates/tickets/view.html:128
+msgid "reassign ticket"
+msgstr "Ticketzuständigkeit ändern"
+
+#: templates/board/kanban.html:111 templates/tickets/view.html:20
+#: templates/tickets/view.html:139
+msgid "reassign"
+msgstr "erneut zuweisen"
+
+#: templates/board/kanban.html:132 templates/board/kanban.html:148
+msgid "Please fill out the required fields!"
+msgstr "Bitte die Pflichtfelder ausfüllen!"
+
+#: templates/board/kanban.html:171 templates/board/view.html:75
+msgid ""
+"Do you really want to remove this ticket from this board until the next "
+"change of that ticket?"
+msgstr ""
+"Wollen Sie dieses Ticket wirklich vom Bord entfernen bis es erneut geändert "
+"wurde?"
 
 #: templates/board/view.html:18
 msgid "add new columns by adding a search result to this board"
@@ -122,11 +452,11 @@ msgstr ""
 "füge neue Spalten hinzu, in dem du ein Suchergebnis in der Suche zu diesem "
 "Bord hinzufügst"
 
-#: templates/board/view.html:67
+#: templates/board/view.html:65
 msgid "Do you really want to delete this column?"
 msgstr "Wollen Sie wirklich diese Spalte löschen?"
 
-#: templates/board/view.html:72
+#: templates/board/view.html:70
 msgid "Do you really want to delete this board?"
 msgstr "Wollen Sie wirklich dieses Bord löschen?"
 
@@ -155,14 +485,18 @@ msgid "server"
 msgstr "Server"
 
 #: templates/info.html:35
+msgid "SSL"
+msgstr "SSL"
+
+#: templates/info.html:39
 msgid "host"
 msgstr "Servername"
 
-#: templates/info.html:39
+#: templates/info.html:43
 msgid "user"
 msgstr "Benutzer"
 
-#: templates/info.html:43
+#: templates/info.html:47
 msgid "organisation"
 msgstr "Organisation"
 
@@ -190,11 +524,9 @@ msgstr "keine Organisation zugeordnet"
 msgid "edit ticket"
 msgstr "Ticket ändern"
 
-#: templates/tickets/edit.html:17 templates/tickets/history.html:19
-#: templates/tickets/list.html:24 templates/tickets/list.html:36
-#: templates/tickets/view.html:21
-msgid "created"
-msgstr "erstellt"
+#: templates/tickets/edit.html:16
+msgid "switch to extended form"
+msgstr "Zum erweiterten Formular wechseln"
 
 #: templates/tickets/edit.html:17 templates/tickets/history.html:19
 #: templates/tickets/view.html:21
@@ -205,8 +537,9 @@ msgstr "zuletzt geändert"
 msgid "file upload ticket"
 msgstr "Datei Upload Ticket"
 
-#: templates/tickets/file.html:10 templates/tickets/history.html:6
-#: templates/tickets/history.html:18 templates/tickets/view.html:6
+#: templates/tickets/file.html:10 templates/tickets/gallery.html:18
+#: templates/tickets/history.html:6 templates/tickets/history.html:18
+#: templates/tickets/log.html:20 templates/tickets/view.html:6
 #: templates/tickets/view.html:20
 msgid "ticket"
 msgstr "Ticket"
@@ -215,15 +548,21 @@ msgstr "Ticket"
 msgid "upload"
 msgstr "hochladen"
 
-#: templates/tickets/history.html:18 templates/tickets/view.html:20
+#: templates/tickets/gallery.html:6
+msgid "file gallery ticket"
+msgstr "Datei-Gallerie für Ticket"
+
+#: templates/tickets/gallery.html:18 templates/tickets/history.html:18
+#: templates/tickets/view.html:20
 msgid "closed"
 msgstr "geschlossen"
 
-#: templates/tickets/history.html:18 templates/tickets/view.html:20
+#: templates/tickets/gallery.html:18 templates/tickets/history.html:18
+#: templates/tickets/view.html:20
 msgid "open"
 msgstr "offen"
 
-#: templates/tickets/history.html:18
+#: templates/tickets/gallery.html:18 templates/tickets/history.html:18
 msgid "view"
 msgstr "Ansicht"
 
@@ -251,7 +590,7 @@ msgstr "neue Suche"
 msgid "save search"
 msgstr "Suche speichern"
 
-#: templates/tickets/list.html:11 templates/tickets/list.html:86
+#: templates/tickets/list.html:11 templates/tickets/list.html:87
 msgid "save to board"
 msgstr "zum Board hinzufügen"
 
@@ -259,12 +598,12 @@ msgstr "zum Board hinzufügen"
 msgid "tickets"
 msgstr "Tickets"
 
-#: templates/tickets/list.html:12 templates/tickets/reports.html:21
-#: templates/tickets/reports.html:26
+#: templates/tickets/list.html:12 templates/tickets/reports.html:32
+#: templates/tickets/reports.html:37
 msgid "report"
 msgstr "Bericht"
 
-#: templates/tickets/list.html:16 templates/tickets/reports.html:16
+#: templates/tickets/list.html:16 templates/tickets/reports.html:27
 msgid "of"
 msgstr "von"
 
@@ -281,65 +620,97 @@ msgstr "Ticket#"
 msgid "type"
 msgstr "Typ"
 
-#: templates/tickets/list.html:27 templates/tickets/list.html:39
-msgid "assigned"
-msgstr "zugeordnet"
-
-#: templates/tickets/list.html:28 templates/tickets/list.html:40
-msgid "caption"
-msgstr "Betreff"
-
 #: templates/tickets/list.html:49
 msgid "no tickets found!"
 msgstr "keine Tickets gefunden!"
 
-#: templates/tickets/list.html:52
+#: templates/tickets/list.html:51
 msgid "You searched for:"
 msgstr "Sie suchten nach:"
 
-#: templates/tickets/list.html:60
+#: templates/tickets/list.html:61
 msgid "save as report"
 msgstr "speichern als Bericht"
 
-#: templates/tickets/list.html:66
+#: templates/tickets/list.html:67
 msgid "report name"
 msgstr "Berichtsname"
+
+#: templates/tickets/log.html:6
+msgid "log"
+msgstr ""
+
+#: templates/tickets/log.html:19 templates/tickets/log.html:28
+#: templates/tickets/view.html:48 templates/tickets/view.html:58
+msgid "date"
+msgstr "Datum"
+
+#: templates/tickets/log.html:21 templates/tickets/log.html:30
+#: templates/tickets/view.html:47 templates/tickets/view.html:57
+msgid "action"
+msgstr "Aktion"
+
+#: templates/tickets/log.html:22 templates/tickets/log.html:31
+msgid "diff"
+msgstr ""
+
+#: templates/tickets/log.html:29 templates/tickets/view.html:59
+msgid "name"
+msgstr "Name"
+
+#: templates/tickets/log.html:48
+msgid "no logs so far"
+msgstr "keine Dateien bisher"
 
 #: templates/tickets/new.html:6 templates/tickets/new.html:15
 msgid "new ticket"
 msgstr "neues Ticket"
 
-#: templates/tickets/reports.html:6 templates/tickets/reports.html:11
-msgid "reports"
-msgstr "Berichte"
-
-#: templates/tickets/reports.html:35
-msgid "no reports found!"
-msgstr "keine Berichte gefunden!"
-
-#: templates/tickets/reports.html:41
-msgid "delete report"
-msgstr "Bericht löschen"
-
-#: templates/tickets/reports.html:44
-msgid "Do you really want to delete this report?"
-msgstr "Wollen Sie wirklich diesen Bericht löschen?"
-
-#: templates/tickets/reports.html:48
-msgid "delete"
-msgstr "löschen"
-
-#: templates/tickets/search.html:6
+#: templates/tickets/querybuilder.html:6 templates/tickets/search.html:6
 msgid "search tickets"
 msgstr "Suche Tickets"
 
-#: templates/tickets/search.html:15
+#: templates/tickets/querybuilder.html:24 templates/tickets/search.html:15
 msgid "search for tickets"
 msgstr "Suche nach Tickets"
 
-#: templates/tickets/search.html:24 templates/tickets/search.html:27
-msgid "search"
-msgstr "suchen"
+#: templates/tickets/querybuilder.html:25
+msgid "switch to simple search"
+msgstr "zur einfachen Suche wechseln"
+
+#: templates/tickets/querybuilder.html:35
+msgid "reset"
+msgstr "zurücksetzen"
+
+#: templates/tickets/reports.html:6 templates/tickets/reports.html:15
+msgid "reports"
+msgstr "Berichte"
+
+#: templates/tickets/reports.html:18
+msgid "alle reports are populated via CalDAV. click here to copy URL:"
+msgstr ""
+"Alle berichte werden über CalDAV zur Verfügung gestellt. Klicke hier um die "
+"URL zu kopieren:"
+
+#: templates/tickets/reports.html:46
+msgid "no reports found!"
+msgstr "keine Berichte gefunden!"
+
+#: templates/tickets/reports.html:52
+msgid "delete report"
+msgstr "Bericht löschen"
+
+#: templates/tickets/reports.html:55
+msgid "Do you really want to delete this report?"
+msgstr "Wollen Sie wirklich diesen Bericht löschen?"
+
+#: templates/tickets/reports.html:59
+msgid "delete"
+msgstr "löschen"
+
+#: templates/tickets/search.html:16
+msgid "switch to extended search"
+msgstr "zur erweiterten Suche wechseln"
 
 #: templates/tickets/view.html:20
 msgid "add file"
@@ -352,14 +723,6 @@ msgstr "Kommentar anfügen"
 #: templates/tickets/view.html:20
 msgid "reopen"
 msgstr "erneut öffnen"
-
-#: templates/tickets/view.html:20 templates/tickets/view.html:139
-msgid "reassign"
-msgstr "erneut zuweisen"
-
-#: templates/tickets/view.html:20 templates/tickets/view.html:119
-msgid "close"
-msgstr "schliessen"
 
 #: templates/tickets/view.html:21
 msgid "by"
@@ -377,14 +740,6 @@ msgstr "Dateien"
 msgid "drop your files here..."
 msgstr "Ziehen Sie ihre Dateien hier her…"
 
-#: templates/tickets/view.html:47 templates/tickets/view.html:57
-msgid "action"
-msgstr "Aktion"
-
-#: templates/tickets/view.html:48 templates/tickets/view.html:58
-msgid "date"
-msgstr "Datum"
-
 #: templates/tickets/view.html:49
 msgid "document"
 msgstr "Dokument"
@@ -401,11 +756,8 @@ msgstr "Dateityp"
 msgid "hash"
 msgstr "Hash"
 
-#: templates/tickets/view.html:59
-msgid "name"
-msgstr "Name"
-
-#: templates/tickets/view.html:60
+#: templates/tickets/view.html:60 templatetags/strings.py:64
+#: templatetags/strings.py:66
 msgid "unknown"
 msgstr "unbekannt"
 
@@ -425,19 +777,11 @@ msgstr "neuen Kommentar anfügen"
 msgid "add"
 msgstr "anfügen"
 
-#: templates/tickets/view.html:108
-msgid "close ticket"
-msgstr "Ticket schließen"
-
-#: templates/tickets/view.html:128
-msgid "reassign ticket"
-msgstr "Ticketzuständigkeit ändern"
-
 #: templates/tickets/view.html:146
 msgid "uploading files"
 msgstr "Dateien werden hochgeladen"
 
-#: templates/tickets/view.html:179
+#: templates/tickets/view.html:195
 msgid "Do you really want to delete this file?"
 msgstr "Wollen Sie wirklich diese Datei löschen?"
 
@@ -454,143 +798,169 @@ msgstr "füge neue Status im Adminbereich an"
 msgid "Are you sure you want to disconnect these nodes?"
 msgstr "Wollen Sie wirklich diese Verbindung löschen?"
 
+#: tickets.py:174
+msgid "no resolution selected"
+msgstr "keine Lösung ausgewählt"
+
+#: tickets.py:177
+msgid "comment invalid"
+msgstr "Kommentar ungültig"
+
+#: tickets.py:227
+msgid "ticket reopend - resolution deleted"
+msgstr "Ticket erneut geöffnet - Lösung gelöscht"
+
+#: tickets.py:256
+msgid "ticket moved"
+msgstr "Ticket verschoben"
+
+#: tickets.py:276
+#, python-format
+msgid ""
+"ticket reassigned to %(user)s\n"
+"state now: %(state)s\n"
+"\n"
+"%(comment)s"
+msgstr ""
+"Ticket neu zugeordnet zu %(user)s\n"
+"Status jetzt: %(state)s\n"
+"\n"
+"\n"
+"%(comment)s"
+
+#: tickets.py:297
+msgid "missing assigned user"
+msgstr "fehlender User"
+
+#: tickets.py:402
+#, python-format
+msgid "File already exists: %s"
+msgstr "Datei existierte bereits: %s"
+
+#: tickets.py:605 tickets.py:609
+#, python-format
+msgid "undone: %s"
+msgstr "nicht mehr abgearbeitet: %s"
+
+#: tickets.py:606 tickets.py:610
+#, python-format
+msgid "done: %s"
+msgstr "abgearbeitet: %s"
+
+#: tickets.py:629
+msgid "AND"
+msgstr "UND"
+
+#: tickets.py:631
+msgid "OR"
+msgstr "ODER"
+
+#: tickets.py:635
+msgid "is null"
+msgstr "ist null"
+
+#: tickets.py:637
+msgid "is not null"
+msgstr "ist nicht null"
+
+#: tickets.py:639
+msgid "equal"
+msgstr "gleich"
+
+#: tickets.py:641
+msgid "not equal"
+msgstr "nicht gleich"
+
+#: tickets.py:643
+msgid "begins with"
+msgstr "beginnt mit"
+
+#: tickets.py:645
+msgid "not begins with"
+msgstr "beginnt nicht mit"
+
+#: tickets.py:647
+msgid "contains"
+msgstr "beinhaltet"
+
+#: tickets.py:649
+msgid "not contains"
+msgstr "beinhaltet nicht"
+
+#: tickets.py:651
+msgid "ends with"
+msgstr "endet mit"
+
+#: tickets.py:653
+msgid "not ends with"
+msgstr "endet nicht mit"
+
+#: tickets.py:655
+msgid "is empty"
+msgstr "ist ller"
+
+#: tickets.py:657
+msgid "is not empty"
+msgstr "ist nicht leer"
+
+#: tickets.py:659
+msgid "less or equal"
+msgstr "gleicher oder gleich"
+
+#: tickets.py:661
+msgid "less"
+msgstr "kleiner"
+
+#: tickets.py:663
+msgid "greater or equal"
+msgstr "größer oder gleich"
+
+#: tickets.py:665
+msgid "greater"
+msgstr "größer"
+
+#: tickets.py:667
+msgid "between"
+msgstr "zwischen"
+
+#: tickets.py:669
+msgid "not between"
+msgstr "nicht zwischen"
+
+#: views.py:36
+msgid "Successfully changed password"
+msgstr "Erfolgreich Passwort ändern"
+
+#: views.py:38
+msgid "Password invalid"
+msgstr "Passwort ungültig"
+
+#: views.py:53
+msgid "Data invalid"
+msgstr "Daten ungültig"
+
+#: views.py:118
+#, python-format
+msgid "data invalid: %s"
+msgstr "Daten ungültig: %s"
+
+#: views.py:132
+#, python-format
+msgid "A board with the name \"%s\" already exists"
+msgstr "Ein Bord mit dem Namen „%s“ existiert bereits"
+
+#: views.py:135
+msgid "No name for a board given"
+msgstr "Kein Name für das Bord angegeben"
+
+#~ msgid "global"
+#~ msgstr "global"
+
 #~ msgid "Wiki"
 #~ msgstr "Wiki"
 
 #~ msgid "logged in as"
 #~ msgstr "angemeldet als"
-
-#, fuzzy
-#~ msgid "ticket already closed"
-#~ msgstr "Lösung"
-
-#, fuzzy
-#~ msgid ""
-#~ "ticket changed by %(user)s\n"
-#~ "\n"
-#~ "%(comment)s"
-#~ msgstr ""
-#~ "Ticket neu zugeordnet zu %(user)s\n"
-#~ "\n"
-#~ "%(comment)s"
-
-#~ msgid "file is infected by virus: %s"
-#~ msgstr "die Datei ist mit dem \"%s\" Virus infiziert."
-
-#~ msgid "unable to initialize scan engine on host %s"
-#~ msgstr "der Virusscanner kann auf dem Server %s nicht initialisiert werden"
-
-#~ msgid "updated"
-#~ msgstr "geändert"
-
-#~ msgid "deleted"
-#~ msgstr "gelöscht"
-
-#~ msgid "created by"
-#~ msgstr "erstellt von"
-
-#~ msgid "last updated by"
-#~ msgstr "zuletzt geändert von"
-
-#~ msgid "deleted by"
-#~ msgstr "gelöscht von"
-
-#~ msgid "comment"
-#~ msgstr "Kommentar"
-
-#~ msgid "file"
-#~ msgstr "Datei"
-
-#~ msgid "resolution"
-#~ msgstr "Lösung"
-
-#~ msgid "next"
-#~ msgstr "als nächstes"
-
-#, fuzzy
-#~ msgid "ticket number"
-#~ msgstr "Ticketliste"
-
-#~ msgid "ascending"
-#~ msgstr "aufsteigend"
-
-#~ msgid "descending"
-#~ msgstr "absteigend"
-
-#~ msgid "days since closed"
-#~ msgstr "seit X Tagen geschlossen"
-
-#~ msgid "days since created"
-#~ msgstr "erstellt vor X Tagen"
-
-#~ msgid "days since last changed"
-#~ msgstr "zuletzt geändert vor X Tage"
-
-#~ msgid "days since last action"
-#~ msgstr "letzte Aktion vor X Tagen"
-
-#~ msgid "column"
-#~ msgstr "Spalte"
-
-#~ msgid "limit"
-#~ msgstr "begrenzen"
-
-#, fuzzy
-#~ msgid "extra filter"
-#~ msgstr "neue Datei"
-
-#~ msgid "days"
-#~ msgstr "Tage"
-
-#~ msgid "order by"
-#~ msgstr "Sortierreihenfolge"
-
-#~ msgid "order direction"
-#~ msgstr "Sortierrichtung"
-
-#~ msgid "yes"
-#~ msgstr "ja"
-
-#~ msgid "no"
-#~ msgstr "nein"
-
-#~ msgid "user profile"
-#~ msgstr "Benutzerprofil"
-
-#~ msgid "user profiles"
-#~ msgstr "Benutzerprofile"
-
-#, fuzzy
-#~ msgid "ticket type"
-#~ msgstr "Ticketliste"
-
-#, fuzzy
-#~ msgid "ticket types"
-#~ msgstr "Ticketliste"
-
-#, fuzzy
-#~ msgid "ticket priority"
-#~ msgstr "Ticketliste"
-
-#, fuzzy
-#~ msgid "ticket priorities"
-#~ msgstr "Ticketliste"
-
-#, fuzzy
-#~ msgid "ticket resolution"
-#~ msgstr "Lösung"
-
-#, fuzzy
-#~ msgid "ticket resolutions"
-#~ msgstr "Lösung"
-
-#, fuzzy
-#~ msgid "ticket state"
-#~ msgstr "Ticketliste"
-
-#, fuzzy
-#~ msgid "ticket states"
-#~ msgstr "Ticketliste"
 
 #~ msgid ""
 #~ "the following participants could not be reached by mail (address "
@@ -598,66 +968,6 @@ msgstr "Wollen Sie wirklich diese Verbindung löschen?"
 #~ msgstr ""
 #~ "die folgenden Empfänger konnten nicht per Mail erreicht werden (fehlende "
 #~ "Adresse): %s"
-
-#~ msgid "mail not send: %s"
-#~ msgstr "Email nicht gesendet: %s"
-
-#~ msgid "new comment"
-#~ msgstr "neuer Kommentar"
-
-#~ msgid "new file added"
-#~ msgstr "neue Datei angefügt"
-
-#~ msgid "file name"
-#~ msgstr "Dateiname"
-
-#~ msgid "file size"
-#~ msgstr "Dateigröße"
-
-#~ msgid "content type"
-#~ msgstr "Dateityp"
-
-#~ msgid "new file"
-#~ msgstr "neue Datei"
-
-#~ msgid "ticket mentioned by #%s"
-#~ msgstr "Ticket referenziert von #%s"
-
-#~ msgid ""
-#~ "ticket closed - resolution: %(resolution)s\n"
-#~ "\n"
-#~ "%(comment)s"
-#~ msgstr ""
-#~ "Ticket geschlossen - Lösung gelöscht: %(resolution)s\n"
-#~ "\n"
-#~ "%(comment)s"
-
-#~ msgid "no resolution selected"
-#~ msgstr "keine Lösung ausgewählt"
-
-#~ msgid "comment invalid"
-#~ msgstr "Kommentar ungültig"
-
-#~ msgid "ticket reopend - resolution deleted"
-#~ msgstr "Ticket erneut geöffnet - Lösung gelöscht"
-
-#, fuzzy
-#~ msgid ""
-#~ "ticket reassigned to %(user)s\n"
-#~ "state now: %(state)s\n"
-#~ "\n"
-#~ "%(comment)s"
-#~ msgstr ""
-#~ "Ticket neu zugeordnet zu %(user)s\n"
-#~ "\n"
-#~ "%(comment)s"
-
-#~ msgid "missing assigned user"
-#~ msgstr "fehlender User"
-
-#, fuzzy
-#~ msgid "data invalid: %s"
-#~ msgstr "Kommentar ungültig"
 
 #, fuzzy
 #~ msgid "invalid"
