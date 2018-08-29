@@ -166,8 +166,6 @@ class SimpleTickets(forms.Form):
 class SearchForm(forms.ModelForm):
     required_css_class = 'do_not_require'
 
-    #fulltext = forms.CharField(required=True, label=_('full text search'))
-
     def __init__(self, *args, **kwargs):
         if not 'user' in kwargs:
             raise Exception('missing user')
@@ -210,6 +208,16 @@ class SearchForm(forms.ModelForm):
                 self.fields[field] = forms.NullBooleanField()
 
             self.fields[field].required = False
+
+        # add fulltext
+        field = forms.CharField(required=False, label=_('full text search'))
+        setattr(self, 'fulltext', field)
+        self.fields['fulltext'] = field
+
+        self.field_order = ['fulltext']
+        for field in self.fields:
+            self.field_order.append(field)
+        self.field_order.pop()
 
         # unset initial
         for field in self.fields:
