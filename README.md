@@ -57,6 +57,7 @@ KEY FEATURES
 - mails for ticket changes, comments, close, reopen, reassign
 - searchable fields configurable
 - searches saveable as reports
+- nice visual for complex search supporting AND and OR in groups
 - ticket history and general logs of what you have done
 - ticket references (including back references)
 - complex workflows (create the workflow you need)
