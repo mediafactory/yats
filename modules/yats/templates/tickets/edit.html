@@ -13,7 +13,7 @@
 {% block content %}
 
     <h2>{% trans "edit ticket" %} #{{ ticket.id }}</h2>
-    {% if mode == "simple" %}<p style="margin-top: -15px;"><small class="text-muted"><a href="/tickets/edit/{{ ticket.id }}/">{% trans "switch to extended form" %)]</a></small></p>{% endif %}
+    {% if mode == "simple" %}<p style="margin-top: -15px;"><small class="text-muted"><a href="/tickets/edit/{{ ticket.id }}/">{% trans "switch to extended form" %}]</a></small></p>{% endif %}
     <p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} by {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}</small></p>
 
     <p>&nbsp;</p>
