@@ -431,6 +431,10 @@ def prettyValues(data):
                             rule['value'] = User.objects.get(pk=rule['value'])
                     else:
                         rule['value'] = getModelValue(ticket_field.rel.to.__module__, ticket_field.rel.to.__name__, rule['value'])
+                if hasattr(ticket_field, 'verbose_name'):
+                    rule['label'] = str(ticket_field.verbose_name)
+                else:
+                    rule['label'] = str(ticket_field)
 
         return rules
 

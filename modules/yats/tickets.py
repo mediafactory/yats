@@ -687,7 +687,7 @@ def table(request, **kwargs):
                 result = ('%s %s %s' % (result, pretty_condition(condition), formatQuery(rule['rules'], rule['condition']))).strip()
                 continue
 
-            param = ('%s %s %s' % (pretty_name(rule['field']), pretty_operator(rule['operator']), pretty_value(rule['value']))).strip()
+            param = ('%s %s %s' % (rule['label'], pretty_operator(rule['operator']), pretty_value(rule['value']))).strip()
             if result != '(':
                 result = '%s %s %s' % (result, pretty_condition(condition), param)
             else:
@@ -695,7 +695,6 @@ def table(request, **kwargs):
 
         return '%s)' % result
 
-    from django.forms.forms import pretty_name
     tic = get_ticket_model().objects.select_related('type').all()
 
     if 'search' in kwargs:
