@@ -89,8 +89,8 @@ class base(models.Model):
     active_record = models.BooleanField(default=True)
 
     # creation
-    c_date = models.DateTimeField(default=timezone.now)
-    c_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    c_date = models.DateTimeField(_('creation time'), default=timezone.now)
+    c_user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('creator'), related_name='+')
     # update
     u_date = models.DateTimeField(default=timezone.now)
     u_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
@@ -189,17 +189,17 @@ class ticket_flow_edges(base):
     next = models.ForeignKey(ticket_flow, related_name='next')
 
 class tickets(base):
-    caption = models.CharField(max_length=255)
-    description = models.TextField()
-    type = models.ForeignKey(ticket_type, null=True)
-    priority = models.ForeignKey(ticket_priority, null=True)
-    customer = models.ForeignKey(organisation)
-    assigned = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', null=True, blank=True)
-    resolution = models.ForeignKey(ticket_resolution, null=True)
-    closed = models.BooleanField(default=False)
-    state = models.ForeignKey(ticket_flow, null=True, blank=True, default=get_flow_start)
-    close_date = models.DateTimeField(null=True)
-    last_action_date = models.DateTimeField(null=True)
+    caption = models.CharField(_('caption'), max_length=255)
+    description = models.TextField(_('description'))
+    type = models.ForeignKey(ticket_type, verbose_name=_('type'), null=True)
+    priority = models.ForeignKey(ticket_priority, verbose_name=_('priority'), null=True)
+    customer = models.ForeignKey(organisation, verbose_name=_('organisation'))
+    assigned = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('assigned'), related_name='+', null=True, blank=True)
+    resolution = models.ForeignKey(ticket_resolution, verbose_name=_('resolution'), null=True)
+    closed = models.BooleanField(_('closed'), default=False)
+    state = models.ForeignKey(ticket_flow, verbose_name=_('state'), null=True, blank=True, default=get_flow_start)
+    close_date = models.DateTimeField(_('close date'), null=True)
+    last_action_date = models.DateTimeField(_('last action'), null=True)
     keep_it_simple = models.BooleanField(default=True)
     uuid = models.CharField(max_length=255, null=False, blank=False)
 

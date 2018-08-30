@@ -76,19 +76,19 @@ BILLING_TYPE_CHOICES = (
 )
 
 class test(tickets):
-    component = models.ForeignKey(ticket_component)
-    version = models.CharField(max_length=255, choices=lazy(getGibthubTags, tuple)())
-    keywords = models.CharField(max_length=255, blank=True)
-    reproduction = models.TextField(null=True)
-    billing_needed = models.NullBooleanField(default=True)
-    billing_done = models.NullBooleanField(default=None)
-    billing_reason = models.TextField(null=True, blank=True)
-    billing_estimated_time = models.FloatField(null=True, blank=True)
-    billing_time_taken = models.FloatField(null=True, blank=True)
-    billing_type = models.CharField(max_length=255, choices=BILLING_TYPE_CHOICES, null=True, blank=True)
-    solution = models.TextField(null=True, blank=True)
-    fixed_in_version = models.CharField(max_length=255, choices=lazy(getGibthubTags, tuple)(), blank=True)
-    deadline = models.DateTimeField(null=True, blank=True)
+    component = models.ForeignKey(ticket_component, verbose_name=_('component'))
+    version = models.CharField(_('version'), max_length=255, choices=lazy(getGibthubTags, tuple)())
+    keywords = models.CharField(_('keywords'), max_length=255, blank=True)
+    reproduction = models.TextField(_('reproduction'), null=True)
+    billing_needed = models.NullBooleanField(_('billing needed'), default=True)
+    billing_done = models.NullBooleanField(_('billing done'), default=None)
+    billing_reason = models.TextField(_('billing reason'), null=True, blank=True)
+    billing_estimated_time = models.FloatField(_('billing estimated time'), null=True, blank=True)
+    billing_time_taken = models.FloatField(_('billing tike taken'), null=True, blank=True)
+    billing_type = models.CharField(_('billing type'), max_length=255, choices=BILLING_TYPE_CHOICES, null=True, blank=True)
+    solution = models.TextField(_('solution'), null=True, blank=True)
+    fixed_in_version = models.CharField(_('fixed in version'), max_length=255, choices=lazy(getGibthubTags, tuple)(), blank=True)
+    deadline = models.DateTimeField(_('deadline'), null=True, blank=True)
 
     def is_late(self):
         if self.deadline < datetime.date.today():

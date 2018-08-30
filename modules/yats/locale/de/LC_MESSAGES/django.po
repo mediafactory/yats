@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-29 18:57+0000\n"
-"PO-Revision-Date: 2018-08-29 21:09+0200\n"
+"POT-Creation-Date: 2018-08-30 16:23+0000\n"
+"PO-Revision-Date: 2018-08-30 18:27+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -58,20 +58,21 @@ msgstr "die Datei ist mit dem \"%s\" Virus infiziert"
 msgid "unable to initialize scan engine on host %s"
 msgstr "der Virusscanner kann auf dem Server %s nicht initialisiert werden"
 
-#: forms.py:158 templates/tickets/list.html:28 templates/tickets/list.html:40
+#: forms.py:158 models.py:192 templates/tickets/list.html:28
+#: templates/tickets/list.html:40
 msgid "caption"
 msgstr "Betreff"
 
-#: forms.py:159
+#: forms.py:159 models.py:193
 msgid "description"
 msgstr "Beschreibung"
 
-#: forms.py:160 forms.py:270 templates/tickets/list.html:27
+#: forms.py:160 forms.py:270 models.py:197 templates/tickets/list.html:27
 #: templates/tickets/list.html:39
 msgid "assigned"
 msgstr "zugeordnet"
 
-#: forms.py:161
+#: forms.py:161 models.py:195
 msgid "priority"
 msgstr "Priorität"
 
@@ -117,7 +118,7 @@ msgstr "Kommentar"
 msgid "file"
 msgstr "Datei"
 
-#: forms.py:266
+#: forms.py:266 models.py:198
 msgid "resolution"
 msgstr "Lösung"
 
@@ -224,6 +225,14 @@ msgstr "Benutzerprofil"
 msgid "user profiles"
 msgstr "Benutzerprofile"
 
+#: models.py:92
+msgid "creation time"
+msgstr "Erstellungsdatum"
+
+#: models.py:93
+msgid "creator"
+msgstr "Ersteller"
+
 #: models.py:149
 msgid "ticket type"
 msgstr "Ticketart"
@@ -255,6 +264,32 @@ msgstr "Ticketstatus"
 #: models.py:185
 msgid "ticket states"
 msgstr "Ticketstatus"
+
+#: models.py:194 templates/tickets/list.html:25 templates/tickets/list.html:37
+msgid "type"
+msgstr "Typ"
+
+#: models.py:196 templates/info.html:47
+msgid "organisation"
+msgstr "Organisation"
+
+#: models.py:199 templates/tickets/gallery.html:18
+#: templates/tickets/history.html:18 templates/tickets/view.html:20
+msgid "closed"
+msgstr "geschlossen"
+
+#: models.py:200 templates/tickets/list.html:21 templates/tickets/list.html:26
+#: templates/tickets/list.html:33 templates/tickets/list.html:38
+msgid "state"
+msgstr "Status"
+
+#: models.py:201
+msgid "close date"
+msgstr "Abschlußdatum"
+
+#: models.py:202
+msgid "last action"
+msgstr "letzte Aktion"
 
 #: shortcuts.py:207 shortcuts.py:221 shortcuts.py:272 shortcuts.py:310
 #, python-format
@@ -496,10 +531,6 @@ msgstr "Servername"
 msgid "user"
 msgstr "Benutzer"
 
-#: templates/info.html:47
-msgid "organisation"
-msgstr "Organisation"
-
 #: templates/login.html:10
 msgid "Local login"
 msgstr "Lokale Anmeldung"
@@ -524,7 +555,7 @@ msgstr "keine Organisation zugeordnet"
 msgid "edit ticket"
 msgstr "Ticket ändern"
 
-#: templates/tickets/edit.html:16
+#: templates/tickets/edit.html:16 templates/tickets/new.html:16
 msgid "switch to extended form"
 msgstr "Zum erweiterten Formular wechseln"
 
@@ -551,11 +582,6 @@ msgstr "hochladen"
 #: templates/tickets/gallery.html:6
 msgid "file gallery ticket"
 msgstr "Datei-Gallerie für Ticket"
-
-#: templates/tickets/gallery.html:18 templates/tickets/history.html:18
-#: templates/tickets/view.html:20
-msgid "closed"
-msgstr "geschlossen"
 
 #: templates/tickets/gallery.html:18 templates/tickets/history.html:18
 #: templates/tickets/view.html:20
@@ -607,18 +633,9 @@ msgstr "Bericht"
 msgid "of"
 msgstr "von"
 
-#: templates/tickets/list.html:21 templates/tickets/list.html:26
-#: templates/tickets/list.html:33 templates/tickets/list.html:38
-msgid "state"
-msgstr "Status"
-
 #: templates/tickets/list.html:23 templates/tickets/list.html:35
 msgid "ticket#"
 msgstr "Ticket#"
-
-#: templates/tickets/list.html:25 templates/tickets/list.html:37
-msgid "type"
-msgstr "Typ"
 
 #: templates/tickets/list.html:49
 msgid "no tickets found!"
@@ -652,7 +669,7 @@ msgstr "Aktion"
 
 #: templates/tickets/log.html:22 templates/tickets/log.html:31
 msgid "diff"
-msgstr ""
+msgstr "Unterschiede"
 
 #: templates/tickets/log.html:29 templates/tickets/view.html:59
 msgid "name"
