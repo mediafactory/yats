@@ -113,7 +113,11 @@ def simple(request):
             return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
 
     else:
-        form = SimpleTickets(initial={'assigned': request.user.id})
+        if request.user.is_staff:
+            initial = {'assigned': request.user.id}
+        else:
+            initial = {}
+        form = SimpleTickets(initial=initial)
     return render(request, 'tickets/new.html', {'layout': 'horizontal', 'form': form, 'mode': 'simple'})
 
 @login_required
