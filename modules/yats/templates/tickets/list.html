@@ -34,9 +34,9 @@
                     <td>{% if line.deadline %}<i class="icon-time"></i>{% endif %}</td>
                     <td data-title="{% trans "ticket#" %}"><a href="/tickets/view/{{ line.id }}/">#{{ line.id }}</a></td>
                     <td data-title="{% trans "created" %}">{{ line.c_date|localtime|date:"d.m.y H:i" }}</td>
-                    <td data-title="{% trans "type" %}">{{ line.type|default:"&nbsp" }}</td>
+                    <td data-title="{% trans "type" %}">{{ line.type|default:"&nbsp;" }}</td>
                     <td data-title="{% trans "state" %}">{{ line.state }}</td>
-                    <td data-title="{% trans "assigned" %}">{{ line.assigned|default:"" }}</td>
+                    <td data-title="{% trans "assigned" %}">{{ line.assigned|default:"&nbsp;" }}</td>
                     <td data-title="{% trans "caption" %}">{{ line.caption }}</td>
                 </tr>
             {% endfor %}
