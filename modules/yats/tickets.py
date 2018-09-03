@@ -93,7 +93,7 @@ def simple(request):
                 else:
                     tic.customer_id = settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOME
             tic.component = cd['component']
-            if not tic.component and hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
+            if not tic.component_id and hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
                 tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
             tic.deadline = cd['deadline']
             tic.save(user=request.user)
