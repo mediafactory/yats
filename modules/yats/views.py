@@ -222,7 +222,7 @@ def kanban(request):
 
     for flow in flows:
         search_params, flow.data = build_ticket_search_ext(request, query, convert_sarch({'state': flow.pk}))
-        flow.data = flow.data.filter( Q(assigned=None) | Q(assigned=request.user) ).extra(select={"prio":"COALESCE(caldav, 10)"}, order_by=["prio", "-c_date"])
+        flow.data = flow.data.filter(Q(assigned=None) | Q(assigned=request.user)).extra(select={'prio': 'COALESCE(caldav, 10)'}, order_by=['prio', '-c_date'])
 
         if flow.type == 1:
             columns.insert(0, flow)
@@ -230,6 +230,7 @@ def kanban(request):
             columns.append(flow)
             if flow.type == 2:
                 finish_state = flow.pk
+                flow.data = flow.data.filter(close_date__gte=datetime.date.today() - datetime.timedelta(days=5))
 
                 seen = tickets_participants.objects.filter(user=request.user, ticket__in=flow.data.values_list('id', flat=True)).values_list('ticket_id', 'seen')
                 seen_elements = {}
