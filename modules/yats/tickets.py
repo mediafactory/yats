@@ -520,7 +520,7 @@ def action(request, mode, ticket):
                     if 'pdf' in f.content_type:
                         convertPDFtoImg('%s/%s.dat' % (dest, f.id), '%s/%s.preview' % (dest, f.id))
                     else:
-                        if 'image' not in f.content_type and 'audio' not in f.content_type:
+                        if 'image' not in f.content_type and 'audio' not in f.content_type and not 'javascript' in f.content_type:
                             try:
                                 tmp = convertOfficeTpPDF('%s/%s.dat' % (dest, f.id))
                                 convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
