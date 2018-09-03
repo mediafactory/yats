@@ -702,7 +702,7 @@ def table(request, **kwargs):
         search_params, tic = build_ticket_search_ext(request, tic, kwargs['search'])
 
     else:
-        tic = tic.filter(closed=False)
+        tic = tic.filter(closed=False).order_by('-id')
         search_params = convert_sarch({'closed':False})
         is_search = False
 
@@ -723,10 +723,9 @@ def table(request, **kwargs):
 
     board_form = AddToBordForm()
     board_form.fields['board'].queryset = board_form.fields['board'].queryset.filter(c_user=request.user)
-    from django.db import connection
     pretty_params = prettyValues(copy.deepcopy(search_params))
     pretty_query = formatQuery(pretty_params['rules'], pretty_params['condition'])
-    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'search_params': pretty_params, 'list_caption': list_caption, 'board_form': board_form, 'queries': connection.queries, 'query': json.dumps(search_params), 'sql': tic.query, 'pretty_query': pretty_query})
+    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'search_params': pretty_params, 'list_caption': list_caption, 'board_form': board_form, 'query': json.dumps(search_params), 'sql': tic.query, 'pretty_query': pretty_query})
 
 @login_required
 def search(request):

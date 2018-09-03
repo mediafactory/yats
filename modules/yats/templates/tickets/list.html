@@ -48,10 +48,7 @@
     {% if lines.paginator.count == 0 %}
     {% trans "no tickets found!" %}
     {% endif %}
-    <p><small class="text-muted">{% trans "You searched for:" %} {{ pretty_query }}
-
-      {% for key, value in pretty.iteritems %}
-        {{ key|prettify }}: {{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}</small></p>
+    <p><small class="text-muted">{% trans "You searched for:" %} {{ pretty_query }}</small></p>
 
     {% if is_search %}
     <div id="saveDlg" class="modal hide fade">
@@ -100,5 +97,5 @@
     </div>
     {% endif %}
 
-{{ sql }}
+{% if request.user.username == "henrik.genssen" %}{{ sql }}{% endif %}
 {% endblock %}
