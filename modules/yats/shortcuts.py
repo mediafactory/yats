@@ -110,7 +110,14 @@ def get_mail_recipient_list(request, ticket_id):
     #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by mail (address missing): %s') % ', '.join(error))
     return int_result, pub_result
 
-def get_ticket_url(request, ticket_id):
+def get_ticket_url(request, ticket_id, for_customer=False):
+    # http://192.168.33.11:8080/local_login/?next=/tickets/view/18/
+    if for_customer and hasattr(settings, 'SSO_SERVER') and settings.SSO_SERVER:
+        if request.is_secure():
+            return 'https://%s/local_login/?next=/tickets/view/%s/' % (request.get_host(), ticket_id)
+        else:
+            return 'http://%s/local_login/?next=/tickets/view/%s/' % (request.get_host(), ticket_id)
+
     if request.is_secure():
         return 'https://%s/tickets/view/%s/' % (request.get_host(), ticket_id)
     else:
@@ -214,7 +221,7 @@ def jabber_ticket(request, ticket_id, form, **kwargs):
                 tic.id,
                 tic.caption,
                 format_chanes(new, False),
-                get_ticket_url(request, ticket_id)
+                get_ticket_url(request, ticket_id, for_customer=True)
             ), pub_rcpt)
         except:
             if not kwargs.get('is_api', False):
@@ -243,7 +250,7 @@ def mail_ticket(request, ticket_id, form, **kwargs):
     if len(pub_rcpt) > 0 and has_public_fields(new):
         try:
             new['author'] = tic.u_user
-            send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, False), get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, pub_rcpt, False)
+            send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, False), get_ticket_url(request, ticket_id, for_customer=True)), settings.SERVER_EMAIL, pub_rcpt, False)
         except:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
@@ -253,77 +260,112 @@ def jabber_comment(request, comment_id):
     com = tickets_comments.objects.get(pk=comment_id)
     ticket_id = com.ticket_id
     int_rcpt, pub_rcpt = get_jabber_recipient_list(request, ticket_id)
-    rcpt = int_rcpt + pub_rcpt
-    if len(rcpt) == 0:
-        return
 
     tic = get_ticket_model().objects.get(pk=ticket_id)
 
-    try:
-        send_jabber('%s#%s: %s - %s\n\n%s\n\n%s' % (
-            settings.EMAIL_SUBJECT_PREFIX,
-            tic.id,
-            _('new comment'),
-            tic.caption,
-            com.comment,
-            get_ticket_url(request, ticket_id)
-        ), rcpt)
-    except:
-        messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
+    if len(int_rcpt) > 0:
+        try:
+            send_jabber('%s#%s: %s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new comment'),
+                tic.caption,
+                com.comment,
+                get_ticket_url(request, ticket_id)
+            ), int_rcpt)
+        except:
+            messages.add_message(request, messages.ERROR, _('internal jabber not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0:
+        try:
+            send_jabber('%s#%s: %s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new comment'),
+                tic.caption,
+                com.comment,
+                get_ticket_url(request, ticket_id, for_customer=True)
+            ), pub_rcpt)
+        except:
+            messages.add_message(request, messages.ERROR, _('internal jabber not send: %s') % sys.exc_info()[1])
 
 def mail_comment(request, comment_id):
     from yats.models import tickets_comments
     com = tickets_comments.objects.get(pk=comment_id)
     ticket_id = com.ticket_id
     int_rcpt, pub_rcpt = get_mail_recipient_list(request, ticket_id)
-    rcpt = int_rcpt + pub_rcpt
-    if len(rcpt) == 0:
-        return
 
     tic = get_ticket_model().objects.get(pk=ticket_id)
 
-    try:
-        send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new comment'), tic.caption), '%s\n\n%s' % (com.comment, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, rcpt, False)
-    except:
-        messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
+    if len(int_rcpt) > 0:
+        try:
+            send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new comment'), tic.caption), '%s\n\n%s' % (com.comment, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, int_rcpt, False)
+        except:
+            messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0:
+        try:
+            send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new comment'), tic.caption), '%s\n\n%s' % (com.comment, get_ticket_url(request, ticket_id, for_customer=True)), settings.SERVER_EMAIL, pub_rcpt, False)
+        except:
+            messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
 def jabber_file(request, file_id):
     from yats.models import tickets_files
     io = tickets_files.objects.get(pk=file_id)
     ticket_id = io.ticket_id
     int_rcpt, pub_rcpt = get_jabber_recipient_list(request, ticket_id)
-    rcpt = int_rcpt + pub_rcpt
-    if len(rcpt) == 0:
-        return
-    tic = get_ticket_model().objects.get(pk=ticket_id)
-    body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
 
-    try:
-        send_jabber('%s#%s: %s - %s\n\n%s' % (
-            settings.EMAIL_SUBJECT_PREFIX,
-            tic.id,
-            _('new file'),
-            tic.caption,
-            body
-        ), rcpt)
-    except:
-        messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+
+    if len(int_rcpt) > 0:
+        body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
+        try:
+            send_jabber('%s#%s: %s - %s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new file'),
+                tic.caption,
+                body
+            ), int_rcpt)
+        except:
+            messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0:
+        body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id, for_customer=True))
+        try:
+            send_jabber('%s#%s: %s - %s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new file'),
+                tic.caption,
+                body
+            ), pub_rcpt)
+        except:
+            messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
 
 def mail_file(request, file_id):
     from yats.models import tickets_files
     io = tickets_files.objects.get(pk=file_id)
     ticket_id = io.ticket_id
     int_rcpt, pub_rcpt = get_mail_recipient_list(request, ticket_id)
-    rcpt = int_rcpt + pub_rcpt
-    if len(rcpt) == 0:
-        return
-    tic = get_ticket_model().objects.get(pk=ticket_id)
-    body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
 
-    try:
-        send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, rcpt, False)
-    except:
-        messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+
+    if len(int_rcpt) > 0:
+        body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
+
+        try:
+            send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, int_rcpt, False)
+        except:
+            messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0:
+        body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id, for_customer=True))
+
+        try:
+            send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, int_rcpt, False)
+        except:
+            messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
 def clean_search_values(search):
     # clean only old
