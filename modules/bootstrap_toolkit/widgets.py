@@ -62,7 +62,7 @@ def get_locale_js_url_date(lang):
     return ''
 
 def get_locale_js_url_datetime(lang):
-    url = 'datetimepicker/js/locales/bootstrap-datepicker.%s.js' % lang
+    url = 'datetimepicker/js/locales/bootstrap-datetimepicker.%s.js' % lang
     if finders.find(url):
         return settings.STATIC_URL + url
     if '-' in lang:
