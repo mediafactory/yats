@@ -130,6 +130,7 @@ TEMPLATES = [
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -166,6 +167,10 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
     'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
@@ -188,7 +193,13 @@ LOGGING = {
             'handlers': ['request_handler'],
             'level': 'DEBUG',
             'propagate': True,
-        }
+        },
+        'djradicale': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            # 'level': 'ERROR',
+            'propagate': True,
+        },
     }
 }
 

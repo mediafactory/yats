@@ -13,6 +13,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.conf import settings
+from django.utils import translation
 from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search_ext, convert_sarch
@@ -242,7 +243,8 @@ def kanban(request):
     reassign = TicketReassignForm()
     edges = ticket_flow_edges.objects.all().order_by('now')
     add_breadcrumbs(request, 0, 'k')
-    return render(request, 'board/kanban.html', {'layout': 'horizontal', 'columns': columns, 'edges': edges, 'finish_state': finish_state, 'close': close, 'reassign': reassign})
+    cur_language = translation.get_language()
+    return render(request, 'board/kanban.html', {'layout': 'horizontal', 'columns': columns, 'edges': edges, 'finish_state': finish_state, 'close': close, 'reassign': reassign, 'cur_language': cur_language})
 
 def xptest(request, test):
     if test == 'xmpp':
