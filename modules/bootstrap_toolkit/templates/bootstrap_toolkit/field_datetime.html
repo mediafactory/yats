@@ -1,4 +1,4 @@
-<div class="input-append date form_datetime" data-date="{{ field.value|date:"d.m.Y h:m" }}">
+{% load i18n %}{% get_current_language as LANGUAGE_CODE %}<div class="input-append date form_datetime" data-date-language="{{ LANGUAGE_CODE }}" data-date="{{ field.value|date:"d.m.Y h:m" }}">
     {{ field }}
     <span class="add-on"><i class="icon-remove"></i></span>
     <span class="add-on"><i class="icon-th"></i></span>
