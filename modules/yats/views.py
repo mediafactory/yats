@@ -44,6 +44,12 @@ def root(request, form=None):
         return HttpResponseRedirect('/local_login/')
 
 def login(request):
+    if request.user.is_authenticated():
+        if 'next' in request.GET:
+            return HttpResponseRedirect(request.GET['next'])
+        else:
+            return HttpResponseRedirect('/')
+
     if request.method == 'POST':
         form = AuthenticationForm(request.POST)
         user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
