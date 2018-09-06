@@ -1,6 +1,6 @@
+- detect SSL
 - css boards / kanban on mobile
 - recycle old tasks => e.g. take every day 3 automatically, random from a que e.g. waiting and put them in entry again.
-- trans field-names in search
 - better map prio of apple to yats
 - move extra search in search from yatse
 - Ticketliste + edit & view
