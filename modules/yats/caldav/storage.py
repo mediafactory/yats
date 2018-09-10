@@ -156,8 +156,8 @@ class Collection(ical.Collection):
 
                     touch_ticket(request.user, tic.pk)
 
-                    mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
-                    jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
+                    mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT, is_api=True)
+                    jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT, is_api=True)
 
                 else:
                     raise Exception(form.errors)
