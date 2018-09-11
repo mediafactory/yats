@@ -20,13 +20,13 @@
     <p>&nbsp;</p>
 
     <div id="gallery">
-      {% for image in images %}<img src="{% if "image" in image.content_type %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}{% else %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}&preview=yes{% endif %}"
+      {% for image in images %}{% if image.content_type|hasPreview %}<img src="{% if "image" in image.content_type %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}{% else %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}&preview=yes{% endif %}"
           alt="{{ image.name }}"
           title="{{ image.name }}"
           data-desc="{{ image.content_tye }}"
           data-category="{{ image.content_tye }}"
           data-fullsrc="/tickets/download/{{ ticket.id }}/?file={{ image.id }}"
-      />{% endfor %}
+      />{% endif %}{% endfor %}
     </div>
 
     <script>

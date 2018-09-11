@@ -14,6 +14,14 @@ except ImportError:
 register = template.Library()
 
 @register.filter
+def hasPreview(mime):
+    if not mime:
+        return False
+
+    mimetype = mime.split('/')
+    return mimetype[0] not in ['audio'] and mime not in ['application/octet-stream', 'application/json']
+
+@register.filter
 def prettify(value):
     return pretty_name(value)
 
