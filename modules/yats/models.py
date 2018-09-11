@@ -202,6 +202,7 @@ class tickets(base):
     last_action_date = models.DateTimeField(_('last action'), null=True)
     keep_it_simple = models.BooleanField(default=True)
     uuid = models.CharField(max_length=255, null=False, blank=False)
+    hasAttachments = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.last_action_date = timezone.now()
@@ -236,7 +237,7 @@ class tickets_files(base):
     def save(self, *args, **kwargs):
         super(tickets_files, self).save(*args, **kwargs)
 
-        tickets.objects.filter(id=self.ticket_id).update(last_action_date=self.c_date)
+        tickets.objects.filter(id=self.ticket_id).update(last_action_date=self.c_date, hasAttachments=tickets_files.objects.filter(ticket=self.ticket_id, active_record=True).count() > 0)
 
     class Meta:
         ordering = ['c_date']
