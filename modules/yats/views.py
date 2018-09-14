@@ -220,6 +220,7 @@ def yatse_api(request):
     else:
         return HttpResponseNotFound('invalid method')
 
+@login_required
 def kanban(request):
     flows = ticket_flow.objects.all().order_by('type')
     columns = []
@@ -252,6 +253,7 @@ def kanban(request):
     cur_language = translation.get_language()
     return render(request, 'board/kanban.html', {'layout': 'horizontal', 'columns': columns, 'edges': edges, 'finish_state': finish_state, 'close': close, 'reassign': reassign, 'cur_language': cur_language})
 
+@login_required
 def xptest(request, test):
     if test == 'xmpp':
         from pyxmpp2.simple import send_message
