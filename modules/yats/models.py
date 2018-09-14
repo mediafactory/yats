@@ -203,6 +203,7 @@ class tickets(base):
     keep_it_simple = models.BooleanField(default=True)
     uuid = models.CharField(max_length=255, null=False, blank=False)
     hasAttachments = models.BooleanField(default=False)
+    hasComments = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.last_action_date = timezone.now()
@@ -224,7 +225,7 @@ class tickets_comments(base):
     def save(self, *args, **kwargs):
         super(tickets_comments, self).save(*args, **kwargs)
 
-        tickets.objects.filter(id=self.ticket_id).update(last_action_date=self.c_date)
+        tickets.objects.filter(id=self.ticket_id).update(last_action_date=self.c_date, hasComments=tickets_comments.objects.filter(ticket=self.ticket_id, active_record=True).count() > 0)
 
 class tickets_files(base):
     ticket = models.ForeignKey(tickets)

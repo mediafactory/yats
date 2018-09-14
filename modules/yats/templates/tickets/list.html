@@ -31,7 +31,7 @@
               {% for line in lines %}
                 <tr style="{% if line.priority.color != "transparent" %}background-color: {{ line.priority.color }}{% endif %}">
                 	<td data-title="{% trans "state" %}"><button type="button" class="btn {% if line.closed %}btn-danger{% else %}btn-success{% endif %}" disabled></td>
-                    <td>{% if line.deadline %}<i class="icon-time"></i>{% endif %}{% if line.hasAttachments %}<i class="icon-file"></i>{% endif %}</td>
+                    <td>{% if line.deadline %}<i class="icon-time"></i>{% endif %}{% if line.hasAttachments %}<i class="icon-file"></i>{% endif %}{% if line.hasComments %}<i class="fa fa-comments" aria-hidden="true"></i>{% endif %}</td>
                     <td data-title="{% trans "ticket#" %}"><a href="/tickets/view/{{ line.id }}/">#{{ line.id }}</a></td>
                     <td data-title="{% trans "created" %}">{{ line.c_date|localtime|date:"d.m.y H:i" }}</td>
                     <td data-title="{% trans "type" %}">{{ line.type|default:"&nbsp;" }}</td>
