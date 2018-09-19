@@ -21,6 +21,7 @@ ln -fs /vagrant_modules/pyxmpp2 $sites 2>/dev/null
 ln -fs /vagrant_modules/radicale $sites 2>/dev/null
 
 pip install -r /vagrant/requirements.txt
+/vagrant/install_xapian.sh
 
 # clamav config
 ret=`grep -ir "TCPSocket" /etc/clamav/clamd.conf`
@@ -36,6 +37,9 @@ systemctl --system daemon-reload
 systemctl restart clamav-daemon.socket
 systemctl restart clamav-daemon.service
 freshclam&
+
+# search
+mkdir -p /var/web/yats/index/
 
 # yats web
 mkdir -p /var/web/yats

@@ -161,6 +161,8 @@ INSTALLED_APPS = [
     'yats',
     'web',
     'djradicale',
+    'markdownx',
+    'haystack',
 ]
 
 LOGGING = {
@@ -266,5 +268,15 @@ DJRADICALE_RIGHTS = {
         'user': '.+',
         'collection': '^%(login)s$',
         'permission': 'rw',
+    },
+}
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'xapian_backend.XapianEngine',
+        'PATH': '/var/web/yats/index/xapian_index',
+        'HAYSTACK_XAPIAN_LANGUAGE': 'de',
+        'HAYSTACK_XAPIAN_STEMMING_STRATEGY': 'STEM_SOME',
+        'INCLUDE_SPELLING': True,
     },
 }

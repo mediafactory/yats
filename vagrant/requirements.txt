@@ -12,3 +12,6 @@ dnspython
 vobject
 monotonic
 SpeechRecognition
+django-markdownx
+jango-haystack
+xapian-haystack
