@@ -263,3 +263,6 @@ def xptest(request, test):
 
     else:
         return HttpResponseNotFound(test)
+
+def robots(request):
+    return HttpResponse('User-agent: *\nDisallow: /', content_type='text/plain')

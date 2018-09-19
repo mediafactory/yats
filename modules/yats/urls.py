@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import  url
-from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout, kanban, xptest
+from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout, kanban, xptest, robots
 from yats.tickets import new, action, table, search, search_ex, search_simple, reports, workflow, simple, create, log
 from rpc4django.views import serve_rpc_request
 
@@ -98,4 +98,9 @@ urlpatterns = [
    url(r'^xptest/(?P<test>[\w|\W]+)/$',
         view=xptest,
         name='xptest'),
+
+   # robots
+   url(r'^robots\.txt',
+        view=robots,
+        name='robots'),
 ]
