@@ -1,19 +1,29 @@
+- wiki
+  => TOC
+  => Links zu anderen Docs
+  => Ticket erstellen
+  => history
+  => Breadcrumb
+  => Fulltext search - maybe Haystack
+  => YATSEE
+  => Logs
+- checksum & virusscan in PUT
+- check, if close is allowed in DAV
 - Fortschirtt in ToDos
+- recycle old tasks => e.g. take every day 3 automatically, random from a que e.g. waiting and put them in entry again.
+- Ticketliste + edit & view
+
+- move extra search in search from yatse
+
 - forgot password
 - detect SSL
 - css boards / kanban on mobile
-- recycle old tasks => e.g. take every day 3 automatically, random from a que e.g. waiting and put them in entry again.
 - better map prio of apple to yats
-- move extra search in search from yatse
-- Ticketliste + edit & view
 - highlight ticket view if deadline
-- special fields => prio, geo in DAV
-- check, if close is allowed in DAV
+- special fields => geo in DAV
 - Kanban Board Settings: limit Columns, my or my and non asssigned, max days finished
-- boards für andere Spalten: z.B. Komponenten + eine mit unassigned
+- boards für andere Spalten: z.B. Komponenten + eine mit unassigned oder user
 - Filter über dem Board: Assigned (my, my and none, all or even user), Componenten
-- Fulltext search - maybe Haystack
-- checksum & virusscan in PUT
 
 ---- WISHLIST
 - Vorlangen von Tickets
