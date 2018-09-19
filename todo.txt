@@ -1,3 +1,5 @@
+- igrnore seen => abrechnen
+- Arbeitsgruppen
 - Fortschirtt in ToDos
 - forgot password
 - detect SSL
