@@ -774,6 +774,9 @@ def search_ex(request):
         request.session['last_search'] = json.loads(request.POST['query'])
         return table(request, search=request.session['last_search'])
 
+    if request.method == 'GET' and 'page' in request.GET:
+        return table(request, search=request.session['last_search'])
+
     form = SearchForm(include_list=searchable_fields, is_stuff=request.user.is_staff, user=request.user, customer=request.organisation.id)
     return render(request, 'tickets/querybuilder.html', {'form': form})
 
