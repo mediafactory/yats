@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n %}
+
+{% block title %}
+    {% trans "new ticket" %}
+{% endblock %}
+
+{% block extra_head %}
+    {{ form.media }}
+{% endblock %}
+
+{% block content %}
+
+    <h2>{% trans "new ticket" %}</h2>
+    {% if mode == "simple" %}<p style="margin-top: -15px;"><small class="text-muted"><a href="/tickets/new/">{% trans "switch to extended form" %}</a></small></p>{% endif %}
+
+    <p>&nbsp;</p>
+
+    <form class="form-{{ layout }}" action="" method="post">
+        {% csrf_token %}
+        {{ form|as_bootstrap:layout }}
+        {% if layout == "horizontal" %}
+            <p class="form-actions">
+                <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+            </p>
+        {% else %}
+            <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+        {% endif %}
+    </form>
+
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n forms strings comments tz %}
+
+{% block title %}
+    {% trans "doc" %} #{{ doc.id }}
+{% endblock %}
+
+{% block content %}
+<h2>{{ doc.caption }} <a class="btn btn-small" href="/docs/history/{{ doc.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/docs/edit/{{doc.id }}/">{% trans "edit" %}</a></h2>
+<p>{{ doc.text }}</p>
+{% endblock %}

@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.text import slugify
+from markdownx.models import MarkdownxField
 
 import json
 import uuid
@@ -273,6 +274,13 @@ class tickets_history(base):
 class boards(base):
     name = models.CharField(max_length=255)
     columns = models.TextField()
+
+    def __unicode__(self):
+        return self.name
+
+class docs(base):
+    caption = models.CharField(max_length=255)
+    text = MarkdownxField()
 
     def __unicode__(self):
         return self.name

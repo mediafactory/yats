@@ -6,7 +6,7 @@ from django.forms.models import construct_instance
 from bootstrap_toolkit.widgets import BootstrapDateTimeInput, BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
-from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards, ticket_priority
+from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards, ticket_priority, docs
 from web.models import ticket_component
 
 import importlib
@@ -312,3 +312,33 @@ class PasswordForm(forms.Form):
             raise forms.ValidationError(_(u'passwords did not match!'))
         else:
             return password_check
+
+class DocsForm(forms.ModelForm):
+    required_css_class = 'required'
+
+    def __init__(self, *args, **kwargs):
+        if not 'user' in kwargs:
+            raise Exception('missing user')
+        self.user = kwargs.pop('user')
+        self.view_only = kwargs.pop('view_only', False)
+        super(DocsForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        """
+        Saves this ``form``'s cleaned_data into model instance
+        ``self.instance``.
+
+        If commit=True, then the changes to ``instance`` will be saved to the
+        database. Returns ``instance``.
+        """
+        if self.instance.pk is None:
+            fail_message = 'created'
+        else:
+            fail_message = 'changed'
+        return save_instance(self, self.instance, self._meta.fields,
+                             fail_message, commit, self._meta.exclude,
+                             construct=False, user=self.user)
+
+    class Meta:
+        model = docs
+        exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record']

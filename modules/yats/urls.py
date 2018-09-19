@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import  url
+from django.contrib.auth import views as auth_views
 from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout, kanban, xptest
 from yats.tickets import new, action, table, search, search_ex, search_simple, reports, workflow, simple, create, log
+from yats.docs import action, docs_new
 from rpc4django.views import serve_rpc_request
 
 urlpatterns = [
@@ -75,6 +77,20 @@ urlpatterns = [
         view=info,
         name='info'),
 
+   # docs
+   url(r'^docs/(?P<mode>\w+)/(?P<docid>\d+)/$',
+        view=action,
+        name='action'),
+
+   url(r'^docs/new/$',
+        view=docs_new,
+        name='docs_new'),
+
+   # log
+   url(r'^log/$',
+        view=log,
+        name='log'),
+
    # local login
    url(r'^local_login/$',
         view=login,
@@ -83,11 +99,6 @@ urlpatterns = [
    url(r'^local_logout/$',
         view=logout,
         name='logout'),
-
-   # log
-   url(r'^log/$',
-        view=log,
-        name='log'),
 
    # yatse
    url(r'^yatse/$',

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n %}
+
+{% block title %}
+    {% trans "edit ticket" %} #{{ ticket.id }}
+{% endblock %}
+
+{% block extra_head %}
+    {{ form.media }}
+{% endblock %}
+
+{% block content %}
+
+    <h2>{% trans "edit document" %}</h2>
+    <p><small class="text-muted">{% trans "created" %}: {{ doc.c_date }} by {{ doc.c_user }}<br /> {% trans "last modified" %}: {{ doc.u_date }} by {{ doc.u_user }}</small></p>
+
+    <p>&nbsp;</p>
+
+    <form class="form-{{ layout }}" action="" method="post">
+        {% csrf_token %}
+        {{ form|as_bootstrap:layout }}
+        {% if layout == "horizontal" %}
+            <p class="form-actions">
+                <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+            </p>
+        {% else %}
+            <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+        {% endif %}
+    </form>
+
+{% endblock %}

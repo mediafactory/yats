@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.conf import settings
 from simple_sso.sso_client.client import Client
 from djradicale.views import DjRadicaleView, WellKnownView
+from markdownx import urls as markdownx
 
 admin.autodiscover()
 
@@ -25,4 +26,6 @@ urlpatterns = [
     # .well-known internal (radicale) implementation
     # url(r'^\.well-known/(?P<type>(caldav|carddav))$',
     #     DjRadicaleView.as_view(), name='djradicale_well-known'),
+
+    url(r'^markdownx/', include(markdownx)),
 ]
