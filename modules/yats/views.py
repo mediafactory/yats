@@ -17,7 +17,7 @@ from django.utils import translation
 from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search_ext, convert_sarch
-from yats.models import boards, tickets_participants, ticket_flow, ticket_flow_edges
+from yats.models import boards, tickets_participants, ticket_flow, ticket_flow_edges, tickets_ignorants
 from yats.forms import AddToBordForm, PasswordForm, TicketCloseForm, TicketReassignForm
 from yats.yatse import api_login, buildYATSFields, YATSSearch
 
@@ -178,12 +178,18 @@ def show_board(request, name):
                 column['query'] = column['query'].filter(last_action_date__gte=datetime.date.today() - datetime.timedelta(days=column['days']))
         if not request.user.is_staff:
             column['query'] = column['query'].filter(customer=request.organisation)
-        seen = tickets_participants.objects.filter(user=request.user, ticket__in=column['query'].values_list('id', flat=True)).values_list('ticket_id', 'seen')
-        if column['limit']:
-            column['query'] = column['query'][:column['limit']]
+
         seen_elements = {}
+        seen = tickets_participants.objects.filter(user=request.user, ticket__in=column['query'].values_list('id', flat=True)).values_list('ticket_id', 'seen')
         for see in seen:
             seen_elements[see[0]] = see[1]
+
+        seen = tickets_ignorants.objects.filter(user=request.user, ticket__in=column['query'].values_list('id', flat=True)).values_list('ticket_id')
+        for see in seen:
+            seen_elements[see[0]] = True
+
+        if column['limit']:
+            column['query'] = column['query'][:column['limit']]
         column['seen'] = seen_elements
 
     add_breadcrumbs(request, board.pk, '$')
@@ -244,11 +250,16 @@ def kanban(request):
                 finish_state = flow.pk
                 flow.data = flow.data.filter(close_date__gte=datetime.date.today() - datetime.timedelta(days=5))
 
-                seen = tickets_participants.objects.filter(user=request.user, ticket__in=flow.data.values_list('id', flat=True)).values_list('ticket_id', 'seen')
-                seen_elements = {}
-                for see in seen:
-                    seen_elements[see[0]] = see[1]
-                flow.seen = seen_elements
+        seen_elements = {}
+        seen = tickets_participants.objects.filter(user=request.user, ticket__in=flow.data.values_list('id', flat=True)).values_list('ticket_id', 'seen')
+        for see in seen:
+            seen_elements[see[0]] = see[1]
+
+        seen = tickets_ignorants.objects.filter(user=request.user, ticket__in=flow.data.values_list('id', flat=True)).values_list('ticket_id')
+        for see in seen:
+            seen_elements[see[0]] = True
+
+        flow.seen = seen_elements
 
     close = TicketCloseForm()
     reassign = TicketReassignForm()

@@ -44,7 +44,7 @@
                                     {% if ticket.deadline and not ticket.closed %}<small class="text-muted"{% if ticket.is_late == 2 %} style="color: red;"{% endif %}{% if ticket.is_late == 1 %} style="color: orange;"{% endif %}><i class="icon-time"></i> {{ ticket.deadline }}</small>{% endif %}
                                     {% if ticket.hasAttachments %}<i class="icon-file"></i>{% endif %}{% if ticket.hasComments %}<i class="fa fa-comments" aria-hidden="true"></i>{% endif %}{% if ticket.assigned %}<small class="text-muted"><i class="icon-user"></i> {{ ticket.assigned }}</small>{% endif %}
                                     {% if request.user.is_staff and ticket.customer and ticket.billing_estimated_time and ticket.customer.hourly_rate %}<small class="text-muted"><b>€</b> {{ ticket.customer.hourly_rate|multiply:ticket.billing_estimated_time|floatformat:"0" }}</small>{% endif %}
-                                    {% if seen == 1 %}<a href="javascript: seen({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% endif %}
+                                    {% if seen == 1 %}<a href="javascript: seen({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% else %}<a href="javascript: ignore({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% endif %}
                                 </div>
                             </div>
                         </article>
@@ -169,6 +169,14 @@
     function seen(ticket) {
       if (confirm('{% trans "Do you really want to remove this ticket from this board until the next change of that ticket?" %}') ) {
         $.get("/tickets/notify/" + ticket + "/", function(data, status) {
+            $('#item' + ticket).remove();
+        });
+      }
+    }
+
+    function ignore(ticket) {
+      if (confirm('{% trans "Do you really want to remove this ticket from this board until the next change of that ticket?" %}') ) {
+        $.get("/tickets/ignore/" + ticket + "/", function(data, status) {
             $('#item' + ticket).remove();
         });
       }

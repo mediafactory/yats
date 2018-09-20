@@ -12,7 +12,7 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
 from django.utils import timezone
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
-from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end
+from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end, tickets_ignorants
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF
 import os
 import io
@@ -574,6 +574,13 @@ def action(request, mode, ticket):
 
     elif mode == 'notify':
         tickets_participants.objects.filter(ticket=tic, user=request.user).update(seen=True)
+        return HttpResponse('OK')
+
+    elif mode == 'ignore':
+        ig = tickets_ignorants()
+        ig.ticket = tic
+        ig.user=request.user
+        ig.save()
         return HttpResponse('OK')
 
     elif mode == 'todo':

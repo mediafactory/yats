@@ -211,6 +211,7 @@ class tickets(base):
         if not self.uuid:
             self.uuid = uuid.uuid4()
         tickets_participants.objects.filter(ticket=self).update(seen=False)
+        tickets_ignorants.objects.filter(ticket=self).delete()
         super(tickets, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -220,6 +221,10 @@ class tickets_participants(models.Model):
     ticket = models.ForeignKey(tickets)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     seen = models.BooleanField(default=False)
+
+class tickets_ignorants(models.Model):
+    ticket = models.ForeignKey(tickets)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
 
 class tickets_comments(base):
     ticket = models.ForeignKey(tickets)
