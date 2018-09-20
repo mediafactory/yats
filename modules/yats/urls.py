@@ -4,6 +4,7 @@ from yats.views import root, info, show_board, board_by_id, yatse_api, login, lo
 from yats.tickets import new, action, table, search, search_ex, search_simple, reports, workflow, simple, create, log
 from yats.docs import docs_action, docs_new
 from rpc4django.views import serve_rpc_request
+from markdownx import urls as markdownx
 
 urlpatterns = [
     url(r'^rpc/$',
@@ -116,4 +117,6 @@ urlpatterns = [
    url(r'^robots\.txt',
         view=robots,
         name='robots'),
+
+    url(r'^markdownx/', include(markdownx)),
 ]

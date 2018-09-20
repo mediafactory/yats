@@ -1,2 +1,2 @@
-{{ object.caption }}
-{{ object.description }}
+{{ object.caption|safe }}
+{{ object.description|safe }}

@@ -8,6 +8,9 @@ class DocIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     caption = indexes.CharField(model_attr='caption')
 
+    def prepare_caption(self, obj):
+        return obj.caption[:245]
+
     def get_model(self):
         return docs
 
@@ -19,6 +22,10 @@ class DocIndex(indexes.SearchIndex, indexes.Indexable):
 class TicketIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True, template_name='search/indexes/yats/ticket_text.txt')
     caption = indexes.CharField(model_attr='caption')
+    closed = indexes.BooleanField(model_attr='closed')
+
+    def prepare_caption(self, obj):
+        return obj.caption[:245]
 
     def get_model(self):
         return get_ticket_model()
