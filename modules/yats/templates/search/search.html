@@ -18,8 +18,8 @@
                   </thead>
                   {% for result in page.object_list %}
                       <tr>
-                        <td>{% if result.get_stored_fields.closed != None %}<button type="button" class="btn {% if result.get_stored_fields.closed %}btn-danger{% else %}btn-success{% endif %}" disabled></button>{% endif %}</td>
-                        <td>{% if result.get_stored_fields.closed != None %}#{{ result.pk }}{% endif %}</td>
+                        <td width="20">{% if result.get_stored_fields.closed != None %}<button type="button" class="btn {% if result.get_stored_fields.closed %}btn-danger{% else %}btn-success{% endif %}" disabled></button>{% endif %}</td>
+                        <td width="60">{% if result.get_stored_fields.closed != None %}#{{ result.pk }}{% endif %}</td>
                         <td>{% if result.get_stored_fields.closed != None %}<a href="/tickets/view/{{ result.pk }}/">{{ result.get_stored_fields.caption }}</a>{% else %}<a href="/docs/view/{{ result.pk }}/">{{ result.get_stored_fields.caption }}</a>{% endif %}</td>
                       </tr>
                   {% endfor %}
