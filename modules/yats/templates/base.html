@@ -84,7 +84,13 @@
               {% if request.session.isUsingYATSE %}
               <li><a href="{% YATSServer %}/board/" class="">{% trans "board" %}</a></li>
                 <li><a href="{% YATSServer %}/tickets/search/" class="">{% trans "search" %}</a></li>
-                <li><a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="">{% trans "New" %}</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "New" %}<b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                      <li><a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="">{% trans "New ticket" %}</a></li>
+                      <li><a href="/docs/new/" class="">{% trans "New document" %}</a></li>
+                  </ul>
+                </li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "local" %}<b class="caret"></b></a>
                     <ul class="dropdown-menu">
