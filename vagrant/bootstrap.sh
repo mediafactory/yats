@@ -39,7 +39,9 @@ systemctl restart clamav-daemon.service
 freshclam&
 
 # search
-mkdir -p /var/web/yats/index/
+mkdir -p /var/web/yats/index
+chmod g+w /var/web/yats/index
+chown root:vagrant /var/web/yats/index
 
 # yats web
 mkdir -p /var/web/yats

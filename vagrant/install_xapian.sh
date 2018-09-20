@@ -3,7 +3,7 @@
 VERSION="1.4.5"
 
 # prepare
-sudo apt-get install curl zlib1g-dev g++
+sudo apt-get install -y curl zlib1g-dev g++
 
 sudo mkdir $VIRTUAL_ENV/packages && cd $VIRTUAL_ENV/packages
 

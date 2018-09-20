@@ -13,5 +13,5 @@ vobject
 monotonic
 SpeechRecognition
 django-markdownx
-jango-haystack
+django-haystack
 xapian-haystack
