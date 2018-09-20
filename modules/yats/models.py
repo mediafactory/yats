@@ -203,8 +203,8 @@ class tickets(base):
     last_action_date = models.DateTimeField(_('last action'), null=True)
     keep_it_simple = models.BooleanField(default=True)
     uuid = models.CharField(max_length=255, null=False, blank=False)
-    hasAttachments = models.BooleanField(default=False)
-    hasComments = models.BooleanField(default=False)
+    hasAttachments = models.BooleanField(_('has attachments'), default=False)
+    hasComments = models.BooleanField(_('has comments'), default=False)
 
     def save(self, *args, **kwargs):
         self.last_action_date = timezone.now()
