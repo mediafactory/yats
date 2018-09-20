@@ -1,2 +1,2 @@
-{{ object.caption|safe }}
-{{ object.description|safe }}
+{% load search %}{{ object.caption|safe }}
+{{ object.description|cut_text_for_xapian|safe }}
