@@ -17,7 +17,7 @@ def docs_new(request):
     return render(request, 'docs/new.html', {'layout': 'horizontal', 'form': form})
 
 @login_required
-def action(request, mode, docid):
+def docs_action(request, mode, docid):
     doc = docs.objects.get(pk=docid)
     if mode == 'view':
         form = DocsForm(user=request.user, instance=doc, view_only=True)

@@ -213,6 +213,9 @@ class tickets(base):
         tickets_participants.objects.filter(ticket=self).update(seen=False)
         super(tickets, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return "/tickets/view/%i/" % self.id
+
 class tickets_participants(models.Model):
     ticket = models.ForeignKey(tickets)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
@@ -284,3 +287,6 @@ class docs(base):
 
     def __unicode__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return "/docs/view/%i/" % self.id
