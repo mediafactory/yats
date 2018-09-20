@@ -120,7 +120,13 @@
                 </li>
                 <li><a href="/kanban/" class="">{% trans "Kanban" %}</a></li>
                 <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>
-                <li><a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="">{% trans "New" %}</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "New" %}<b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                      <li><a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="">{% trans "New ticket" %}</a></li>
+                      <li><a href="/docs/new/" class="">{% trans "New document" %}</a></li>
+                  </ul>
+                </li>
                 <li><a href="/log/" class="">{% trans "Logs" %}</a></li>
                 <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>
                 <li><a href="/info/" class="">{% trans "Info" %}</a></li>
