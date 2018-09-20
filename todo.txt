@@ -7,6 +7,8 @@
   => Fulltext search - maybe Haystack
   => YATSEE
   => Logs
+- Gruppen
+- igrnore seen => abrechnen
 - checksum & virusscan in PUT
 - check, if close is allowed in DAV
 - Fortschirtt in ToDos
