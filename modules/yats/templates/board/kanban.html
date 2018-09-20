@@ -2,9 +2,7 @@
 
 {% load bootstrap_toolkit i18n boards %}
 
-{% block title %}
-    {% trans "kanban" %}
-{% endblock %}
+{% block title %}{% trans "kanban" %}{% endblock %}
 
 {% block extra_head %}
 <script src="{{ STATIC_URL }}board.js"></script>
