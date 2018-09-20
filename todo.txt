@@ -14,6 +14,7 @@
 - Fortschirtt in ToDos
 - recycle old tasks => e.g. take every day 3 automatically, random from a que e.g. waiting and put them in entry again.
 - Ticketliste + edit & view
+- add or remove me from Teilnehmerlist
 
 - move extra search in search from yatse
 
