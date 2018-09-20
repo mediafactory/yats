@@ -230,7 +230,11 @@ def kanban(request):
 
     for flow in flows:
         search_params, flow.data = build_ticket_search_ext(request, query, convert_sarch({'state': flow.pk}))
-        flow.data = flow.data.filter(Q(assigned=None) | Q(assigned=request.user)).extra(select={'prio': 'COALESCE(caldav, 10)'}, order_by=['prio', '-c_date'])
+
+        if flow.type == 2:
+            flow.data = flow.data.filter(Q(assigned=None) | Q(assigned=request.user)).order_by('-close_date')
+        else:
+            flow.data = flow.data.filter(Q(assigned=None) | Q(assigned=request.user)).extra(select={'prio': 'COALESCE(caldav, 10)'}, order_by=['prio', '-c_date'])
 
         if flow.type == 1:
             columns.insert(0, flow)
