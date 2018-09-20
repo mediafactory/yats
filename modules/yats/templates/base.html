@@ -142,7 +142,7 @@
 
             <form class="navbar-form pull-left" method="get" action="/search/">
               <div class="form-group">
-                <input class="search-query span2" type="text" class="typeahead form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Volltext" name="q" value="{{ request.GET.q }}" data-provide="typeahead" />
+                <input type="text" class="typeahead form-control search-query span2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Volltext" name="q" value="{{ request.GET.q }}" data-provide="typeahead" />
                 <input type="hidden" name="models" value="yats.docs" />
                 <input type="hidden" name="models" value="web.test" />
               </div>
@@ -252,5 +252,19 @@
     </div>
     </form>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
+<script type="text/javascript">
+
+ $('input.typeahead').typeahead({
+     source:  function (query, process) {
+        return $.get('/search/auto/', { q: query }, function (data) {
+           console.log(data);
+           //data = $.parseJSON(data);
+           process(data);
+         });
+     }
+ });
+
+</script>
 </body>
 </html>

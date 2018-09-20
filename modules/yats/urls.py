@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import  url, include
-from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout, kanban, xptest, robots
+from yats.views import root, info, show_board, board_by_id, yatse_api, login, logout, kanban, xptest, robots, autocomplete
 from yats.tickets import new, action, table, search, search_ex, search_simple, reports, workflow, simple, create, log
 from yats.docs import docs_action, docs_new
 from rpc4django.views import serve_rpc_request
@@ -50,6 +50,11 @@ urlpatterns = [
 
    # search
    url(r'^search/', include('haystack.urls')),
+
+   # search
+   url(r'^search/auto/',
+        view=autocomplete,
+        name='autocomplete'),
 
    # reports
    url(r'^reports/$',

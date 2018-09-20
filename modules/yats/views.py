@@ -21,6 +21,7 @@ from yats.models import boards, tickets_participants, ticket_flow, ticket_flow_e
 from yats.forms import AddToBordForm, PasswordForm, TicketCloseForm, TicketReassignForm
 from yats.yatse import api_login, buildYATSFields, YATSSearch
 
+from haystack.query import SearchQuerySet
 import datetime
 try:
     import json
@@ -281,3 +282,8 @@ def xptest(request, test):
 
 def robots(request):
     return HttpResponse('User-agent: *\nDisallow: /', content_type='text/plain')
+
+def autocomplete(request):
+    sqs = SearchQuerySet().auto_query(request.GET.get('q', ''))
+    suggestions = sqs.spelling_suggestion().split(' ')
+    return HttpResponse(json.dumps(suggestions), content_type='application/json')
