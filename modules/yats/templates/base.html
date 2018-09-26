@@ -186,24 +186,26 @@
 
     {% block content %}Empty page{% endblock %}
 
-    {% block footer %}
+</div> <!-- container -->
+
+{% block footer %}
+<div class="container">
     <footer class="row">
       <p><hr /></p>
 
-    	<div class="span6">
-    		{{ SETTINGS.CUSTOMER }}<br />
-    		{{ SETTINGS.TEL }}<br />
-    		{{ SETTINGS.MAIL }}<br />
-    	</div>
+        <div class="span6">
+            {{ SETTINGS.CUSTOMER }}<br />
+            {{ SETTINGS.TEL }}<br />
+            {{ SETTINGS.MAIL }}<br />
+        </div>
         <div class="span6" style="text-align:right">
             <p>
                 &copy; 2014 - {% now "Y" %} <a href="http://www.mediafactory.de">media factory</a>
             </p>
         </div>
     </footer>
-    {% endblock %}
-
-</div> <!-- container -->
+</div>
+{% endblock %}
 
 <div id="pwdDlg" class="modal hide fade">
 

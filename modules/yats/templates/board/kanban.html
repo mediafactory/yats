@@ -185,18 +185,21 @@
 {% endblock %}
 
 {% block footer %}
-<footer class="row">
-  <p><hr /></p>
+<div class="container-fluid">
+  <hr />
 
-  <div class="span6">
-    {{ SETTINGS.CUSTOMER }}<br />
-    {{ SETTINGS.TEL }}<br />
-    {{ SETTINGS.MAIL }}<br />
-  </div>
-    <div class="span6" style="text-align:right">
-        <p>
-            &copy; 2014 - {% now "Y" %} <a href="http://www.mediafactory.de">media factory</a>
-        </p>
+  <div class="row-fluid">
+
+    <div class="span6">
+      {{ SETTINGS.CUSTOMER }}<br />
+      {{ SETTINGS.TEL }}<br />
+      {{ SETTINGS.MAIL }}<br />
     </div>
-</footer>
+      <div class="span6">
+          <p class="text-right">
+              &copy; 2014 - {% now "Y" %} <a href="http://www.mediafactory.de">media factory</a>
+          </p>
+      </div>
+  </div>
+</div>
 {% endblock %}
