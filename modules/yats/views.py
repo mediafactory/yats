@@ -285,5 +285,8 @@ def robots(request):
 
 def autocomplete(request):
     sqs = SearchQuerySet().auto_query(request.GET.get('q', ''))
-    suggestions = sqs.spelling_suggestion().split(' ')
+    suggestions = [request.GET.get('q', '')]
+    result = sqs.spelling_suggestion().strip()
+    if result:
+        suggestions.append(result)
     return HttpResponse(json.dumps(suggestions), content_type='application/json')
