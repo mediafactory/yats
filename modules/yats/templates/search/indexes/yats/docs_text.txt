@@ -1,2 +1,2 @@
-{% load search %}{{ object.caption|safe }}
-{{ object.text|cut_text_for_xapian|safe }}
+{% load search %}{{ object.caption|striptags|safe }}
+{{ object.text|striptags|cut_text_for_xapian|safe }}
