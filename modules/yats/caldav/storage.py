@@ -307,6 +307,8 @@ class Collection(ical.Collection):
             cal.vtodo.add('status').value = 'COMPLETED'
         if item.priority:
             cal.vtodo.add('priority').value = str(item.priority.caldav)
+        else:
+            cal.vtodo.add('priority').value = '0'
         if item.description:
             cal.vtodo.add('description').value = item.description
         if item.deadline:
