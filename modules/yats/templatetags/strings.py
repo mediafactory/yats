@@ -4,6 +4,7 @@ from django.utils.translation import ugettext as _
 from django.forms.forms import pretty_name
 from yats.diff import generate_patch_html
 from yats.shortcuts import has_public_fields
+from markdownx.utils import markdownify
 
 import re
 try:
@@ -12,6 +13,11 @@ except ImportError:
     from django.utils import simplejson as json
 
 register = template.Library()
+
+@register.filter
+def markdown2html(md):
+    return markdownify(md)
+
 
 @register.filter
 def hasPreview(mime):
