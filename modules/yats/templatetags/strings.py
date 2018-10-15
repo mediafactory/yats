@@ -18,7 +18,6 @@ register = template.Library()
 def markdown2html(md):
     return markdownify(md)
 
-
 @register.filter
 def hasPreview(mime):
     if not mime:
