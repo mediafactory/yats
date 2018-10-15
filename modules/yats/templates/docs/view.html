@@ -5,6 +5,14 @@
 {% block title %}{% trans "doc" %} #{{ doc.id }}{% endblock %}
 
 {% block content %}
-<h2>{{ doc.caption }} <a class="btn btn-small" href="/docs/history/{{ doc.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/docs/edit/{{doc.id }}/">{% trans "edit" %}</a></h2>
+<h2>{{ doc.caption }} <a class="btn btn-small" href="/docs/history/{{ doc.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/docs/edit/{{doc.id }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small btn-danger" href="javascript: del()">{% trans "delete" %}</a></h2>
 <p>{{ doc.text|markdown2html|safe }}</p>
+
+<script>
+  function del() {
+    if ( confirm('{% trans "Do you really want to delete this document?" %}') ) {
+      window.location.href = '/docs/delete/{{doc.id }}/';
+    }
+  }
+</script>
 {% endblock %}

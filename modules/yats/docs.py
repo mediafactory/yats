@@ -32,3 +32,7 @@ def docs_action(request, mode, docid):
 
         form = DocsForm(user=request.user, instance=doc)
         return render(request, 'docs/edit.html', {'layout': 'horizontal', 'form': form, 'doc': doc})
+
+    elif mode == 'delete':
+        doc.delete(user=request.user)
+        return HttpResponseRedirect('/search/?q=%s&models=yats.docs&models=web.test' % request.session.get('last_fulltextsearch', '*'))
