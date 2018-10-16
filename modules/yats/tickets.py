@@ -205,7 +205,7 @@ def action(request, mode, ticket):
             # If page is out of range (e.g. 9999), deliver last page of results.
             files_lines = paginator.page(paginator.num_pages)
 
-        add_breadcrumbs(request, ticket, '#')
+        add_breadcrumbs(request, ticket, '#', caption=tic.caption[:20])
         if 'YATSE' in request.GET and 'isUsingYATSE' not in request.session:
             request.session['isUsingYATSE'] = True
 
@@ -791,7 +791,7 @@ def search_ex(request):
 def reports(request):
     if 'report' in request.GET:
         rep = tickets_reports.objects.get(pk=request.GET['report'])
-        add_breadcrumbs(request, request.GET['report'], '@')
+        add_breadcrumbs(request, request.GET['report'], '@', caption=rep.name[:20])
         request.session['last_search'] = json.loads(rep.search)
         return HttpResponseRedirect('/tickets/search/?report=%s' % request.GET['report'])
 

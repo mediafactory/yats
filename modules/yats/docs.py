@@ -4,6 +4,7 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from yats.models import docs
 from yats.forms import DocsForm
+from yats.shortcuts import add_breadcrumbs
 
 def docs_new(request):
     if request.method == 'POST':
@@ -21,6 +22,7 @@ def docs_action(request, mode, docid):
     doc = docs.objects.get(pk=docid)
     if mode == 'view':
         form = DocsForm(user=request.user, instance=doc, view_only=True)
+        add_breadcrumbs(request, docid, '*', caption=doc.caption[:20])
         return render(request, 'docs/view.html', {'layout': 'horizontal', 'form': form, 'doc': doc})
 
     elif mode == 'edit':

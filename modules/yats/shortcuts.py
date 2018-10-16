@@ -484,17 +484,29 @@ def prettyValues(data):
     data['rules'] = prettyData(data['rules'])
     return data
 
-def add_breadcrumbs(request, pk, typ):
+def add_breadcrumbs(request, pk, typ, **kwargs):
     breadcrumbs = request.session.get('breadcrumbs', [])
+    caption = kwargs.get('caption')
+
     # checks if already exists
     if len(breadcrumbs) > 0:
         if breadcrumbs[-1][0] != long(pk) or breadcrumbs[-1][1] != typ:
-            if (long(pk), typ,) in breadcrumbs:
-                breadcrumbs.pop(breadcrumbs.index((long(pk), typ,)))
-            breadcrumbs.append((long(pk), typ,))
+            if caption:
+                if (long(pk), typ, caption,) in breadcrumbs:
+                    breadcrumbs.pop(breadcrumbs.index((long(pk), typ, caption,)))
+
+                breadcrumbs.append((long(pk), typ, caption,))
+            else:
+                if (long(pk), typ,) in breadcrumbs:
+                    breadcrumbs.pop(breadcrumbs.index((long(pk), typ,)))
+
+                breadcrumbs.append((long(pk), typ,))
 
     else:
-        breadcrumbs.append((long(pk), typ,))
+        if caption:
+            breadcrumbs.append((long(pk), typ, caption,))
+        else:
+            breadcrumbs.append((long(pk), typ,))
     while len(breadcrumbs) > 10:
         breadcrumbs.pop(0)
     request.session['breadcrumbs'] = breadcrumbs
