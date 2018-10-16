@@ -14,6 +14,9 @@ class DocIndex(indexes.SearchIndex, indexes.Indexable):
     def get_model(self):
         return docs
 
+    def get_updated_field(self):
+        return 'u_date'
+
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
         return self.get_model().objects.filter(active_record=True)
@@ -29,6 +32,9 @@ class TicketIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return get_ticket_model()
+
+    def get_updated_field(self):
+        return 'last_action_date'
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
