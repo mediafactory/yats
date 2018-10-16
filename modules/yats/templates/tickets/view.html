@@ -56,7 +56,7 @@
                     <td data-title="{% trans "date" %}">{{ line.c_date|date:"SHORT_DATE_FORMAT" }}</td>
                     <td data-title="{% trans "name" %}"{% if line.content_type|hasPreview %} dataimg="/tickets/download/{{ ticket.id }}/?file={{ line.id }}&preview=yes"{% endif %}><a href="/tickets/download/{{ ticket.id }}/?file={{ line.id }}">{{ line.name }}</a>
                     {% if "audio" in line.content_type %}<br /><br /><audio controls="controls" preload="none">
-                        <source src="/tickets/download/{{ ticket.id }}/?file={{ line.id }}" type="{{ line.content_type }}" />
+                        <source src="/tickets/download/{{ ticket.id }}/?file={{ line.id }}" type="{% if line.content_type == "audio/wav" %}{% else %}{{ line.content_type }}{% endif %}" />
                     </audio>{% endif %}</td>
                     <td data-title="{% trans "size" %}">{% if line.size %}{{ line.size|filesizeformat }}{% else %}{% trans "unknown" %}{% endif %}</td>
                     <td data-title="{% trans "contenttype" %}">{{ line.content_type }}</td>

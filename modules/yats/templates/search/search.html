@@ -26,7 +26,7 @@
               </table>
           </section>
 
-          {{ page|pagination }}
+          {{ page|pagination:request.get_full_path }}
 
           <p><small class="text-muted">{% trans "You searched for:" %} {{ request.GET.q }} {% trans "in" %} <input style="margin: 0px;" type="checkbox" name="models" value="yats.docs" checked="" id="id_models_0"> {% trans "Documents" %} <input style="margin: 0px;" type="checkbox" name="models" value="web.test" checked="" id="id_models_1"> {% trans "Tickets" %}</small></p>
 {% endblock %}
