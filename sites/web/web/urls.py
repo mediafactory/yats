@@ -7,6 +7,8 @@ from djradicale.views import DjRadicaleView, WellKnownView
 
 admin.autodiscover()
 
+handler500 = 'yats.errors.server_error'
+
 test_client = Client(settings.SSO_SERVER, settings.SSO_PUBLIC_KEY, settings.SSO_PRIVATE_KEY)
 
 urlpatterns = [

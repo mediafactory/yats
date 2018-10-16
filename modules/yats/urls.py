@@ -6,6 +6,8 @@ from yats.docs import docs_action, docs_new
 from rpc4django.views import serve_rpc_request
 from markdownx import urls as markdownx
 
+handler500 = 'yats.errors.server_error'
+
 urlpatterns = [
     url(r'^rpc/$',
         view=serve_rpc_request,
