@@ -25,7 +25,7 @@ def docs_action(request, mode, docid):
 
     elif mode == 'edit':
         if request.method == 'POST':
-            form = DocsForm(request.POST, user=request.user)
+            form = DocsForm(request.POST, user=request.user, instance=doc)
             if form.is_valid():
                 doc = form.save()
                 return HttpResponseRedirect('/docs/view/%s/' % doc.pk)
