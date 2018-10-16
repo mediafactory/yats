@@ -224,11 +224,11 @@ def active_url(request, url, output=u'active'):
 
 
 @register.filter
-def pagination(page, pages_to_show=11):
+def pagination(page, url=None, pages_to_show=11):
     """
     Generate Bootstrap pagination links from a page object
     """
-    context = get_pagination_context(page, pages_to_show)
+    context = get_pagination_context(page, pages_to_show, url=url)
     return get_template("bootstrap_toolkit/pagination.html").render(context)
 
 
