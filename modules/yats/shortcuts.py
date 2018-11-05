@@ -548,7 +548,7 @@ def convert_sarch(search):
             return 'boolean'
         elif fieldname == 'caption':
             return 'string'
-        elif fieldname in ['c_date', 'u_date', 'd_date', 'close_date', 'last_action_date', 'deadline']:
+        elif fieldname in ['c_date', 'u_date', 'd_date', 'close_date', 'last_action_date', 'deadline', 'show_start']:
             return 'datetime'
         return 'integer'
 

@@ -352,6 +352,7 @@ def createSimple(attributes={}, notify=True, **kwargs):
         if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
             tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
         tic.deadline = cd['deadline']
+        tic.show_start = cd['show_start']
         tic.save(user=request.user)
 
         if tic.assigned:

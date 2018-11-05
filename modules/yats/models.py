@@ -205,6 +205,7 @@ class tickets(base):
     uuid = models.CharField(max_length=255, null=False, blank=False)
     hasAttachments = models.BooleanField(_('has attachments'), default=False)
     hasComments = models.BooleanField(_('has comments'), default=False)
+    show_start = models.DateTimeField(_('show from'), null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.last_action_date = timezone.now()

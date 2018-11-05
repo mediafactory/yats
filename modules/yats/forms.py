@@ -160,6 +160,7 @@ class SimpleTickets(forms.Form):
     assigned = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label=_('assigned'))
     priority = forms.ModelChoiceField(queryset=ticket_priority.objects.all(), required=False, initial=get_simple_priority, label=_('priority'), empty_label=None)
     deadline = forms.DateTimeField(widget=BootstrapDateTimeInput(format='dd.mm.yyyy hh:ii'), required=False, label=_('deadline'))
+    show_start = forms.DateTimeField(widget=BootstrapDateTimeInput(format='dd.mm.yyyy hh:ii'), required=False, label=_('show from'))
     component = forms.ModelChoiceField(queryset=ticket_component.objects.all(), required=False, label=_('component'))
 
 

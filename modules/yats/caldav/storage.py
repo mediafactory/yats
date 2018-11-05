@@ -104,7 +104,7 @@ class Collection(ical.Collection):
                     'caption': cal.vtodo.summary.value,
                     'description': cal.vtodo.description.value if hasattr(cal.vtodo, 'description') else None,
                     'uuid': cal.vtodo.uid.value,
-                    'deadline': cal.vtodo.due.value if hasattr(cal.vtodo, 'due') else None,
+                    'show_start': cal.vtodo.due.value if hasattr(cal.vtodo, 'due') else None,
                     'priority': convertPrio(cal.vtodo.priority.value) if hasattr(cal.vtodo, 'priority') else None
                 }
                 fakePOST = QueryDict(mutable=True)
@@ -122,7 +122,7 @@ class Collection(ical.Collection):
                         tic.description = cd['description']
                         tic.priority = cd['priority']
                         # tic.assigned = cd['assigned']
-                        tic.deadline = cd['deadline']
+                        tic.show_start = cd['show_start']
                         tic.save(user=request.user)
 
                     # new ticket
@@ -143,7 +143,7 @@ class Collection(ical.Collection):
                                 tic.customer_id = settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOME
                         if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
                             tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
-                        tic.deadline = cd['deadline']
+                        tic.show_start = cd['show_start']
                         tic.uuid = cal.vtodo.uid.value
                         tic.save(user=request.user)
 
@@ -311,9 +311,9 @@ class Collection(ical.Collection):
             cal.vtodo.add('priority').value = '0'
         if item.description:
             cal.vtodo.add('description').value = item.description
-        if item.deadline:
-            #cal.vtodo.add('dstart').value = item.deadline
-            cal.vtodo.add('due').value = item.deadline
+        if item.show_start:
+            #cal.vtodo.add('dstart').value = item.show_start
+            cal.vtodo.add('due').value = item.show_start
             cal.vtodo.add('valarm')
             cal.vtodo.valarm.add('uuid').value = '%s-%s' % (str(item.uuid), item.pk)
             cal.vtodo.valarm.add('x-wr-alarmuid').value = '%s-%s' % (str(item.uuid), item.pk)

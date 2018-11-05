@@ -237,6 +237,7 @@ def kanban(request):
 
     for flow in flows:
         search_params, flow.data = build_ticket_search_ext(request, query, convert_sarch({'state': flow.pk}))
+        flow.data = flow.data.filter(Q(show_start=None) | Q(show_start__lte=timezone.now()))
 
         if flow.type == 2:
             flow.data = flow.data.filter(Q(assigned=None) | Q(assigned=request.user)).order_by('-close_date')

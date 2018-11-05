@@ -96,6 +96,7 @@ def simple(request):
             if not tic.component_id and hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
                 tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
             tic.deadline = cd['deadline']
+            tic.show_start = cd['show_start']
             tic.save(user=request.user)
 
             if tic.assigned:
@@ -347,6 +348,7 @@ def action(request, mode, ticket):
                 tic.priority = cd['priority']
                 tic.assigned = cd['assigned']
                 tic.deadline = cd['deadline']
+                tic.show_start = cd['show_start']
                 tic.component = cd['component']
                 tic.save(user=request.user)
 
@@ -369,6 +371,7 @@ def action(request, mode, ticket):
                     'priority': tic.priority,
                     'assigned': tic.assigned,
                     'deadline': tic.deadline,
+                    'show_start': tic.show_start,
                     'component': tic.component,
                 })
         return render(request, 'tickets/edit.html', {'ticket': tic, 'layout': 'horizontal', 'form': form, 'mode': mode})
