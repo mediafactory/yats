@@ -20,7 +20,7 @@
                       <tr>
                         <td width="20">{% if result.get_stored_fields.closed != None %}<button type="button" class="btn {% if result.get_stored_fields.closed %}btn-danger{% else %}btn-success{% endif %}" disabled></button>{% endif %}</td>
                         <td width="60">{% if result.get_stored_fields.closed != None %}#{{ result.pk }}{% endif %}</td>
-                        <td>{% if result.get_stored_fields.closed != None %}<a href="/tickets/view/{{ result.pk }}/">{{ result.get_stored_fields.caption }}</a>{% else %}<a href="/docs/view/{{ result.pk }}/">{{ result.get_stored_fields.caption }}</a>{% endif %}</td>
+                        <td>{% if result.get_stored_fields.closed != None %}<i class="fa fa-bug" aria-hidden="true"></i> <a href="/tickets/view/{{ result.pk }}/">{{ result.get_stored_fields.caption }}</a>{% else %}<i class="fa fa-wikipedia-w" aria-hidden="true"></i> <a href="/docs/view/{{ result.pk }}/">{{ result.get_stored_fields.caption }}</a>{% endif %}</td>
                       </tr>
                   {% endfor %}
               </table>
