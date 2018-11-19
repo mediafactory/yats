@@ -292,7 +292,7 @@ class docs(base):
     text = MarkdownxField()
 
     def __unicode__(self):
-        return self.name
+        return self.caption
 
     def get_absolute_url(self):
         return "/docs/view/%i/" % self.id
