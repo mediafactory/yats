@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.apps import apps
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseRedirect, HttpResponseNotFound, HttpResponse, HttpResponseForbidden, JsonResponse
 from django import get_version as get_django_version
@@ -285,9 +286,19 @@ def robots(request):
     return HttpResponse('User-agent: *\nDisallow: /', content_type='text/plain')
 
 def autocomplete(request):
-    sqs = SearchQuerySet().auto_query(request.GET.get('q', ''))
-    suggestions = [request.GET.get('q', '')]
-    result = sqs.spelling_suggestion().strip()
-    if result:
-        suggestions.append(result)
-    return HttpResponse(json.dumps(suggestions), content_type='application/json')
+    result = []
+    args = []
+    models = request.GET.getlist('models')
+    for model in models:
+        args.append(apps.get_model(model))
+
+    sqs = SearchQuerySet().auto_query(request.GET.get('q', '')).models(*set(args))
+
+    for ele in sqs:
+        data = {
+            'caption': unicode(ele.caption),
+            'id': ele.pk
+        }
+        result.append(data)
+
+    return JsonResponse(result, safe=False)

@@ -44,9 +44,11 @@
     <!--[if lt IE 9]>
     <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     {% bootstrap_javascript_tag %}
+    <script src="{{ STATIC_URL }}typeahead.bundle.min.js"></script>
     {% block extra_head %}
     {% endblock %}
     <style>
@@ -60,6 +62,82 @@
         .modal textarea {
           height: 170px !important;
       }
+      }
+
+      .typeahead,
+      .tt-query,
+      .tt-hint {
+        width: 396px;
+        height: 30px;
+        padding: 8px 12px;
+        font-size: 24px;
+        line-height: 30px;
+        border: 2px solid #ccc;
+        -webkit-border-radius: 8px;
+           -moz-border-radius: 8px;
+                border-radius: 8px;
+        outline: none;
+      }
+
+      .typeahead {
+        background-color: #fff;
+      }
+
+      .typeahead:focus {
+        border: 2px solid #0097cf;
+      }
+
+      .tt-query {
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+           -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+      }
+
+      .tt-hint {
+        color: #999
+      }
+
+      .tt-menu {
+        width: 422px;
+        margin: 12px 0;
+        padding: 8px 0;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        -webkit-border-radius: 8px;
+           -moz-border-radius: 8px;
+                border-radius: 8px;
+        -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+           -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+                box-shadow: 0 5px 10px rgba(0,0,0,.2);
+      }
+
+      .tt-suggestion {
+        padding: 3px 20px;
+        font-size: 18px;
+        line-height: 24px;
+      }
+
+      .tt-suggestion:hover {
+        cursor: pointer;
+        color: #fff;
+        background-color: #0097cf;
+      }
+
+      .tt-suggestion.tt-cursor {
+        color: #fff;
+        background-color: #0097cf;
+
+      }
+
+      .tt-suggestion p {
+        margin: 0;
+      }
+
+      .result-name {
+        margin: 0 20px 5px 20px;
+        padding: 3px 0;
+        border-bottom: 1px solid #ccc;
       }
     </style>
 </head>
@@ -140,9 +218,9 @@
                 {% endif %}
             </ul>
 
-            <form class="navbar-form pull-left" method="get" action="/search/">
+            <form id="fulltext" class="navbar-form pull-left" method="get" action="/search/">
               <div class="form-group">
-                <input type="text" class="typeahead form-control search-query span2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Volltext" name="q" value="{{ request.GET.q }}" />
+                <input id="fulltextSearch" type="text" class="typeahead form-control search-query span2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Volltext" name="q" value="{{ request.GET.q }}" />
                 <input type="hidden" name="models" value="yats.docs" />
                 <input type="hidden" name="models" value="web.test" />
               </div>
@@ -257,17 +335,52 @@
 </div>
 <script type="text/javascript">
 
- $('input.typeahead').typeahead({
-     source:  function (query, process) {
-        return $.get('/search/auto/', { q: query }, function (data) {
-           process(data);
-         });
-     },
-     matcher: function (item) {
-       return true;
-     }
- });
+var tics = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.whitespace,
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  remote: {
+    url: '/search/auto/?q=%QUERY&models=web.test',
+    wildcard: '%QUERY'
+  }
+});
 
+var docs = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.whitespace,
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  remote: {
+    url: '/search/auto/?q=%QUERY&models=yats.docs',
+    wildcard: '%QUERY'
+  }
+});
+
+$('#fulltextSearch').typeahead({
+  highlight: true
+},
+{
+  name: 'tickets',
+  display: 'caption',
+  source: tics,
+  templates: {
+    header: '<h3 class="result-name">{% trans "tickets" %}</h3>',
+    suggestion: Handlebars.compile('<div><i class="fa fa-bug" aria-hidden="true"></i> <a href="/tickets/view/{% verbatim %}{{id}}{% endverbatim %}/">#{% verbatim %}{{id}}{% endverbatim %} {% verbatim %}{{caption}}{% endverbatim %}</a></div>'),
+  }
+},
+{
+  name: 'documents',
+  display: 'caption',
+  source: docs,
+  templates: {
+    header: '<h3 class="result-name">{% trans "documents" %}</h3>',
+    suggestion: Handlebars.compile('<div><i class="fa fa-wikipedia-w" aria-hidden="true"></i> <a href="/docs/view/{% verbatim %}{{id}}{% endverbatim %}/">{% verbatim %}{{caption}}{% endverbatim %}</a></div>'),
+  }
+});
+
+$('.typeahead').on('keydown', function(e) {
+  if (e.keyCode == 13) {
+    console.log(e.keyCode)
+    $('#fulltext').submit();
+  }
+});
 </script>
 </body>
 </html>
