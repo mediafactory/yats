@@ -285,6 +285,7 @@ def xptest(request, test):
 def robots(request):
     return HttpResponse('User-agent: *\nDisallow: /', content_type='text/plain')
 
+@login_required
 def autocomplete(request):
     result = []
     args = []
@@ -292,13 +293,15 @@ def autocomplete(request):
     for model in models:
         args.append(apps.get_model(model))
 
-    sqs = SearchQuerySet().auto_query(request.GET.get('q', '')).models(*set(args))
+    sqs = SearchQuerySet().filter(content_auto=request.GET.get('q', '')).models(*set(args))
 
     for ele in sqs:
         data = {
             'caption': unicode(ele.caption),
             'id': ele.pk
         }
+        if hasattr(ele, 'closed'):
+            data['closed'] = ele.closed
         result.append(data)
 
     return JsonResponse(result, safe=False)

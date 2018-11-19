@@ -335,6 +335,12 @@
 </div>
 <script type="text/javascript">
 
+Handlebars.registerHelper('if', function(conditional, options) {
+  if(conditional) {
+    return options.fn(this);
+  }
+});
+
 var tics = new Bloodhound({
   datumTokenizer: Bloodhound.tokenizers.whitespace,
   queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -360,15 +366,17 @@ $('#fulltextSearch').typeahead({
   name: 'tickets',
   display: 'caption',
   source: tics,
+  limit: 10,
   templates: {
     header: '<h3 class="result-name">{% trans "tickets" %}</h3>',
-    suggestion: Handlebars.compile('<div><i class="fa fa-bug" aria-hidden="true"></i> <a href="/tickets/view/{% verbatim %}{{id}}{% endverbatim %}/">#{% verbatim %}{{id}}{% endverbatim %} {% verbatim %}{{caption}}{% endverbatim %}</a></div>'),
+    suggestion: Handlebars.compile('<div><i class="fa fa-bug" aria-hidden="true"></i> <a style="{% verbatim %}{{#if closed}}text-decoration: line-through;{{/if}}{% endverbatim %}" href="/tickets/view/{% verbatim %}{{id}}{% endverbatim %}/">#{% verbatim %}{{id}}{% endverbatim %} {% verbatim %}{{caption}}{% endverbatim %}</a></div>'),
   }
 },
 {
   name: 'documents',
   display: 'caption',
   source: docs,
+  limit: 10,
   templates: {
     header: '<h3 class="result-name">{% trans "documents" %}</h3>',
     suggestion: Handlebars.compile('<div><i class="fa fa-wikipedia-w" aria-hidden="true"></i> <a href="/docs/view/{% verbatim %}{{id}}{% endverbatim %}/">{% verbatim %}{{caption}}{% endverbatim %}</a></div>'),
