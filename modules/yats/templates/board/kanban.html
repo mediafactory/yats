@@ -6,6 +6,7 @@
 
 {% block extra_head %}
 <script src="{{ STATIC_URL }}board.js"></script>
+<script src="{{ STATIC_URL }}BootstrapMenu.min.js"></script>
 <link rel="stylesheet" href="{{ STATIC_URL }}board.css">
 <style>
   .new { background-color: #51a351; }
@@ -44,7 +45,7 @@
                                     {% if ticket.deadline and not ticket.closed %}<small class="text-muted"{% if ticket.is_late == 2 %} style="color: red;"{% endif %}{% if ticket.is_late == 1 %} style="color: orange;"{% endif %}><i class="icon-time"></i> {{ ticket.deadline }}</small>{% endif %}
                                     {% if ticket.hasAttachments %}<i class="icon-file"></i>{% endif %}{% if ticket.hasComments %}<i class="fa fa-comments" aria-hidden="true"></i>{% endif %}{% if ticket.assigned %}<small class="text-muted"><i class="icon-user"></i> {{ ticket.assigned }}</small>{% endif %}
                                     {% if request.user.is_staff and ticket.customer and ticket.billing_estimated_time and ticket.customer.hourly_rate %}<small class="text-muted"><b>€</b> {{ ticket.customer.hourly_rate|multiply:ticket.billing_estimated_time|floatformat:"0" }}</small>{% endif %}
-                                    {% if seen == 1 %}<a href="javascript: seen({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% else %}<a href="javascript: ignore({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% endif %}
+                                    <i id="i{{ ticket.pk }}" style="cursor: pointer;" class="fa fa-clock-o pull-right" aria-hidden="true"></i>{% if seen == 1 %}<a href="javascript: seen({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% else %}<a href="javascript: ignore({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% endif %}
                                 </div>
                             </div>
                         </article>
@@ -124,6 +125,41 @@
       {% endif %}"{{ edge.now.id }}": [{% else %},{% endifchanged %}{{ edge.next.id }}{% if forloop.last %}]{% endif %}{% endfor %}
     }
 
+    new BootstrapMenu('.fa-clock-o', {
+      menuEvent: 'click',
+      menuSource: 'element',
+      menuPosition: 'belowLeft',
+      fetchElementData: function($rowElem) {
+        return $($rowElem).attr('id');
+      },
+      actions: [{
+          name: '{% trans "1 day" %}',
+          onClick: function(id) {
+            console.log(id, '1d')
+            sleep(id, '1');
+          }
+        }, {
+          name: '{% trans "1 week" %}',
+          onClick: function(id) {
+            console.log(id, '1w')
+            sleep(id, '7');
+          }
+        }, {
+          name: '{% trans "1 month" %}',
+          onClick: function(id) {
+            console.log(id, '1m');
+            sleep(id, '30');
+          }
+      }]
+    })
+
+    function sleep(ticketid, interval) {
+      ticket = ticketid.substr(1);
+      $.get("/tickets/sleep/" + ticket + "/?interval=" + interval, function(data, status) {
+          $('#item' + ticket).remove();
+      });
+    }
+
     function close() {
       form = $('#closeDlg').find('form');
 
@@ -181,6 +217,7 @@
         });
       }
     }
+
     </script>
 {% endblock %}
 

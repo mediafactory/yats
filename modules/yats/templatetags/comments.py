@@ -17,6 +17,7 @@ def comment_color(value):
       7: lambda : 'warning',
       8: lambda : 'danger',
       9: lambda : 'info',
+      10: lambda : 'warning',
     }[value]()
     return result
 
@@ -34,6 +35,7 @@ def history_icon(value):
       7: lambda : 'fa-user',
       8: lambda : 'fa-trash',
       9: lambda : 'fa-check-square',
+      10: lambda : 'fa-clock-o',      
     }[value]()
     return result
 

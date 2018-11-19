@@ -19,6 +19,7 @@ import io
 import graph
 import re
 import copy
+import datetime
 try:
     import json
 except ImportError:
@@ -579,10 +580,26 @@ def action(request, mode, ticket):
         tickets_participants.objects.filter(ticket=tic, user=request.user).update(seen=True)
         return HttpResponse('OK')
 
+    elif mode == 'sleep':
+        interval = request.GET.get('interval')
+        if interval in ['1', '7', '30']:
+            old = tic.show_start
+            tic.show_start = timezone.now() + datetime.timedelta(days=int(interval))
+            tic.save(user=request.user)
+
+            touch_ticket(request.user, ticket)
+
+            add_history(request, tic, 10, (tic.show_start, old))
+
+            return HttpResponse('OK')
+
+        else:
+            raise Exception('no interval given')
+
     elif mode == 'ignore':
         ig = tickets_ignorants()
         ig.ticket = tic
-        ig.user=request.user
+        ig.user = request.user
         ig.save()
         return HttpResponse('OK')
 

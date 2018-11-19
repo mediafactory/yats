@@ -409,6 +409,9 @@ def remember_changes(request, form, ticket):
 
 def add_history(request, ticket, typ, data):
     from yats.models import tickets_history
+    if typ == 10:
+        old = {'show_start': unicode(data[1])}
+        new = {'show_start': unicode(data[0])}
     if typ == 9:
         old = {'todo': data[1]}
         new = {'todo': data[0]}
