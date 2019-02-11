@@ -5,8 +5,8 @@
 {% block title %}{% trans "doc" %} §{{ doc.id }}{% endblock %}
 
 {% block content %}
-<h2>{% trans "document" %} §{{ doc.id }} <a class="btn btn-small" href="/docs/history/{{ doc.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/docs/edit/{{doc.id }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small btn-danger" href="javascript: del()">{% trans "delete" %}</a></h2>
-<h3>{{ doc.caption }}</h3>
+<h3>{% trans "document" %} §{{ doc.id }} <a class="btn btn-small" href="/docs/history/{{ doc.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/docs/edit/{{doc.id }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small btn-danger" href="javascript: del()">{% trans "delete" %}</a></h3>
+<h2>{{ doc.caption }}</h2>
 <p>{{ doc.text|markdown2html|safe }}</p>
 
 <script>
