@@ -342,6 +342,15 @@ Handlebars.registerHelper('if', function(conditional, options) {
   }
 });
 
+var suggestions = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.whitespace,
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  remote: {
+    url: '/search/auto/?q=%QUERY&models=web.test&models=yats.docs&suggestions=1',
+    wildcard: '%QUERY'
+  }
+});
+
 var tics = new Bloodhound({
   datumTokenizer: Bloodhound.tokenizers.whitespace,
   queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -364,6 +373,16 @@ $('#fulltextSearch').typeahead({
   highlight: true
 },
 {
+  name: 'suggestions',
+  display: 'caption',
+  source: suggestions,
+  limit: 10,
+  templates: {
+    suggestion: Handlebars.compile('<div>meinten Sie: {% verbatim %}{{caption}}{% endverbatim %}</div>'),
+    footer: '<br />'
+  }
+},
+{
   name: 'tickets',
   display: 'caption',
   source: tics,
@@ -384,12 +403,23 @@ $('#fulltextSearch').typeahead({
   }
 });
 
+var stopIt = false;
 $('.typeahead').on('keydown', function(e) {
-  if (e.keyCode == 13) {
-    console.log(e.keyCode)
-    $('#fulltext').submit();
+  if (e.keyCode == 13 && ! stopIt) {
+    document.miadi_search_form.submit();
   }
 });
+
+$('.typeahead').bind('typeahead:selected', function(ev, suggestion) {
+  if ((typeof(suggestion.id) === 'undefined')) {
+    stopIt = true;
+    console.log('stopped');
+    window.setTimeout(function () {stopIt = false}, 1000);
+    jQuery('#fulltext').typeahead('val', suggestion.caption.trim());
+    window.setTimeout(function () {jQuery('#fulltextSearch').focus();}, 500);
+  }
+});
+
 </script>
 </body>
 </html>

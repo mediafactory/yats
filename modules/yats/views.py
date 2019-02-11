@@ -24,6 +24,7 @@ from yats.yatse import api_login, buildYATSFields, YATSSearch
 
 from haystack.query import SearchQuerySet
 import datetime
+import locale
 try:
     import json
 except ImportError:
@@ -287,21 +288,35 @@ def robots(request):
 
 @login_required
 def autocomplete(request):
-    result = []
+    # for datetime format
+    locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
+
     args = []
     models = request.GET.getlist('models')
     for model in models:
         args.append(apps.get_model(model))
 
-    sqs = SearchQuerySet().filter(content_auto=request.GET.get('q', '')).models(*set(args))
+    sqs = SearchQuerySet().models(*set(args))
+    q = request.GET.get('q', '').split(' ')
+    for word in q:
+        word = word.strip()
+        if word:
+            sqs = sqs.filter(content_auto=word)
 
-    for ele in sqs:
-        data = {
-            'caption': unicode(ele.caption),
-            'id': ele.pk
-        }
-        if hasattr(ele, 'closed'):
-            data['closed'] = ele.closed
-        result.append(data)
+    result = []
+    if 'suggestions' in request.GET:
+        suggestion = sqs.spelling_suggestion()
+        if suggestion:
+            result.append({'caption': suggestion})
+
+    else:
+        for ele in sqs:
+            data = {
+                'caption': unicode(ele.caption),
+                'id': ele.pk
+            }
+            if hasattr(ele, 'closed') and ele.closed:
+                data['closed'] = ele.closed
+            result.append(data)
 
     return JsonResponse(result, safe=False)
