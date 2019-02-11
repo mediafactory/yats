@@ -2,7 +2,7 @@
 
 {% load bootstrap_toolkit i18n forms strings comments tz %}
 
-{% block title %}{% trans "doc" %} §{{ doc.id }}{% endblock %}
+{% block title %}§{{ doc.id }}{% endblock %}
 
 {% block content %}
 <h3>{% trans "document" %} §{{ doc.id }} <a class="btn btn-small" href="/docs/history/{{ doc.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/docs/edit/{{doc.id }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small btn-danger" href="javascript: del()">{% trans "delete" %}</a></h3>
