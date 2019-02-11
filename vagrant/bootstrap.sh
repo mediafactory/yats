@@ -69,11 +69,17 @@ mkdir -p /var/web/yats/db
 chown root:vagrant /var/web/yats/db
 chmod go+w /var/web/yats/db
 
+# yats index
+mkdir -p /var/web/yats/index
+chown root:vagrant /var/web/yats/index
+chmod go+w /var/web/yats/index
+
 cd /var/web/yats/web/
 python manage.py migrate
 python manage.py createsuperuser --username root --email root@localhost --noinput
 python manage.py loaddata /vagrant/init_db.json
 python manage.py collectstatic  -l --noinput
+python manage.py rebuild_index --noinput
 
 chown root:vagrant /var/web/yats/db/yats2.sqlite
 chmod go+w /var/web/yats/db/yats2.sqlite
