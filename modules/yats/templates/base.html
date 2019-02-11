@@ -378,7 +378,7 @@ $('#fulltextSearch').typeahead({
   source: suggestions,
   limit: 10,
   templates: {
-    suggestion: Handlebars.compile('<div>meinten Sie: {% verbatim %}{{caption}}{% endverbatim %}</div>'),
+    suggestion: Handlebars.compile('<div>{% trans "did you mean" %}: {% verbatim %}{{caption}}{% endverbatim %}</div>'),
     footer: '<br />'
   }
 },
