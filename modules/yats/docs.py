@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from yats.models import docs
 from yats.forms import DocsForm
-from yats.shortcuts import add_breadcrumbs
+from yats.shortcuts import add_breadcrumbs, get_ticket_model
 
 def docs_new(request):
     if request.method == 'POST':
@@ -38,3 +39,22 @@ def docs_action(request, mode, docid):
     elif mode == 'delete':
         doc.delete(user=request.user)
         return HttpResponseRedirect('/search/?q=%s&models=yats.docs&models=web.test' % request.session.get('last_fulltextsearch', '*'))
+
+    elif mode == 'ticket':
+        ticket = get_ticket_model()
+        tic = ticket()
+        tic.caption = doc.caption
+        tic.description = doc.text
+        if hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER') and settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER:
+            if settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOMER == -1:
+                tic.customer = request.organisation
+            else:
+                tic.customer_id = settings.KEEP_IT_SIMPLE_DEFAULT_CUSTOME
+        if not tic.component_id and hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
+            tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
+        tic.save(user=request.user)
+
+        if hasattr(settings, 'KEEP_IT_SIMPLE') and settings.KEEP_IT_SIMPLE:
+            return HttpResponseRedirect('/tickets/simple/%s/' % tic.pk)
+        else:
+            return HttpResponseRedirect('/tickets/edit/%s/' % tic.pk)
