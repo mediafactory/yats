@@ -223,7 +223,7 @@ SSO_PUBLIC_KEY = 'Your Public Key'
 SSO_SERVER = 'http://192.168.33.17:8080/server/'
 API_KEY = 'geheim'
 
-KEEP_IT_SIMPLE = False
+KEEP_IT_SIMPLE = True
 KEEP_IT_SIMPLE_DEFAULT_TYPE = 1
 KEEP_IT_SIMPLE_DEFAULT_PRIORITY = 2
 KEEP_IT_SIMPLE_DEFAULT_CUSTOMER = -1  # auto from user
@@ -271,7 +271,7 @@ DJRADICALE_RIGHTS = {
     },
 }
 
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+# HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'xapian_backend.XapianEngine',
