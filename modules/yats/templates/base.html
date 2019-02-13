@@ -406,7 +406,7 @@ $('#fulltextSearch').typeahead({
 var stopIt = false;
 $('.typeahead').on('keydown', function(e) {
   if (e.keyCode == 13 && ! stopIt) {
-    document.miadi_search_form.submit();
+    jQuery("#fulltext").submit()
   }
 });
 
