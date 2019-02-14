@@ -5,11 +5,35 @@
 {% block title %}{% trans "file gallery ticket" %} #{{ ticket.id }}{% endblock %}
 
 {% block extra_head %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}/galereya/css/jquery.galereya.css">
-    <!--[if lt IE 9]>
-    <link rel="stylesheet" href="{{ STATIC_URL }}/galereya/css/jquery.galereya.ie.css">
-    <![endif]-->
-    <script src="{{ STATIC_URL }}/galereya/js/jquery.galereya.js"></script>
+    <script src="https://unpkg.com/zooming/build/zooming.min.js"></script>
+
+    <style>
+      .grid {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+      }
+      @media screen and (min-width: 600px) {
+        .cell {
+          width: calc(50% - 2rem);
+        }
+      }
+      @media screen and (min-width: 1000px) {
+        .cell {
+          width: calc(25% - 2rem);
+        }
+      }
+      .cell img {
+        display: block;
+
+        border: 1px solid #ddd;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
+        border-radius: 4px;
+      }
+      .cell {
+        margin: 1rem;
+      }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -17,31 +41,29 @@
 
     <p>&nbsp;</p>
 
-    <div id="gallery">
-      {% for image in images %}{% if image.content_type|hasPreview %}<img src="{% if "image" in image.content_type %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}{% else %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}&preview=yes{% endif %}"
-          alt="{{ image.name }}"
-          title="{{ image.name }}"
-          data-desc="{{ image.content_tye }}"
-          data-category="{{ image.content_tye }}"
-          data-fullsrc="/tickets/download/{{ ticket.id }}/?file={{ image.id }}"
-      />{% endif %}{% endfor %}
+    <div class="grid">
+      {% for image in images %}
+        {% if image.content_type|hasPreview %}
+        <div class="cell">
+          <img 
+            src="{% if "image" in image.content_type %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}{% else %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}&preview=yes{% endif %}"
+            class="responsive-image img-zoomable"
+            alt="{{ image.name }}"
+          />
+        {% endif %}
+        </div>
+      {% endfor %}
     </div>
 
     <script>
       $(function() {
-          $('#gallery').galereya({
-            wave: false,
-            modifier: '',
-            spacing: 5,
-            disableSliderOnClick: true,
-            onCellClick: function(e, ele) {
-              //console.log(ele.childNodes[0].getAttribute('data-fullsrc'));
-              window.location.href = ele.childNodes[0].getAttribute('data-fullsrc');
-            }
-        });
-        $('footer').hide();
+        new Zooming({
+          bgOpacity: 0.8,
+          bgColor: 'rgb(0, 0, 0)',
+          customSize: '100%',
+          zIndex: 1031 // 1030 is the bootstrap navbar
+        }).listen('.img-zoomable')
       });
-
     </script>
 
 {% endblock %}
