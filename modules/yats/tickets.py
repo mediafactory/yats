@@ -384,7 +384,7 @@ def action(request, mode, ticket):
         content_type = file_data.content_type
         if request.GET.get('preview') == 'yes' and os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)):
             src = '%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)
-            content_type = 'imgae/png'
+            content_type = 'image/jpg'
 
         if request.GET.get('resize', 'no') == 'yes' and ('image' in file_data.content_type or 'pdf' in file_data.content_type):
             img = resize_image('%s' % (src), (200, 150), 75)
