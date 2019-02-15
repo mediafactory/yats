@@ -50,6 +50,9 @@
     {% bootstrap_javascript_tag %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/corejs-typeahead/1.2.1/bloodhound.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/corejs-typeahead/1.2.1/typeahead.jquery.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css" />
     {% block extra_head %}
     {% endblock %}
     <style>
@@ -425,6 +428,21 @@ $('.typeahead').bind('typeahead:selected', function(ev, suggestion) {
     window.setTimeout(function () {jQuery('#fulltextSearch').focus();}, 500);
   }
 });
+
+
+window.addEventListener("load", function(){
+window.cookieconsent.initialise({
+  "palette": {
+    "popup": {
+      "background": "#f5f5f5",
+      "text": "#333333"
+    },
+    "button": {
+      "background": "#006dcc"
+    }
+  },
+  "theme": "classic"
+})});
 
 </script>
 </body>
