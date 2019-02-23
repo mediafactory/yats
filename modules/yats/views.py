@@ -62,7 +62,11 @@ def login(request):
         else:
             messages.add_message(request, messages.ERROR, _(u'Data invalid'))
     form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+    if hasattr(settings, 'SSO_PRIVATE_KEY') and settings.SSO_PRIVATE_KEY:
+        sso = True
+    else:
+        sso = False
+    return render(request, 'login.html', {'form': form, 'sso': sso})
 
 def logout(request):
     aut_logout(request)

@@ -8,6 +8,7 @@
 
 <div>
     <h1>{% trans "Local login" %}</h1><span id="trust_root"></span>
+    {% if sso %}<p style="margin-top: -15px;"><small class="text-muted"><a href="/client/">{% trans "single sign on" %}</a></small></p>{% endif %}
 </div>
 {% if form.errors %}
 <div class="alert alert-error">{% trans "Your user and password didn't match. Please try again." %}</div>
