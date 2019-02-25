@@ -429,20 +429,22 @@ $('.typeahead').bind('typeahead:selected', function(ev, suggestion) {
   }
 });
 
-
-window.addEventListener("load", function(){
-window.cookieconsent.initialise({
-  "palette": {
-    "popup": {
-      "background": "#f5f5f5",
-      "text": "#333333"
-    },
-    "button": {
-      "background": "#006dcc"
-    }
-  },
-  "theme": "classic"
-})});
+{% if not request.user.is_staff %}
+  window.addEventListener("load", function(){
+    window.cookieconsent.initialise({
+      "palette": {
+        "popup": {
+          "background": "#f5f5f5",
+          "text": "#333333"
+        },
+        "button": {
+          "background": "#006dcc"
+        }
+      },
+      "theme": "classic"
+    })
+  });
+{% endif %}
 
 </script>
 </body>
