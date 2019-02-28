@@ -205,7 +205,7 @@
           //console.log(this.getUploadingFiles().length, this.getQueuedFiles().length)
           if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
             $('#dataLink').submit();
-            //window.location.href = '/tickets/view/{{ ticket.id }}/?#files'};
+            window.location.href = '/tickets/view/{{ ticket.id }}/?#files';
           }
       },
       totaluploadprogress: function (progress) {

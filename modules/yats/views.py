@@ -18,7 +18,7 @@ from django.utils import translation
 from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search_ext, convert_sarch
-from yats.models import boards, tickets_participants, ticket_flow, ticket_flow_edges, tickets_ignorants
+from yats.models import boards, tickets_participants, ticket_flow, ticket_flow_edges, tickets_ignorants, UserProfile
 from yats.forms import AddToBordForm, PasswordForm, TicketCloseForm, TicketReassignForm
 from yats.yatse import api_login, buildYATSFields, YATSSearch
 
@@ -62,7 +62,11 @@ def login(request):
         else:
             messages.add_message(request, messages.ERROR, _(u'Data invalid'))
     form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+    if hasattr(settings, 'SSO_PRIVATE_KEY') and settings.SSO_PRIVATE_KEY:
+        sso = True
+    else:
+        sso = False
+    return render(request, 'login.html', {'form': form, 'sso': sso})
 
 def logout(request):
     aut_logout(request)
@@ -234,6 +238,7 @@ def kanban(request):
     flows = ticket_flow.objects.all().order_by('type')
     columns = []
     finish_state = -1
+    days = UserProfile.objects.get(user=request.user).day_since_closed_tickets
 
     query = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
 
@@ -252,7 +257,7 @@ def kanban(request):
             columns.append(flow)
             if flow.type == 2:
                 finish_state = flow.pk
-                flow.data = flow.data.filter(close_date__gte=datetime.date.today() - datetime.timedelta(days=5))
+                flow.data = flow.data.filter(close_date__gte=datetime.date.today() - datetime.timedelta(days=days))
 
         seen_elements = {}
         seen = tickets_participants.objects.filter(user=request.user, ticket__in=flow.data.values_list('id', flat=True)).values_list('ticket_id', 'seen')
