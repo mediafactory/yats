@@ -396,10 +396,11 @@ def action(request, mode, ticket):
         else:
             response = StreamingHttpResponse(open('%s' % (src), "rb"), content_type=content_type)
 
-        if request.GET.get('preview') == 'yes' and os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)):
-            response['Content-Disposition'] = 'attachment;filename=%s' % content_type
-        else:
-            response['Content-Disposition'] = 'attachment;filename=%s' % smart_str(file_data.name)
+        if 'noDisposition' not in request.GET:
+            if request.GET.get('preview') == 'yes' and os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)):
+                response['Content-Disposition'] = 'attachment;filename=%s' % content_type
+            else:
+                response['Content-Disposition'] = 'attachment;filename=%s' % smart_str(file_data.name)
         return response
 
     elif mode == 'upload':
