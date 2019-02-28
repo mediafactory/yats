@@ -60,6 +60,7 @@ class UserProfile(models.Model):
 
     organisation = models.ForeignKey('organisation', null=True)
     jabber = models.CharField(max_length=255, null=True, blank=True)
+    day_since_closed_tickets = models.SmallIntegerField(default=5)
 
     def save(self, *args, **kwargs):
         if not self.pk:
