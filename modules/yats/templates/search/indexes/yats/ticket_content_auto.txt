@@ -4,3 +4,9 @@
 {{ object.reproduction|striptags|cut_text_for_xapian|safe }}
 {{ object.billing_reason|striptags|cut_text_for_xapian|safe }}
 #{{ object.pk }}
+{% for file in object.get_files %}
+{{ file.name }}
+{% endfor %}
+{% for comment in object.get_comments %}
+{{ comment.comment }}
+{% endfor %}
