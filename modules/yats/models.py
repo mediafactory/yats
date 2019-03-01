@@ -219,6 +219,12 @@ class tickets(base):
     def get_absolute_url(self):
         return "/tickets/view/%i/" % self.id
 
+    def get_files(self):
+        return tickets_files.objects.filter(ticket=self.pk)
+
+    def get_comments(self):
+        return tickets_comments.objects.filter(ticket=self.pk)
+
 class tickets_participants(models.Model):
     ticket = models.ForeignKey(tickets)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
