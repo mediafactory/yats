@@ -3,9 +3,10 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.forms.forms import pretty_name
 from yats.diff import generate_patch_html
-from yats.shortcuts import has_public_fields
+from yats.shortcuts import has_public_fields, non_previewable_contenttypes
 from markdownx.utils import markdownify
 
+import os
 import re
 try:
     import json
@@ -23,8 +24,14 @@ def hasPreview(mime):
     if not mime:
         return False
 
-    mimetype = mime.split('/')
-    return mimetype[0] not in ['audio'] and mime not in ['application/octet-stream', 'application/json']
+    for non in non_previewable_contenttypes:
+        if non in mime:
+            return False
+    return True
+
+@register.filter
+def hasPreviewFile(fileid):
+    return os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid))
 
 @register.filter
 def prettify(value):
