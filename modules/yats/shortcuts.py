@@ -19,7 +19,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-non_previewable_contenttypes = ['access', 'audio', 'octet-stream']
+non_previewable_contenttypes = ['access', 'audio', 'octet-stream', 'x-diskcopy']
 
 def resize_image(filename, size=(200, 150), dpi=75):
     image = Image.open(filename)
