@@ -5,8 +5,8 @@
 {{ object.billing_reason|striptags|cut_text_for_xapian|safe }}
 #{{ object.pk }}
 {% for file in object.get_files %}
-{{ file.name }}
+{{ file.name|striptags|cut_text_for_xapian|safe }}
 {% endfor %}
 {% for comment in object.get_comments %}
-{{ comment.comment }}
+{{ comment.comment|striptags|cut_text_for_xapian|safe }}
 {% endfor %}
