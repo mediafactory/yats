@@ -21,6 +21,15 @@ except ImportError:
 
 non_previewable_contenttypes = ['access', 'audio', 'octet-stream', 'x-diskcopy', 'application/zip']
 
+def isPreviewable(mime):
+    if not mime:
+        return False
+
+    for non in non_previewable_contenttypes:
+        if non in mime:
+            return False
+    return True
+
 def resize_image(filename, size=(200, 150), dpi=75):
     image = Image.open(filename)
     pw = image.size[0]

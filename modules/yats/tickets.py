@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end, tickets_ignorants
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
 import os
 import io
 import graph
@@ -439,10 +439,11 @@ def action(request, mode, ticket):
                 if 'pdf' in f.content_type:
                     convertPDFtoImg('%s/%s.dat' % (dest, f.id), '%s/%s.preview' % (dest, f.id))
                 else:
-                    if 'image' not in f.content_type:
+                    if 'image' not in f.content_type and isPreviewable(f.content_type):
                         tmp = convertOfficeTpPDF('%s/%s.dat' % (dest, f.id))
                         convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
-                        os.unlink(tmp)
+                        if os.path.isfile(tmp):
+                            os.unlink(tmp)
 
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
 
@@ -453,6 +454,7 @@ def action(request, mode, ticket):
                 if request.GET.get('Ajax') == '1':
                     return HttpResponse('OK')
                 return HttpResponseRedirect('/tickets/view/%s/' % ticket)
+
         elif request.method == 'PUT':
             # /tickets/upload/XXX/?filename=test1.txt
             upload_handlers = request.upload_handlers
@@ -529,11 +531,12 @@ def action(request, mode, ticket):
                     if 'pdf' in f.content_type:
                         convertPDFtoImg('%s/%s.dat' % (dest, f.id), '%s/%s.preview' % (dest, f.id))
                     else:
-                        if 'image' not in f.content_type and 'audio' not in f.content_type and not 'javascript' in f.content_type:
+                        if 'image' not in f.content_type and isPreviewable(f.content_type):
                             try:
                                 tmp = convertOfficeTpPDF('%s/%s.dat' % (dest, f.id))
                                 convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
-                                os.unlink(tmp)
+                                if os.path.isfile(tmp):
+                                    os.unlink(tmp)
                             except:
                                 pass
 
