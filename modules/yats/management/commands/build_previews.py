@@ -20,9 +20,9 @@ class Command(BaseCommand):
             files = files.exclude(content_type__icontains=non)
         for file in files:
             src = '%s%s.dat' % (settings.FILE_UPLOAD_PATH, file.id)
-            print file.content_type
             if os.path.isfile(src):
                 if not os.path.isfile('%s%s.preview' % (dest, file.id)):
+                    self.stdout.write(file.content_type)
                     self.stdout.write(src)
                     if 'pdf' in file.content_type:
                         convertPDFtoImg('%s%s.dat' % (dest, file.id), '%s%s.preview' % (dest, file.id))
