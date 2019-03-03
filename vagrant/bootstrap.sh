@@ -76,6 +76,7 @@ python manage.py migrate
 python manage.py createsuperuser --username root --email root@localhost --noinput
 python manage.py loaddata /vagrant/init_db.json
 python manage.py collectstatic  -l --noinput
+python /vagrant_project/test/api_simple_create.py
 python manage.py rebuild_index --noinput
 
 chown root:vagrant /var/web/yats/db/yats2.sqlite
