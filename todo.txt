@@ -8,7 +8,6 @@
   => Logs
 - Gruppen
 - igrnore seen => abrechnen
-- checksum & virusscan in PUT
 - check, if close is allowed in DAV
 - Fortschirtt in ToDos
 - recycle old tasks => e.g. take every day 3 automatically, random from a que e.g. waiting and put them in entry again.

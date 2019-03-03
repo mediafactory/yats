@@ -20,10 +20,15 @@ import graph
 import re
 import copy
 import datetime
+import hashlib
 try:
     import json
 except ImportError:
     from django.utils import simplejson as json
+try:
+    import pyclamd
+except:
+    pass
 
 @login_required
 def create(request):
@@ -504,10 +509,58 @@ def action(request, mode, ticket):
             for i, handler in enumerate(upload_handlers):
                 file_obj = handler.file_complete(counters[i])
                 if file_obj:
+                    if settings.FILE_UPLOAD_VIRUS_SCAN and pyclamd:
+                        # virus scan
+                        try:
+                            if not hasattr(pyclamd, 'scan_stream'):
+                                cd = pyclamd.ClamdUnixSocket()
+                            else:
+                                pyclamd.init_network_socket('localhost', 3310)
+                                cd = pyclamd
+
+                            # We need to get a file object for clamav. We might have a path or we might
+                            # have to read the data into memory.
+                            if hasattr(file_obj, 'temporary_file_path'):
+                                os.chmod(file_obj.temporary_file_path(), 0664)
+                                result = cd.scan_file(file_obj.temporary_file_path())
+                            else:
+                                if hasattr(file_obj, 'read'):
+                                    result = cd.scan_stream(file_obj.read())
+                                else:
+                                    result = cd.scan_stream(file_obj['content'])
+                        except:
+                            from socket import gethostname
+                            raise Exception(_(u'unable to initialize scan engine on host %s') % gethostname())
+
+                        if result:
+                            msg = ' '.join(result[result.keys()[0]]).replace('FOUND ', '')
+                            raise Exception(_(u"file is infected by virus: %s") % msg)
+
+                    hasher = hashlib.md5()
+                    # We need to get a file object for clamav. We might have a path or we might
+                    # have to read the data into memory.
+                    if hasattr(file_obj, 'temporary_file_path'):
+                        with open(file_obj.temporary_file_path(), 'rb') as afile:
+                            buf = afile.read()
+                            hasher.update(buf)
+                        hash = hasher.hexdigest()
+                    else:
+                        if hasattr(file_obj, 'read'):
+                            file_obj.seek(0)
+                            buf = file_obj.read()
+                            hasher.update(buf)
+                        else:
+                            hasher.update(file_obj['content'].read())
+                    hash = hasher.hexdigest()
+
+                    if tickets_files.objects.filter(active_record=True, ticket=ticket, checksum=hash).count() > 0:
+                        raise Exception('duplicate hash value - file already exists in this ticket %s' % ticket)
+
+                    # todo: virusscan
                     f = tickets_files()
                     f.name = file_obj.name
                     f.size = file_obj.size
-                    #f.checksum = request.FILES['file'].hash
+                    f.checksum = hash
                     f.content_type = content_type
                     f.ticket_id = ticket
                     f.public = True
