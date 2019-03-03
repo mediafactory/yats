@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django import template
 from django.conf import settings
 from django.utils.translation import ugettext as _
@@ -45,7 +46,8 @@ def contains(value, search):
 
 @register.filter
 def numberToTicketURL(value):
-    return re.sub('#([0-9]+)', r'<a href="/tickets/view/\1/">#\1</a>', value)
+    value = re.sub(u'§([0-9]+)', ur'<a href="/docs/view/\1/">§\1</a>', value)
+    return re.sub(u'#([0-9]+)', ur'<a href="/tickets/view/\1/">#\1</a>', value)
 
 @register.filter
 def buildToDoList(value):
