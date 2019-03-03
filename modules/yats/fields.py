@@ -50,7 +50,6 @@ class yatsFileField(forms.FileField):
                 msg = ' '.join(result[result.keys()[0]]).replace('FOUND ', '')
                 raise ValidationError(self.error_messages['virus_found'] % msg)
 
-
         hasher = hashlib.md5()
         # We need to get a file object for clamav. We might have a path or we might
         # have to read the data into memory.
@@ -58,7 +57,6 @@ class yatsFileField(forms.FileField):
             with open(data.temporary_file_path(), 'rb') as afile:
                 buf = afile.read()
                 hasher.update(buf)
-            self.hash = hasher.hexdigest()
         else:
             if hasattr(data, 'read'):
                 data.seek(0)
