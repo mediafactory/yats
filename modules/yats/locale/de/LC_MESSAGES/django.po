@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-03-01 22:12+0000\n"
-"PO-Revision-Date: 2019-03-01 23:15+0100\n"
+"PO-Revision-Date: 2019-03-03 13:37+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -45,8 +45,6 @@ msgid "New"
 msgstr "Neu"
 
 #: templates/base.html:178 templates/base.html:220
-#, fuzzy
-#| msgid "new ticket"
 msgid "New ticket"
 msgstr "neues Ticket"
 
