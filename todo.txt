@@ -1,9 +1,6 @@
 - wiki
   => TOC
-  => Links zu anderen Docs
-  => Ticket erstellen
   => history
-  => Breadcrumb
   => YATSEE
   => Logs
 - Gruppen
@@ -26,6 +23,7 @@
 - Kanban Board Settings: limit Columns, my or my and non asssigned, max days finished
 - boards für andere Spalten: z.B. Komponenten + eine mit unassigned oder user
 - Filter über dem Board: Assigned (my, my and none, all or even user), Componenten
+- log virus found to ticket
 
 ---- WISHLIST
 - Vorlangen von Tickets
