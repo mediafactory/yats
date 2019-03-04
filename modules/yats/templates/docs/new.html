@@ -6,6 +6,7 @@
 
 {% block extra_head %}
     {{ form.media }}
+    <link href="{{ STATIC_URL }}pygments.css" type="text/css" rel="stylesheet" media="all">    
 {% endblock %}
 
 {% block content %}
@@ -25,5 +26,13 @@
             <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
         {% endif %}
     </form>
+
+    <script>
+      $(".markdownx").prepend($("<div class=\"tab-content\"><div class=\"tab-pane active\" id=\"edit\"></div><div class=\"tab-pane\" id=\"preview\"></div></div>"));
+      $(".markdownx").prepend($("<ul class=\"nav nav-tabs\" id=\"markupTab\"><li class=\"active\"><a href=\"#edit\" data-toggle=\"tab\">{% trans "edit" %}</a></li><li><a href=\"#preview\" data-toggle=\"tab\">{% trans "preview" %}</a></li></ul>"));
+      $("#edit").append($("#id_text"));
+      $("#preview").append($(".markdownx-preview"));
+
+    </script>
 
 {% endblock %}

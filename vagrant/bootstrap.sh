@@ -75,6 +75,7 @@ cd /var/web/yats/web/
 python manage.py migrate
 python manage.py createsuperuser --username root --email root@localhost --noinput
 python manage.py loaddata /vagrant/init_db.json
+pygmentize -S default -f html -a .codehilite > /vagrant_modules/yats/static/pygments.css
 python manage.py collectstatic  -l --noinput
 python /vagrant_project/test/api_simple_create.py
 python manage.py rebuild_index --noinput

@@ -4,6 +4,10 @@
 
 {% block title %}§{{ doc.id }}{% endblock %}
 
+{% block extra_head %}
+<link href="{{ STATIC_URL }}pygments.css" type="text/css" rel="stylesheet" media="all">
+{% endblock %}
+
 {% block content %}
 <h3>{% trans "document" %} §{{ doc.id }} <a class="btn btn-small" href="/docs/history/{{ doc.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/docs/edit/{{doc.id }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small btn-primary" href="/docs/ticket/{{ doc.id }}/">{% trans "create ticket" %}</a>&nbsp;<a class="btn btn-small btn-danger" href="javascript: del()">{% trans "delete" %}</a></h3>
 <h2>{{ doc.caption }}</h2>

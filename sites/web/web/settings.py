@@ -281,3 +281,16 @@ HAYSTACK_CONNECTIONS = {
         'INCLUDE_SPELLING': True,
     },
 }
+
+MARKDOWNX_MARKDOWN_EXTENSIONS = [
+    'markdown.extensions.extra',
+    'markdown.extensions.codehilite',
+    'markdown.extensions.admonition',
+    'markdown.extensions.nl2br',
+]
+
+MARKDOWNX_MARKDOWN_EXTENSION_CONFIGS = {
+    'codehilite': {
+        'linenums': False
+    }
+}
