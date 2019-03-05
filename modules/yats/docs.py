@@ -77,6 +77,8 @@ def docs_action(request, mode, docid):
             tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
         tic.save(user=request.user)
 
+        add_breadcrumbs(request, str(tic.pk), '#', caption=tic.caption[:20])
+
         if hasattr(settings, 'KEEP_IT_SIMPLE') and settings.KEEP_IT_SIMPLE:
             return HttpResponseRedirect('/tickets/simple/%s/' % tic.pk)
         else:
