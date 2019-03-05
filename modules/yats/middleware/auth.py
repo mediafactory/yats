@@ -16,7 +16,7 @@ class OrgaAdditionMiddleware(object):
             except:
                 pass
 
-            if not request.organisation:
+            if not hasattr(request, 'organisation') or not request.organisation:
                 response = HttpResponse(loader.render_to_string('no_orga.html', {'source': 'middleware', 'request_path': request.build_absolute_uri()}, RequestContext(request)))
                 response.status_code = 200
                 return response
