@@ -31,8 +31,11 @@ def hasPreview(mime):
     return True
 
 @register.filter
-def hasPreviewFile(fileid):
-    return os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid))
+def hasPreviewFile(fileid, type):
+    if type == 'doc':
+        return os.path.isfile('%sdocs/%s.preview' % (settings.FILE_UPLOAD_PATH, fileid))
+    else:
+        return os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid))
 
 @register.filter
 def prettify(value):

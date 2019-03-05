@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n strings %}
+
+{% block title %}{% trans "file gallery ticket" %} #{{ ticket.id }}{% endblock %}
+
+{% block extra_head %}
+    <script src="https://unpkg.com/zooming/build/zooming.min.js"></script>
+
+    <style>
+      .grid {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+      }
+      @media screen and (min-width: 600px) {
+        .cell {
+          width: calc(50% - 2rem);
+        }
+      }
+      @media screen and (min-width: 1000px) {
+        .cell {
+          width: calc(25% - 2rem);
+        }
+      }
+      .cell img {
+        display: block;
+
+        border: 1px solid #ddd;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
+        border-radius: 4px;
+      }
+      .cell {
+        margin: 1rem;
+      }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/view/{{ ticket.id }}/">{% trans "view" %}</a></h2>
+
+    <p>&nbsp;</p>
+
+    <div class="grid">
+      {% for image in images %}
+        {% if image.content_type|hasPreview %}
+        <div class="cell">
+          <img 
+            src="{% if "image" in image.content_type %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}{% else %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}&preview=yes{% endif %}"
+            class="responsive-image img-zoomable"
+            alt="{{ image.name }}"
+          />
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <script>
+      $(function() {
+        new Zooming({
+          bgOpacity: 0.8,
+          bgColor: 'rgb(0, 0, 0)',
+          customSize: '100%',
+          zIndex: 1031 // 1030 is the bootstrap navbar
+        }).listen('.img-zoomable')
+      });
+    </script>
+
+{% endblock %}

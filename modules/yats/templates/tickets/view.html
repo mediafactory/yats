@@ -54,7 +54,7 @@
                 <tr>
                     <td data-title="{% trans "action" %}"><a href="javascript: delFile({{ line.id }});"><i class="icon-trash"></i></td>
                     <td data-title="{% trans "date" %}">{{ line.c_date|date:"SHORT_DATE_FORMAT" }}</td>
-                    <td data-title="{% trans "name" %}"{% if line.id|hasPreviewFile or line.content_type|hasPreview %} dataimg="/tickets/download/{{ ticket.id }}/?file={{ line.id }}&preview=yes"{% endif %}><a href="/tickets/download/{{ ticket.id }}/?file={{ line.id }}">{{ line.name }}</a>
+                    <td data-title="{% trans "name" %}"{% if line.id|hasPreviewFile:"ticket" or line.content_type|hasPreview %} dataimg="/tickets/download/{{ ticket.id }}/?file={{ line.id }}&preview=yes"{% endif %}><a href="/tickets/download/{{ ticket.id }}/?file={{ line.id }}">{{ line.name }}</a>
                     {% if "audio" in line.content_type %}<br /><br /><audio controls="controls" preload="none">
                         <source src="/tickets/download/{{ ticket.id }}/?file={{ line.id }}" type="{% if line.content_type == "audio/wav" %}audio/wav{% else %}{{ line.content_type }}{% endif %}" />
                     </audio>{% endif %}</td>

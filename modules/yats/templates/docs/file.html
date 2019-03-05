@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n strings %}
+
+{% block title %}{% trans "file upload doc" %} §{{ docid.id }}{% endblock %}
+
+{% block content %}
+    <h2>{% trans "doc" %} §{{ docid.id }} {{ docid }}</h2>
+
+    <p>&nbsp;</p>
+
+	<form id="data" name="data" action="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form|as_bootstrap:"vertical" }}
+	<br />
+	<input class="btn btn-primary" type="submit" value="{% trans "upload" %}" />
+	</form>
+
+{% endblock %}
