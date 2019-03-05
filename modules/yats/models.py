@@ -303,3 +303,20 @@ class docs(base):
 
     def get_absolute_url(self):
         return "/docs/view/%i/" % self.id
+
+class docs_history(base):
+    doc = models.ForeignKey(docs)
+    old = models.TextField()
+    new = models.TextField()
+    action = models.SmallIntegerField(default=0)  # 0 = nothing
+
+class docs_files(base):
+    doc = models.ForeignKey(docs)
+    name = models.CharField(max_length=255)
+    content_type = models.CharField(max_length=255)
+    size = models.PositiveIntegerField()
+    public = models.BooleanField(default=False)
+    checksum = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        ordering = ['c_date']
