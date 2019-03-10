@@ -28,6 +28,7 @@ class TicketIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True, template_name='search/indexes/yats/ticket_text.txt')
     caption = indexes.CharField(model_attr='caption')
     closed = indexes.BooleanField(model_attr='closed')
+    last_action_date = indexes.DateTimeField(model_attr='last_action_date')
 
     content_auto = indexes.EdgeNgramField(use_template=True, template_name='search/indexes/yats/ticket_content_auto.txt')
 

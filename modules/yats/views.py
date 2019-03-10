@@ -302,11 +302,15 @@ def autocomplete(request):
         args.append(apps.get_model(model))
 
     sqs = SearchQuerySet().models(*set(args))
+
     q = request.GET.get('q', '').split(' ')
     for word in q:
         word = word.strip()
         if word:
             sqs = sqs.filter(content_auto=word)
+
+    if len(models) == 1 and models[0] == 'web.test':
+        sqs = sqs.order_by('-last_action_date')
 
     result = []
     if 'suggestions' in request.GET:
