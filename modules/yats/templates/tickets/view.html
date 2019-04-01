@@ -23,7 +23,7 @@
     {% for field in form %}{% if field.value != None and field.value != '' %}
         <tr>
         	<td>{% if not field|field_is_public %}<i class="fa fa-lock"></i> {% endif %}{{ field.label }}:</td>
-        	<td>{% if field.id_for_label == 'id_description' %}{{ field|display_value|numberToTicketURL|buildToDoList|safe|linebreaksbr }}{% else %}{% if field.id_for_label == 'id_deadline' or field.id_for_label == 'id_show_start' %}{{ field|display_value|localtime }}{% else %}{{ field|display_value|linebreaksbr }}{% endif %}{% endif %}</td>
+        	<td>{% if field.id_for_label == 'id_description' %}{{ field|display_value|numberToTicketURL|buildToDoList|safe|linebreaksbr|urlize }}{% else %}{% if field.id_for_label == 'id_deadline' or field.id_for_label == 'id_show_start' %}{{ field|display_value|localtime }}{% else %}{{ field|display_value|linebreaksbr }}{% endif %}{% endif %}</td>
         </tr>
     {% endif %}{% endfor %}
         <tr>
@@ -83,7 +83,7 @@
               <p><i class="icon-user"></i> <small class="text-muted">{{ line.c_user }} <i class="icon-time"></i> {{ line.c_date }}</small></p>
             </div>
             <div class="timeline-body">
-              <p>{{ line.comment|force_escape|numberToTicketURL|safe|linebreaksbr }}</p>
+              <p>{{ line.comment|force_escape|numberToTicketURL|safe|linebreaksbr|urlize }}</p>
             </div>
           </div>
         </li>
