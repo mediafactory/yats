@@ -63,3 +63,4 @@ http://getbootstrap.com/2.3.2/base-css.html#buttons
 http://marcoceppi.github.io/bootstrap-glyphicons/
 http://www.bootply.com/106768
 http://jsfiddle.net/KyleMit/gDjtk/
+https://github.com/moimael/trac-to-gitlab/
