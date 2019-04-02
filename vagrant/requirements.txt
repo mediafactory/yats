@@ -16,3 +16,4 @@ django-markdownx
 django-haystack
 xapian-haystack
 pygments
+furl
