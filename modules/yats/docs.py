@@ -7,7 +7,7 @@ from django.utils.encoding import smart_str
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from yats.models import docs, docs_files
+from yats.models import docs, docs_files, tickets_comments
 from yats.forms import DocsForm, UploadFileForm
 from yats.shortcuts import resize_image, add_breadcrumbs, get_ticket_model, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
 import re
@@ -76,6 +76,13 @@ def docs_action(request, mode, docid):
         if not tic.component_id and hasattr(settings, 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT') and settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT:
             tic.component_id = settings.KEEP_IT_SIMPLE_DEFAULT_COMPONENT
         tic.save(user=request.user)
+
+        # add ref to doc
+        com = tickets_comments()
+        com.comment = _('see §%s') % doc.pk
+        com.ticket_id = tic
+        com.action = 3
+        com.save(user=request.user)
 
         add_breadcrumbs(request, str(tic.pk), '#', caption=tic.caption[:20])
 
