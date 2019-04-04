@@ -120,12 +120,12 @@
 
             <div class="timeline-footer">
                 <div>
-                  <small class="muted"><i class="fa fa-clock-o"></i> {{ line.c_date }}</small>
+                  <small class="muted"><i class="fa fa-clock-o"></i> {{ line.c_date|date:"j. M y, H:i" }}</small>
                 </div>
 
                 {% if line.edited %} 
                 <div>
-                    <small class="muted edited" data-toggle="tooltip" title="{{ line.edited_date }}">edited</small>
+                    <small class="muted edited" data-toggle="tooltip" title="{{ line.edited_date|date:'j. M y, H:i' }}">edited</small>
                 </div>
                 {% endif %}
             </div>
@@ -140,8 +140,8 @@
             </div>
             
             <div class="modal-body">
-                <form id="form-{{ line.id }}" action="/tickets/update_comment/{{ ticket.id }}/?comment_id={{ line.id }}" method="POST">
-                    <textarea name="comment_body" id="comment_body" cols="30" rows="10" style="width: 95%">{{ line.comment|force_escape|numberToTicketURL|safe|linebreaksbr }}</textarea>
+                <form id="form-{{ line.id }}" class="comment-edit-form" action="/tickets/update_comment/{{ ticket.id }}/?comment_id={{ line.id }}" method="POST">
+                    <textarea name="comment_body" id="comment_body" cols="30" rows="10" style="width: 95%">{{ line.comment|force_escape|safe|linebreaksbr }}</textarea>
                 </form>
             </div>
             
