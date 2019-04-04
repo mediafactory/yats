@@ -238,6 +238,8 @@ class tickets_comments(base):
     ticket = models.ForeignKey(tickets)
     comment = models.TextField()
     action = models.SmallIntegerField(default=0)  # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 6 = comment, 7 = reassign
+    edited = models.BooleanField(default=False)
+    edited_date = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         super(tickets_comments, self).save(*args, **kwargs)

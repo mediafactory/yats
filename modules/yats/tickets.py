@@ -710,6 +710,19 @@ def action(request, mode, ticket):
             }
             return JsonResponse(data, safe=False)
 
+    elif mode == 'update_comment':
+
+        if request.method == 'POST':
+            comment_id = request.GET.get("comment_id")
+            comment = tickets_comments.objects.get(pk=comment_id)
+
+            if comment.c_user == request.user:
+                comment.comment = request.POST.get("comment_body", "")
+                comment.edited = True
+                comment.save(user=request.user)
+
+        return HttpResponseRedirect("/tickets/view/%s/#comment_id-%s" % (ticket, comment_id))
+
 @login_required
 def table(request, **kwargs):
     def pretty_condition(condition):

@@ -11,6 +11,25 @@
     <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
     <link href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css" type="text/css" rel="stylesheet" media="all">
     <script src="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js"></script>
+
+    <style>
+        .timeline-panel {
+            padding: 10px 20px 10px 20px !important;
+        }
+        .timeline-heading {
+            font-weight: 510;
+            display: flex;
+            justify-content: space-between;
+        }
+        .timeline-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        #form-3 {
+            margin: 0;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -78,15 +97,58 @@
         {% for line in comments %}
         <li{% cycle '' ' class="timeline-inverted"' %}>
           <div class="timeline-badge {{ line.action|comment_color }}"><i class="fa {{ line.action|history_icon }}"></i></div>
-          <div class="timeline-panel">
+
+          <div class="timeline-panel" id="comment_id-{{ line.id }}">
             <div class="timeline-heading">
-              <p><i class="icon-user"></i> <small class="text-muted">{{ line.c_user }} <i class="icon-time"></i> {{ line.c_date }}</small></p>
+                <div>
+                    <p><small><i class="fa fa-user"></i> {{ line.c_user }}</small></p>
+                </div>
+
+               {% if request.user == line.c_user %} 
+                <div style="margin-right: 1em;">
+                    <small class="muted"><a href="#myModal-{{ line.id }}" data-toggle="modal"><i class="fa fa-pencil"></i></a></small>
+                </div>
+                {% endif %}
             </div>
+
             <div class="timeline-body">
               <p>{{ line.comment|force_escape|numberToTicketURL|safe|linebreaksbr|urlize }}</p>
             </div>
+
+            <div class="timeline-footer">
+                <div>
+                  <small class="muted"><i class="fa fa-clock-o"></i> {{ line.c_date }}</small>
+                </div>
+
+                {% if line.edited %} 
+                <div>
+                    <small class="muted edited" data-toggle="tooltip" title="{{ line.edited_date }}">edited</small>
+                </div>
+                {% endif %}
+            </div>
           </div>
         </li>
+
+        {% if request.user == line.c_user %} 
+        <div id="myModal-{{ line.id }}" class="modal hide fade">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>Edit Comment</h3>
+            </div>
+            
+            <div class="modal-body">
+                <form id="form-{{ line.id }}" action="/tickets/update_comment/{{ ticket.id }}/?comment_id={{ line.id }}" method="POST">
+                    <textarea name="comment_body" id="comment_body" cols="30" rows="10" style="width: 95%">{{ line.comment|force_escape|numberToTicketURL|safe|linebreaksbr }}</textarea>
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <a href="#" class="btn" data-dismiss="modal">Close</a>
+                <input class="btn btn-primary" type="submit" value="Submit" form="form-{{ line.id }}" style="width: auto;">
+            </div>
+        </div>
+        {% endif %}
+
         {% endfor %}
     </ul>
 
@@ -158,18 +220,20 @@
 <script type="text/javascript">
     var wnd = null;
     jQuery(document).tooltip({
-            position: {
-                collision: "fit"
-            },
-            track: true,
-            items : "[dataimg]",
-            content : function() {
-                var element = jQuery(this);
-                if (element.is("[dataimg]")) {
-                    return '<img src="'+ element.attr("dataimg") +'" width="300" />';
-                }
+        position: {
+            collision: "fit"
+        },
+        track: true,
+        items : "[dataimg]",
+        content : function() {
+            var element = jQuery(this);
+            if (element.is("[dataimg]")) {
+                return '<img src="'+ element.attr("dataimg") +'" width="300" />';
             }
-        });
+        }
+    });
+
+    $(".edited").tooltip()
 
     $(":checkbox").on("click", function(){
       //alert(this.checked);
