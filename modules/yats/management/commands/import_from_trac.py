@@ -6,6 +6,7 @@ import xmlrpclib
 from furl import furl
 from yats.models import docs, docs_files
 from yats.docs import get_doc_files_folder
+from yats.shortcuts import convertPDFtoImg, convertOfficeTpPDF, isPreviewable
 import re
 import os
 import mimetypes
@@ -130,11 +131,12 @@ class Command(BaseCommand):
                 print '=> %s' % att
                 path, filename = os.path.split(att)
                 file = rpc_srv.wiki.getAttachment(att)
+                mimetype = mimetypes.guess_type(filename)
 
                 f = docs_files()
                 f.name = filename
                 f.size = 0
-                f.content_type = mimetypes.guess_type(filename)
+                f.content_type = mimetype[0] if mimetype[0] else ''
                 f.doc_id = d.id
                 f.public = True
                 f.save(user=user)
@@ -148,14 +150,19 @@ class Command(BaseCommand):
                     destination.close()
 
                 hash_md5 = hashlib.md5()
-                with open('%s%s.dat' % (dest, f.id), "rb") as f:
-                    for chunk in iter(lambda: f.read(4096), b""):
+                with open('%s%s.dat' % (dest, f.id), "rb") as fo:
+                    for chunk in iter(lambda: fo.read(4096), b""):
                         hash_md5.update(chunk)
                 f.checksum = hash_md5.hexdigest()
                 f.save(user=user)
 
-                # todo:
-                # checksum
-                # convert preview
+                if 'pdf' in f.content_type:
+                    convertPDFtoImg('%s/%s.dat' % (dest, f.id), '%s/%s.preview' % (dest, f.id))
+                else:
+                    if 'image' not in f.content_type and isPreviewable(f.content_type):
+                        tmp = convertOfficeTpPDF('%s/%s.dat' % (dest, f.id))
+                        convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
+                        if os.path.isfile(tmp):
+                            os.unlink(tmp)
 
             self.stdout.write('%s => %s' % (doc, d.pk))
