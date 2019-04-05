@@ -9,6 +9,7 @@ from yats.docs import get_doc_files_folder
 import re
 import os
 import mimetypes
+import hashlib
 try:
     from xmlrpclib import Binary
 except ImportError:
@@ -133,7 +134,6 @@ class Command(BaseCommand):
                 f = docs_files()
                 f.name = filename
                 f.size = 0
-                #f.checksum =
                 f.content_type = mimetypes.guess_type(filename)
                 f.doc_id = d.id
                 f.public = True
@@ -143,8 +143,16 @@ class Command(BaseCommand):
                 if not os.path.exists(dest):
                     os.makedirs(dest)
 
-                with open('%s%s.dat' % (dest, f.id), 'wb+') as destination:
-                    destination.write(Binary(file))
+                with open('%s%s.dat' % (dest, f.id), 'wb') as destination:
+                    destination.write(file.data)
+                    destination.close()
+
+                hash_md5 = hashlib.md5()
+                with open('%s%s.dat' % (dest, f.id), "rb") as f:
+                    for chunk in iter(lambda: f.read(4096), b""):
+                        hash_md5.update(chunk)
+                f.checksum = hash_md5.hexdigest()
+                f.save(user=user)
 
                 # todo:
                 # checksum
