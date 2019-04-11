@@ -74,7 +74,11 @@ class ErrorCaptureMiddleware(object):
         # send an error message to the admins, if something fails... => and not a bot
         subject = 'BUGTRACK EXCEPTION: %s' % type(exception).__name__[:60]
 
-        yats_data = 'TS: %s\nURL: %s\nRAW_POST: %s\nHOST_NAME: %s\nYATS_APP_VERSION: %s\nDJANGO_VERSION: %s\nPYTHON: %s' % (datetime.datetime.now(), request.build_absolute_uri(), request.body, gethostname(), get_version(), get_django_version(), get_python_version())
+        try:
+            body = request.body
+        except:
+            body = 'not available'
+        yats_data = 'TS: %s\nURL: %s\nRAW_POST: %s\nHOST_NAME: %s\nYATS_APP_VERSION: %s\nDJANGO_VERSION: %s\nPYTHON: %s' % (datetime.datetime.now(), request.build_absolute_uri(), body, gethostname(), get_version(), get_django_version(), get_python_version())
         if hasattr(request, 'organisation'):
             yats_data += '\nORGA: %s' % request.organisation.name
         else:
