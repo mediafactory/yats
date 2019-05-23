@@ -107,7 +107,7 @@
                     <p><small><i class="fa fa-user"></i> {{ line.c_user }}</small></p>
                 </div>
 
-               {% if request.user == line.c_user %} 
+               {% if request.user == line.c_user %}
                 <div style="margin-right: 1em;">
                     <small class="muted"><a href="#myModal-{{ line.id }}" data-toggle="modal"><i class="fa fa-pencil"></i></a></small>
                 </div>
@@ -123,7 +123,7 @@
                   <small class="muted"><i class="fa fa-clock-o"></i> {{ line.c_date|date:"j. M y, H:i" }}</small>
                 </div>
 
-                {% if line.edited %} 
+                {% if line.edited %}
                 <div>
                     <small class="muted edited" data-toggle="tooltip" title="{{ line.edited_date|date:'j. M y, H:i' }}">edited</small>
                 </div>
@@ -132,19 +132,19 @@
           </div>
         </li>
 
-        {% if request.user == line.c_user %} 
+        {% if request.user == line.c_user %}
         <div id="myModal-{{ line.id }}" class="modal hide fade">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h3>Edit Comment</h3>
             </div>
-            
+
             <div class="modal-body">
                 <form id="form-{{ line.id }}" class="comment-edit-form" action="/tickets/update_comment/{{ ticket.id }}/?comment_id={{ line.id }}" method="POST">
                     <textarea name="comment_body" id="comment_body" cols="30" rows="10" style="width: 95%">{{ line.comment|force_escape|safe|linebreaksbr }}</textarea>
                 </form>
             </div>
-            
+
             <div class="modal-footer">
                 <a href="#" class="btn" data-dismiss="modal">Close</a>
                 <input class="btn btn-primary" type="submit" value="Submit" form="form-{{ line.id }}" style="width: auto;">
@@ -222,6 +222,7 @@
 
 <script type="text/javascript">
     var wnd = null;
+    var timer = null;
     jQuery(document).tooltip({
         position: {
             collision: "fit"
@@ -282,6 +283,32 @@
           if ( ! wnd )
             $('#pleaseWaitDialog').modal();
       },
+      init : function() {
+        this.on("drop", function(event) {
+          if (timer)
+            window.clearTimeout(timer);
+        });
+      }
     });
+
+    timer = window.setTimeout(checkForUpdats, 1000 * 30);
+
+    function checkForUpdats() {
+      if (timer)
+        window.clearTimeout(timer);
+      $.ajax({
+        type: "HEAD",
+        url: "/tickets/last_modified/{{ ticket.id }}/",
+        beforeSend : function( xhr ) {
+          xhr.setRequestHeader("If-Modified-Since", "{{ last_action_date }}");
+        },
+        statusCode: {
+          200: function (response) {
+             window.location.href = '/tickets/view/{{ ticket.id }}/';
+          }
+        }
+      });
+      timer = window.setTimeout(checkForUpdats, 1000 * 30);
+    }
 </script>
 {% endblock %}

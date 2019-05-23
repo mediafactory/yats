@@ -11,6 +11,7 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.http import parse_http_date_safe, http_date
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end, tickets_ignorants
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
@@ -20,6 +21,7 @@ import graph
 import re
 import copy
 import datetime
+import time
 import hashlib
 try:
     import json
@@ -216,7 +218,7 @@ def action(request, mode, ticket):
         if 'YATSE' in request.GET and 'isUsingYATSE' not in request.session:
             request.session['isUsingYATSE'] = True
 
-        return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed, 'keep_it_simple': keep_it_simple})
+        return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed, 'keep_it_simple': keep_it_simple, 'last_action_date': http_date(time.mktime(tic.last_action_date.timetuple()))})
 
     elif mode == 'gallery':
         images = tickets_files.objects.filter(ticket=ticket, active_record=True)
@@ -722,6 +724,19 @@ def action(request, mode, ticket):
                 comment.save(user=request.user)
 
         return HttpResponseRedirect("/tickets/view/%s/#comment_id-%s" % (ticket, comment_id))
+
+    elif mode == 'last_modified':
+        if_modified_since = request.META.get('HTTP_IF_MODIFIED_SINCE')
+        if if_modified_since:
+            if_modified_since = parse_http_date_safe(if_modified_since)
+            if time.mktime(tic.last_action_date.timetuple()) > if_modified_since:
+                return HttpResponse('outdated', status=200)
+            else:
+                return HttpResponse('not modified', status=304)
+
+        else:
+            return HttpResponse('unknown', status=412)
+
 
 @login_required
 def table(request, **kwargs):
