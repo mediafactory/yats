@@ -132,25 +132,68 @@
       fetchElementData: function($rowElem) {
         return $($rowElem).attr('id');
       },
-      actions: [{
-          name: '{% trans "1 day" %}',
+      actions: [
+        {
+          name: '1 {% trans "day" %}',
           onClick: function(id) {
-            console.log(id, '1d')
             sleep(id, '1');
           }
-        }, {
-          name: '{% trans "1 week" %}',
+        },
+        {
+          name: '2 {% trans "day" %}',
           onClick: function(id) {
-            console.log(id, '1w')
+            sleep(id, '2');
+          }
+        },
+        {
+          name: '3 {% trans "day" %}',
+          onClick: function(id) {
+            sleep(id, '3');
+          }
+        },
+        {
+          name: '4 {% trans "day" %}',
+          onClick: function(id) {
+            sleep(id, '4');
+          }
+        },
+        {
+          name: '5 {% trans "day" %}',
+          onClick: function(id) {
+            sleep(id, '5');
+          }
+        },
+        {
+          name: '6 {% trans "day" %}',
+          onClick: function(id) {
+            sleep(id, '6');
+          }
+        },
+        {
+          name: '1 {% trans "week" %}',
+          onClick: function(id) {
             sleep(id, '7');
           }
-        }, {
+        },
+        {
+          name: '2 {% trans "week" %}',
+          onClick: function(id) {
+            sleep(id, '14');
+          }
+        },
+        {
+          name: '3 {% trans "week" %}',
+          onClick: function(id) {
+            sleep(id, '21');
+          }
+        },
+        {
           name: '{% trans "1 month" %}',
           onClick: function(id) {
-            console.log(id, '1m');
             sleep(id, '30');
           }
-      }]
+        }
+      ]
     })
 
     function sleep(ticketid, interval) {
