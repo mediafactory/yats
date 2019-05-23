@@ -405,9 +405,9 @@ def action(request, mode, ticket):
 
         if 'noDisposition' not in request.GET:
             if request.GET.get('preview') == 'yes' and os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)):
-                response['Content-Disposition'] = 'attachment;filename=%s' % content_type
+                response['Content-Disposition'] = 'attachment;filename="%s"' % content_type
             else:
-                response['Content-Disposition'] = 'attachment;filename=%s' % smart_str(file_data.name)
+                response['Content-Disposition'] = 'attachment;filename="%s"' % smart_str(file_data.name)
         return response
 
     elif mode == 'upload':
