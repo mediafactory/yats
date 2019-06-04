@@ -189,6 +189,9 @@ def action(request, mode, ticket):
                 else:
                     messages.add_message(request, messages.ERROR, _('comment invalid'))
 
+            # reload ticket => last_action date has changed
+            tic = apps.get_model(mod_path, cls_name).objects.get(pk=ticket)
+
         excludes = []
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id, view_only=True)
         close = TicketCloseForm()
@@ -641,7 +644,7 @@ def action(request, mode, ticket):
 
     elif mode == 'sleep':
         interval = request.GET.get('interval')
-        if interval in ['1', '7', '30']:
+        if interval in ['1', '2', '3', '4', '5', '6', '7', '14', '21', '30']:
             old = tic.show_start
             tic.show_start = timezone.now() + datetime.timedelta(days=int(interval))
             tic.save(user=request.user)
