@@ -79,8 +79,8 @@ def docs_action(request, mode, docid):
 
         # add ref to doc
         com = tickets_comments()
-        com.comment = _('see §%s') % doc.pk
-        com.ticket_id = tic
+        com.comment = _(u'see §%s') % docid
+        com.ticket_id = tic.pk
         com.action = 3
         com.save(user=request.user)
 
