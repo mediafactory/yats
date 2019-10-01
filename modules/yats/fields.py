@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.utils.translation import ugettext_lazy as _
 from django import forms
 from django.conf import settings
@@ -7,7 +8,7 @@ import hashlib
 from io import BytesIO
 try:
     import pyclamd
-except:
+except Exception:
     pass
 
 class yatsFileField(forms.FileField):

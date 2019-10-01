@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.http import HttpResponseNotFound, Http404
 
 class schiwagoTestException(Exception):

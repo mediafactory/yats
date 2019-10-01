@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.utils.encoding import force_text
 
 # Patch generation methods, only available if the google-diff-match-patch
@@ -33,7 +34,7 @@ else:
     def generate_patch(old_version, new_version, field_name, cleanup=None):
         """
         Generates a text patch of the named field between the two versions.
-        
+
         The cleanup parameter can be None, "semantic" or "efficiency" to clean up the diff
         for greater human readibility.
         """
@@ -43,9 +44,9 @@ else:
 
     def generate_patch_html(old_version, new_version, field_name, cleanup=None):
         """
-        Generates a pretty html version of the differences between the named 
+        Generates a pretty html version of the differences between the named
         field in two versions.
-        
+
         The cleanup parameter can be None, "semantic" or "efficiency" to clean up the diff
         for greater human readibility.
         """
