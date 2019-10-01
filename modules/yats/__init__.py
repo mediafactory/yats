@@ -46,4 +46,4 @@ def get_python_version():
     return version
 
 def access_to_settings(request):
-    return {'SETTINGS' : settings}
+    return {'SETTINGS': settings}

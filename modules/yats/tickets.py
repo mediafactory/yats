@@ -29,7 +29,7 @@ except ImportError:
     from django.utils import simplejson as json
 try:
     import pyclamd
-except:
+except Exception:
     pass
 
 @login_required
@@ -533,7 +533,7 @@ def action(request, mode, ticket):
                                     result = cd.scan_stream(file_obj.read())
                                 else:
                                     result = cd.scan_stream(file_obj['content'])
-                        except:
+                        except Exception:
                             from socket import gethostname
                             raise Exception(_(u'unable to initialize scan engine on host %s') % gethostname())
 
@@ -595,7 +595,7 @@ def action(request, mode, ticket):
                                 convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
                                 if os.path.isfile(tmp):
                                     os.unlink(tmp)
-                            except:
+                            except Exception:
                                 pass
 
                         if 'audio' in f.content_type:
@@ -614,7 +614,7 @@ def action(request, mode, ticket):
                                     com.ticket_id = ticket
                                     com.action = 6
                                     com.save(user=request.user)
-                            except:
+                            except Exception:
                                 pass
 
                     return HttpResponse(status=201)
@@ -822,7 +822,7 @@ def table(request, **kwargs):
 
     else:
         tic = tic.filter(closed=False).order_by('-id')
-        search_params = convert_sarch({'closed':False})
+        search_params = convert_sarch({'closed': False})
         is_search = False
 
     list_caption = kwargs.get('list_caption')
@@ -931,7 +931,7 @@ def workflow(request):
             if request.POST['method'] == 'add':
                 try:
                     ticket_flow_edges.objects.get(now=now, next=this)
-                except:
+                except Exception:
                     ticket_flow_edges(now_id=now, next_id=this).save(user=request.user)
                 return HttpResponse('OK')
 
