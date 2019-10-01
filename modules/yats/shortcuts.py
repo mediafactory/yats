@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.apps import apps
 from django.conf import settings
 from django.core.mail import send_mail
@@ -284,7 +285,7 @@ def jabber_comment(request, comment_id):
                 com.comment,
                 get_ticket_url(request, ticket_id)
             ), int_rcpt)
-        except:
+        except Exception:
             messages.add_message(request, messages.ERROR, _('internal jabber not send: %s') % sys.exc_info()[1])
 
     if len(pub_rcpt) > 0:
@@ -297,7 +298,7 @@ def jabber_comment(request, comment_id):
                 com.comment,
                 get_ticket_url(request, ticket_id, for_customer=True)
             ), pub_rcpt)
-        except:
+        except Exception:
             messages.add_message(request, messages.ERROR, _('internal jabber not send: %s') % sys.exc_info()[1])
 
 def mail_comment(request, comment_id):
@@ -311,13 +312,13 @@ def mail_comment(request, comment_id):
     if len(int_rcpt) > 0:
         try:
             send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new comment'), tic.caption), '%s\n\n%s' % (com.comment, get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, int_rcpt, False)
-        except:
+        except Exception:
             messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
     if len(pub_rcpt) > 0:
         try:
             send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new comment'), tic.caption), '%s\n\n%s' % (com.comment, get_ticket_url(request, ticket_id, for_customer=True)), settings.SERVER_EMAIL, pub_rcpt, False)
-        except:
+        except Exception:
             messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
 def jabber_file(request, file_id):
@@ -338,7 +339,7 @@ def jabber_file(request, file_id):
                 tic.caption,
                 body
             ), int_rcpt)
-        except:
+        except Exception:
             messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
 
     if len(pub_rcpt) > 0:
@@ -351,7 +352,7 @@ def jabber_file(request, file_id):
                 tic.caption,
                 body
             ), pub_rcpt)
-        except:
+        except Exception:
             messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
 
 def mail_file(request, file_id):
@@ -367,7 +368,7 @@ def mail_file(request, file_id):
 
         try:
             send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, int_rcpt, False)
-        except:
+        except Exception:
             messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
     if len(pub_rcpt) > 0:
@@ -375,7 +376,7 @@ def mail_file(request, file_id):
 
         try:
             send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, int_rcpt, False)
-        except:
+        except Exception:
             messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
 def clean_search_values(search):
@@ -404,8 +405,8 @@ def check_references(request, src_com):
 
         touch_ticket(request.user, ref)
 
-        #mail_comment(request, com.pk)
-        #jabber_comment(request, com.pk)
+        # mail_comment(request, com.pk)
+        # jabber_comment(request, com.pk)
 
 def remember_changes(request, form, ticket):
     from yats.models import tickets_history
@@ -471,7 +472,7 @@ def getTicketField(field):
     m = tickets()
     try:
         return m._meta.get_field(field)
-    except:
+    except Exception:
         return None
 
 def prettyValues(data):
@@ -488,9 +489,9 @@ def prettyValues(data):
                     else:
                         rule['value'] = getModelValue(ticket_field.rel.to.__module__, ticket_field.rel.to.__name__, rule['value'])
                 if hasattr(ticket_field, 'verbose_name'):
-                    rule['label'] = str(ticket_field.verbose_name)
+                    rule['label'] = unicode(ticket_field.verbose_name)
                 else:
-                    rule['label'] = str(ticket_field)
+                    rule['label'] = unicode(ticket_field)
 
         return rules
 
@@ -786,7 +787,7 @@ def convertPDFtoImg(pdf, dest=None):
         else:
             return '%s.png' % path
 
-    except:
+    except Exception:
         pass
     return dest
 
