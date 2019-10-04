@@ -26,8 +26,6 @@
       .cell img {
         display: block;
 
-        border: 1px solid #ddd;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
         border-radius: 4px;
       }
       .cell {
@@ -45,7 +43,7 @@
       {% for image in images %}
         {% if image.content_type|hasPreview %}
         <div class="cell">
-          <img 
+          <img
             src="{% if "image" in image.content_type %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}{% else %}/tickets/download/{{ ticket.id }}/?file={{ image.id }}&preview=yes{% endif %}"
             class="responsive-image img-zoomable"
             alt="{{ image.name }}"
@@ -60,7 +58,6 @@
         new Zooming({
           bgOpacity: 0.8,
           bgColor: 'rgb(0, 0, 0)',
-          customSize: '100%',
           zIndex: 1031 // 1030 is the bootstrap navbar
         }).listen('.img-zoomable')
       });
