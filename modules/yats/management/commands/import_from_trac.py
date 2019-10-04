@@ -81,7 +81,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('username', help='Username for TRAC')
-        parser.add_argument('server', help='URL to TRAC XMLRPC API with login - e.g. http://your.server.de/login/rpc/')
+        parser.add_argument('server', help='URL to TRAC XMLRPC API with login - e.g. http://your.server.de/login/rpc')
         parser.add_argument('yatsuser', help='user used to create the docs in YATS')
 
     def handle(self, *args, **options):
