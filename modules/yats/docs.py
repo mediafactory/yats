@@ -7,6 +7,7 @@ from django.utils.encoding import smart_str
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.shortcuts import get_object_or_404
 from yats.models import docs, docs_files, tickets_comments
 from yats.forms import DocsForm, UploadFileForm
 from yats.shortcuts import resize_image, add_breadcrumbs, get_ticket_model, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
@@ -151,7 +152,7 @@ def docs_action(request, mode, docid):
                 f.public = True
                 f.save(user=request.user)
 
-                #add_history(request, tic, 5, request.FILES['file'].name)
+                # add_history(request, tic, 5, request.FILES['file'].name)
 
                 dest = get_doc_files_folder()
                 if not os.path.exists(dest):
@@ -189,6 +190,10 @@ def docs_action(request, mode, docid):
         file = docs_files.objects.get(pk=request.GET['fileid'], doc=doc)
         file.delete(user=request.user)
 
-        #add_history(request, tic, 8, file.name)
+        # add_history(request, tic, 8, file.name)
 
         return HttpResponseRedirect('/docs/view/%s/#files' % doc.pk)
+
+def docs_wiki(request, wiki):
+    doc = get_object_or_404(docs, wiki=wiki)
+    return HttpResponseRedirect('/docs/view/%s/' % doc.pk)

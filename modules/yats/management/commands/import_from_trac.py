@@ -122,6 +122,7 @@ class Command(BaseCommand):
 
             d = docs()
             d.caption = doc
+            d.wiki = doc
             d.text = convert(page, '/docs/').strip()
             d.u_date = info['lastModified']
             d.save(user=user)

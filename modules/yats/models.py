@@ -299,6 +299,7 @@ class boards(base):
 class docs(base):
     caption = models.CharField(max_length=255)
     text = MarkdownxField()
+    wiki = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):
         return self.caption
