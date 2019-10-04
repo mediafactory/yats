@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n strings tz %}
+
+{% block title %}{% trans "document list" %}{% endblock %}
+
+{% block content %}
+
+    <h2>{% trans "documents" %}</h2>
+    <p>&nbsp;</p>
+
+    {% if lines %}
+    <p>{{ lines.start_index }} - {{ lines.end_index }} {% trans "of" %} {{ lines.paginator.count }}</p>
+    <section id="no-more-tables">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>{% trans "ticket#" %}</th>
+                <th>{% trans "created" %}</th>
+                <th>{% trans "caption" %}</th>
+            </tr>
+            </thead>
+            {% for line in lines %}
+              <tr style="{% if line.priority.color != "transparent" %}background-color: {{ line.priority.color }}{% endif %}">
+                  <td data-title="{% trans "ticket#" %}"><a href="/docs/view/{{ line.id }}/">#{{ line.id }}</a></td>
+                  <td data-title="{% trans "created" %}">{{ line.c_date|localtime|date:"d.m.y H:i" }}</td>
+                  <td data-title="{% trans "caption" %}">{{ line.caption }}</td>
+              </tr>
+          {% endfor %}
+        </table>
+
+        {{ lines|pagination }}
+    </section>
+    {% endif %}
+    {% if lines.paginator.count == 0 %}
+    {% trans "no documents found!" %}
+    {% endif %}
+{% endblock %}

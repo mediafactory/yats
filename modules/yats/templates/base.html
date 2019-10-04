@@ -147,7 +147,7 @@
         .tt-menu {
           width: 100%;
           position: relative !important;
-        } 
+        }
       }
     </style>
 </head>
@@ -170,6 +170,7 @@
               {% SimpleSerch %}
 
               {% if request.session.isUsingYATSE %}
+              <li><a href="/docs/search/" class="">{% trans "documents" %}</a></li>
               <li><a href="{% YATSServer %}/board/" class="">{% trans "board" %}</a></li>
                 <li><a href="{% YATSServer %}/tickets/search/" class="">{% trans "search" %}</a></li>
                 <li class="dropdown">
@@ -201,6 +202,7 @@
                     </ul>
                 </li>
                 {% else %}
+                <li><a href="/docs/search/" class="">{% trans "Documents" %}</a></li>
                 <li><a href="/reports/" class="">{% trans "Reports" %}</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Boards" %}<b class="caret"></b></a>

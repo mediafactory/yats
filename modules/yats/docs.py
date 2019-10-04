@@ -14,6 +14,22 @@ import re
 import os
 import io
 
+def docs_search(request):
+    documents = docs.objects.all()
+
+    paginator = Paginator(documents, 20)
+    page = request.GET.get('page')
+    try:
+        docs_lines = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        docs_lines = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        docs_lines = paginator.page(paginator.num_pages)
+
+    return render(request, 'docs/list.html', {'lines': docs_lines})
+
 def get_doc_files_folder():
     return os.path.join(settings.FILE_UPLOAD_PATH, 'docs/')
 
