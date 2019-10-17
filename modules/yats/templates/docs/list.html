@@ -15,14 +15,14 @@
         <table class="table table-striped table-hover">
             <thead>
             <tr>
-                <th>{% trans "doc#" %}</th>
+                <th>{% trans "doc§" %}</th>
                 <th>{% trans "created" %}</th>
                 <th>{% trans "caption" %}</th>
             </tr>
             </thead>
             {% for line in lines %}
               <tr style="{% if line.priority.color != "transparent" %}background-color: {{ line.priority.color }}{% endif %}">
-                  <td data-title="{% trans "ticket#" %}"><a href="/docs/view/{{ line.id }}/">#{{ line.id }}</a></td>
+                  <td data-title="{% trans "doc§" %}"><a href="/docs/view/{{ line.id }}/">§{{ line.id }}</a></td>
                   <td data-title="{% trans "created" %}">{{ line.c_date|localtime|date:"d.m.y H:i" }}</td>
                   <td data-title="{% trans "caption" %}">{{ line.caption }}</td>
               </tr>
