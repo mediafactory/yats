@@ -11,6 +11,7 @@
     <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
     <link href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css" type="text/css" rel="stylesheet" media="all">
     <script src="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js"></script>
+    <script src="https://unpkg.com/zooming/build/zooming.min.js"></script>
 
     <style>
         .timeline-panel {
@@ -38,7 +39,6 @@
 {% block content %}
 
     <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/history/{{ ticket.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/tickets/{% if keep_it_simple %}simple{% else %}edit{% endif %}/{{ ticket.id }}/">{% trans "edit" %}</a>&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/upload/{{ ticket.id }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small" href="#add_comment">{% trans "add comment" %}</a>&nbsp;&nbsp;{% endif %}{% if ticket.closed %}<a class="btn btn-small" href="/tickets/reopen/{{ ticket.id }}/">{% trans "reopen" %}</a>{% else %}<a role="button" data-toggle="modal" class="btn btn-small btn-warning" href="#reassignDlg">{% trans "reassign" %}</a>&nbsp;&nbsp;{% if close_allowed %}<a role="button" data-toggle="modal" class="btn btn-small btn-danger" href="#closeDlg">{% trans "close" %}</a>{% endif %}{% endif %}</h2>
-    <p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} {% trans "by" %} {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}<br /> {% trans "last action" %}: {{ ticket.last_action_date }}</small></p>
     <p>&nbsp;</p>
 
     <table class="table table-striped table-hover">
@@ -55,9 +55,7 @@
     </table>
 
     <h3 id="files">{% trans "files" %} {% if files %}<a href="/tickets/gallery/{{ ticket.id }}/"><i class="fa fa-eye"></i></a>{% endif %}</h3>
-    <div id="clickable">
-        {% trans "drop your files here..."%} <br />
-    </div>
+    <div id="clickable">{% trans "drop your files here..."%} <br /></div>
     <hr />
     {% if files %}
     <section id="no-more-tables">
@@ -70,6 +68,7 @@
                 <th>{% trans "size" %}</th>
                 <th>{% trans "contenttype" %}</th>
                 <th>{% trans "hash" %}</th>
+                <th>{% trans "preview" %}</th>
             </tr>
             </thead>
               {% for line in files %}
@@ -83,6 +82,11 @@
                     <td data-title="{% trans "size" %}">{% if line.size %}{{ line.size|filesizeformat }}{% else %}{% trans "unknown" %}{% endif %}</td>
                     <td data-title="{% trans "contenttype" %}">{{ line.content_type }}</td>
                     <td data-title="{% trans "hash" %}">{{ line.checksum }}</td>
+                    <td data-title="{% trans "preview" %}"><img
+                        src="{% if "image" in line.content_type %}/tickets/download/{{ ticket.id }}/?file={{ line.id }}{% else %}/tickets/download/{{ ticket.id }}/?file={{ line.id }}&preview=yes{% endif %}"
+                        class="responsive-image img-zoomable"
+                        alt="{{ line.name }}"
+                      / width=30px height=30px></td>
                 </tr>
             {% endfor %}
         </table>
@@ -154,11 +158,8 @@
 
         {% endfor %}
     </ul>
-
-    <br />
-    <br />
     {% endif %}
-    <p><a name="add_comment">{% trans "leave new comment" %}</a></p>
+    <p name="add_comment">{% trans "leave new comment" %}</p>
     <form class="form-{{ layout }}" action="" method="post">
         {% csrf_token %}
     	<textarea cols="40" id="id_comment" name="comment" rows="10" class="span12"></textarea>
@@ -218,6 +219,8 @@
         </div>
     </div>
 {% endif %}
+<p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} {% trans "by" %} {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}<br /> {% trans "last action" %}: {{ ticket.last_action_date }}</small></p>
+
 <form id="dataLink" method="get" action="/tickets/view/{{ ticket.id }}/?#files"></form>
 
 <script type="text/javascript">
@@ -310,5 +313,12 @@
       });
       timer = window.setTimeout(checkForUpdats, 1000 * 30);
     }
+    $(function() {
+        new Zooming({
+          bgOpacity: 0.8,
+          bgColor: 'rgb(0, 0, 0)',
+          zIndex: 1031 // 1030 is the bootstrap navbar
+        }).listen('.img-zoomable')
+      });
 </script>
 {% endblock %}
