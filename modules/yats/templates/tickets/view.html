@@ -272,7 +272,7 @@
               window.location.href = '/tickets/delfile/{{ ticket.id }}/?fileid=' + fileid;
     }
 
-    new Dropzone(document.body, { // Make the whole body a dropzone
+    var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
       url: "/tickets/upload/{{ ticket.id }}/?Ajax=1", // Set the url
       previewsContainer: false, // Define the container to display the previews
       clickable: "#clickable", // Define the element that should be used as click trigger to select files.
@@ -324,5 +324,18 @@
           zIndex: 1031 // 1030 is the bootstrap navbar
         }).listen('.img-zoomable')
       });
+
+    document.onpaste = function(event){
+      var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+      for (index in items) {
+        var item = items[index];
+        if (item.kind === 'file') {
+          // adds the file to your dropzone instance
+          myDropzone.addFile(item.getAsFile())
+        }
+      }
+    }
+
+
 </script>
 {% endblock %}
