@@ -402,10 +402,10 @@ def action(request, mode, ticket):
             output = io.BytesIO()
             img.save(output, 'PNG')
             output.seek(0)
-            response = StreamingHttpResponse(output, content_type='image/png', content_length=content_length)
+            response = StreamingHttpResponse(output, content_type='image/png')
 
         else:
-            response = StreamingHttpResponse(open('%s' % (src), "rb"), content_type=content_type, content_length=content_length)
+            response = StreamingHttpResponse(open('%s' % (src), "rb"), content_type=content_type)
 
         if 'noDisposition' not in request.GET:
             if request.GET.get('preview') == 'yes' and os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)):
