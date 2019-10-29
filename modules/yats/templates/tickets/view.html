@@ -82,11 +82,15 @@
                     <td data-title="{% trans "size" %}">{% if line.size %}{{ line.size|filesizeformat }}{% else %}{% trans "unknown" %}{% endif %}</td>
                     <td data-title="{% trans "contenttype" %}">{{ line.content_type }}</td>
                     <td data-title="{% trans "hash" %}">{{ line.checksum }}</td>
-                    <td data-title="{% trans "preview" %}"><img
+                    <td data-title="{% trans "preview" %}">
+                        {% if "image" in line.content_type %}
+                        <img
                         src="{% if "image" in line.content_type %}/tickets/download/{{ ticket.id }}/?file={{ line.id }}{% else %}/tickets/download/{{ ticket.id }}/?file={{ line.id }}&preview=yes{% endif %}"
                         class="responsive-image img-zoomable"
                         alt="{{ line.name }}"
-                      / width=30px height=30px></td>
+                      / width=30px height=30px>
+                      {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </table>
