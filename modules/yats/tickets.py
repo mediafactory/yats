@@ -392,6 +392,7 @@ def action(request, mode, ticket):
         file_data = tickets_files.objects.get(id=fileid, ticket=ticket)
         src = '%s%s.dat' % (settings.FILE_UPLOAD_PATH, fileid)
         content_type = file_data.content_type
+        content_length = file_data.size
         if request.GET.get('preview') == 'yes' and os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)):
             src = '%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)
             content_type = 'imgae/png'
@@ -401,10 +402,10 @@ def action(request, mode, ticket):
             output = io.BytesIO()
             img.save(output, 'PNG')
             output.seek(0)
-            response = StreamingHttpResponse(output, content_type='image/png')
+            response = StreamingHttpResponse(output, content_type='image/png', content_length=content_length)
 
         else:
-            response = StreamingHttpResponse(open('%s' % (src), "rb"), content_type=content_type)
+            response = StreamingHttpResponse(open('%s' % (src), "rb"), content_type=content_type, content_length=content_length)
 
         if 'noDisposition' not in request.GET:
             if request.GET.get('preview') == 'yes' and os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)):
