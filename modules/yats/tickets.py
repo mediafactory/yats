@@ -15,6 +15,7 @@ from django.utils.http import parse_http_date_safe, http_date
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end, tickets_ignorants
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, mail_comment, jabber_comment, mail_file, jabber_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
+from yats.request import streamRanges
 import os
 import io
 import graph
@@ -405,7 +406,7 @@ def action(request, mode, ticket):
             response = StreamingHttpResponse(output, content_type='image/png')
 
         else:
-            response = StreamingHttpResponse(open('%s' % (src), "rb"), content_type=content_type)
+            response = streamRanges(request, src, content_type)
 
         if 'noDisposition' not in request.GET:
             if request.GET.get('preview') == 'yes' and os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, fileid)):
