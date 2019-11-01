@@ -823,9 +823,14 @@ def table(request, **kwargs):
         search_params, tic = build_ticket_search_ext(request, tic, kwargs['search'])
 
     else:
-        tic = tic.filter(closed=False).order_by('-id')
         search_params = convert_sarch({'closed': False})
         is_search = False
+        tic = tic.filter(closed=False).order_by('-id')
+
+    sort = request.GET.get('sort', 'desc')
+    col = request.GET.get('col', 'id')
+
+    tic = tic.order_by('%s%s' % ('-' if sort == 'desc' else '', col))
 
     list_caption = kwargs.get('list_caption')
     if 'report' in request.GET:
@@ -846,7 +851,7 @@ def table(request, **kwargs):
     board_form.fields['board'].queryset = board_form.fields['board'].queryset.filter(c_user=request.user)
     pretty_params = prettyValues(copy.deepcopy(search_params))
     pretty_query = formatQuery(pretty_params['rules'], pretty_params['condition'])
-    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'search_params': pretty_params, 'list_caption': list_caption, 'board_form': board_form, 'query': json.dumps(search_params), 'sql': tic.query, 'pretty_query': pretty_query})
+    return render(request, 'tickets/list.html', {'lines': tic_lines, 'is_search': is_search, 'search_params': pretty_params, 'list_caption': list_caption, 'board_form': board_form, 'query': json.dumps(search_params), 'sql': tic.query, 'pretty_query': pretty_query, 'sort': sort, 'col': col})
 
 @login_required
 def search(request):
