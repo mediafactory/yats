@@ -18,7 +18,7 @@
             <tr>
                 <th>{% trans "state" %}</th>
                 <th></th>
-                <th>{% trans "ticket#" %}{% if col == "id" %} <a href="?sort={% if sort == "asc" %}desc{% else %}asc{% endif %}&col=id"><i class="fa fa-sort-numeric-{{ sort }}" aria-hidden="true"></i></a>{% endif %}</th>
+                <th>{% trans "ticket#" %}{% if col == "id" %}&nbsp;<a href="?sort={% if sort == "asc" %}desc{% else %}asc{% endif %}&col=id"><i class="fa fa-sort-numeric-{{ sort }}" aria-hidden="true"></i></a>{% endif %}</th>
                 <th>{% trans "created" %}</th>
                 <th>{% trans "type" %}</th>
                 <th>{% trans "state" %}</th>
