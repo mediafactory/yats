@@ -307,7 +307,7 @@ def autocomplete(request):
     for word in q:
         word = word.strip()
         if word:
-            sqs = sqs.filter(content_auto=word)
+            sqs = sqs.filter(content_auto__contains=word)
 
     if len(models) == 1 and models[0] == 'web.test':
         sqs = sqs.order_by('-last_action_date')
