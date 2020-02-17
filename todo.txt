@@ -1,5 +1,4 @@
 - wiki
-  => TOC
   => history
   => YATSEE
   => Logs
