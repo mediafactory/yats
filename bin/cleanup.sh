@@ -5,3 +5,5 @@ echo "recursively removing .DS_Store"
 find . -type f -name .DS_Store -delete
 echo "recursively removing aptana temp files .tmp_*"
 find . -type f -name .tmp_* -delete
+echo "recursively removing all __pycache__"
+find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
