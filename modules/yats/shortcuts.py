@@ -97,7 +97,7 @@ def get_jabber_recipient_list(request, ticket_id):
                     else:
                         pub_result.append(an)
             else:
-                error.append(unicode(rcpt.user))
+                error.append(str(rcpt.user))
     # if len(error) > 0:
     #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by jabber (address missing): %s') % ', '.join(error))
     return int_result, pub_result
@@ -117,7 +117,7 @@ def get_mail_recipient_list(request, ticket_id):
                 else:
                     pub_result.append(rcpt.user.email)
             else:
-                error.append(unicode(rcpt.user))
+                error.append(str(rcpt.user))
     # if len(error) > 0:
     #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by mail (address missing): %s') % ', '.join(error))
     return int_result, pub_result
@@ -144,7 +144,7 @@ def modulePathToModuleName(mod_path):
 def getModelValue(mod_path, cls_name, value):
     mod_path = modulePathToModuleName(mod_path)
     try:
-        return unicode(apps.get_model(mod_path, cls_name).objects.get(pk=value))
+        return str(apps.get_model(mod_path, cls_name).objects.get(pk=value))
     except:
         return u''
 
@@ -159,19 +159,19 @@ def field_changes(form):
     cd = form.cleaned_data
 
     for field in form.changed_data:
-        if type(cd.get(field)) not in [bool, int, str, unicode, long, None, datetime.date]:
+        if type(cd.get(field)) not in [bool, int, str, None, datetime.date]:
             if cd.get(field):
-                new[field] = unicode(cd.get(field))
+                new[field] = str(cd.get(field))
                 old[field] = getNameOfModelValue(cd.get(field), form.initial.get(field))
             else:
-                new[field] = unicode(cd.get(field))
+                new[field] = str(cd.get(field))
                 if type(form.initial.get(field)) is not None:
-                    old[field] = unicode(form.initial.get(field))
+                    old[field] = str(form.initial.get(field))
                 else:
-                    old[field] = unicode(None)
+                    old[field] = str(None)
         else:
-            new[field] = unicode(cd.get(field))
-            old[field] = unicode(form.initial.get(field))
+            new[field] = str(cd.get(field))
+            old[field] = str(form.initial.get(field))
 
     return new, old
 
@@ -386,7 +386,7 @@ def clean_search_values(search):
 
     result = {}
     for ele in search:
-        if type(search[ele]) not in [bool, int, str, unicode, long, None, datetime.date]:
+        if type(search[ele]) not in [bool, int, str, None, datetime.date]:
             if search[ele]:
                 result[ele] = search[ele].pk
         else:
@@ -422,8 +422,8 @@ def remember_changes(request, form, ticket):
 def add_history(request, ticket, typ, data):
     from yats.models import tickets_history
     if typ == 10:
-        old = {'show_start': unicode(data[1])}
-        new = {'show_start': unicode(data[0])}
+        old = {'show_start': str(data[1])}
+        new = {'show_start': str(data[0])}
     if typ == 9:
         old = {'todo': data[1]}
         new = {'todo': data[0]}
@@ -451,14 +451,14 @@ def add_history(request, ticket, typ, data):
         old = {'reference': ''}
         new = {'reference': '#%s' % data}
     elif typ == 2:
-        old = {'closed': unicode(True)}
-        new = {'closed': unicode(False)}
+        old = {'closed': str(True)}
+        new = {'closed': str(False)}
         if data:
             old['comment'] = ''
             new['comment'] = data
     elif typ == 1:
-        old = {'closed': unicode(False)}
-        new = {'closed': unicode(True)}
+        old = {'closed': str(False)}
+        new = {'closed': str(True)}
 
     h = tickets_history()
     h.ticket = ticket
@@ -489,9 +489,9 @@ def prettyValues(data):
                     else:
                         rule['value'] = getModelValue(ticket_field.rel.to.__module__, ticket_field.rel.to.__name__, rule['value'])
                 if hasattr(ticket_field, 'verbose_name'):
-                    rule['label'] = unicode(ticket_field.verbose_name)
+                    rule['label'] = str(ticket_field.verbose_name)
                 else:
-                    rule['label'] = unicode(ticket_field)
+                    rule['label'] = str(ticket_field)
 
         return rules
 
@@ -505,23 +505,23 @@ def add_breadcrumbs(request, pk, typ, **kwargs):
 
     # checks if already exists
     if len(breadcrumbs) > 0:
-        if breadcrumbs[-1][0] != long(pk) or breadcrumbs[-1][1] != typ:
+        if breadcrumbs[-1][0] != int(pk) or breadcrumbs[-1][1] != typ:
             if caption:
-                if (long(pk), typ, caption,) in breadcrumbs:
-                    breadcrumbs.pop(breadcrumbs.index((long(pk), typ, caption,)))
+                if (int(pk), typ, caption,) in breadcrumbs:
+                    breadcrumbs.pop(breadcrumbs.index((int(pk), typ, caption,)))
 
-                breadcrumbs.append((long(pk), typ, caption,))
+                breadcrumbs.append((int(pk), typ, caption,))
             else:
-                if (long(pk), typ,) in breadcrumbs:
-                    breadcrumbs.pop(breadcrumbs.index((long(pk), typ,)))
+                if (int(pk), typ,) in breadcrumbs:
+                    breadcrumbs.pop(breadcrumbs.index((int(pk), typ,)))
 
-                breadcrumbs.append((long(pk), typ,))
+                breadcrumbs.append((int(pk), typ,))
 
     else:
         if caption:
-            breadcrumbs.append((long(pk), typ, caption,))
+            breadcrumbs.append((int(pk), typ, caption,))
         else:
-            breadcrumbs.append((long(pk), typ,))
+            breadcrumbs.append((int(pk), typ,))
     while len(breadcrumbs) > 10:
         breadcrumbs.pop(0)
     request.session['breadcrumbs'] = breadcrumbs

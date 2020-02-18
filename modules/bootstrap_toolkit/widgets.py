@@ -72,7 +72,7 @@ def get_locale_js_url_datetime(lang):
 
 class BootstrapUneditableInput(forms.TextInput):
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         if attrs is None:
             attrs = {}
         attrs['type'] = 'hidden'
@@ -125,7 +125,7 @@ class BootstrapDateInput(forms.DateInput):
         }
         return forms.Media(css=css, js=js)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         date_input_attrs = {}
         if attrs:
             date_input_attrs.update(attrs)
@@ -167,7 +167,7 @@ class BootstrapDateTimeInput(forms.DateTimeInput):
         }
         return forms.Media(css=css, js=js)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         date_input_attrs = {'readonly': '', 'size': 16}
         if attrs:
             date_input_attrs.update(attrs)

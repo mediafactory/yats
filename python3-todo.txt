@@ -1,0 +1,47 @@
+2.0:
+- ErrorCaptureMiddleware
+- pyxmpp2 py3
+- webdav??? User???
+- graph iteritems() ???
+
+YWRtaW46YWRtaW4= <=> admin:admin
+
+
+
+
+apt-get install -y python3 python3-dev python3-memcache python3-httplib2 python3-wand
+
+wget https://bootstrap.pypa.io/get-pip.py
+python3 get-pip.py
+
+
+sites=`python3 -c "import site; print(site.getsitepackages()[0])"`
+
+you may try...
+2to3 -w xyz.py
+
+try to install all libs via pip3!
+pip3 install -r /vagrant/requirements.txt
+
+
+####
+https://docs.python.org/3/howto/pyporting.html
+
+models.ForeignKey => , on_delete=models.CASCADE
+import mast be absolute => change to "from . views.py"
+invalid token => chmod(data.temporary_file_path(), 0664) => chmod(data.temporary_file_path(), 0o664)
+
+rewrite middleware
+
+is_authenticated(): is now property
+replace unicode() by str()
+replace long() by int()
+replace __unicode__ by __str__
+replace print by print()
+replace import xmlrpclib by from xmlrpc import client as xmlrpclib
+replace iteritems() by items()
+
+add renderer=None to widget def render(
+https://stackoverflow.com/questions/52039654/django-typeerror-render-got-an-unexpected-keyword-argument-renderer
+
+Options.virtual_fields is deprecated, use private_fields instead

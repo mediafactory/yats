@@ -49,6 +49,9 @@ class Collection(ical.Collection):
         tickets_reports.objects.get(pk=repid).delete()
 
     def append(self, name, text):
+        import pydevd
+        pydevd.settrace('192.168.33.1', 5678)
+
         new_items = self._parse(text, ICAL_TYPES, name)
         timezones = list(filter(
             lambda x: x.tag == ical.Timezone.tag, new_items.values()))
@@ -95,7 +98,7 @@ class Collection(ical.Collection):
                     mail_comment(request, com.pk)
                     jabber_comment(request, com.pk)
 
-                except:
+                except Exception:
                     pass
 
             # change or new
@@ -211,7 +214,7 @@ class Collection(ical.Collection):
 
                 result = (tic.exists())
 
-            except:
+            except Exception:
                 import sys
                 a = sys.exc_info()
 
@@ -228,7 +231,7 @@ class Collection(ical.Collection):
             return datetime.strftime(
                 date.last_action_date, '%a, %d %b %Y %H:%M:%S %z')
 
-        except:
+        except Exception:
             import sys
             a = sys.exc_info()
 
@@ -260,24 +263,24 @@ class Collection(ical.Collection):
 
     @property
     def items(self):
-        items = {}
+        itms = {}
         try:
             request = self._getRequestFromUrl(self.path)
             if self.path == request.user.username:
-                return items
+                return itms
             rep = tickets_reports.objects.get(active_record=True, pk=self._getReportFromUrl(self.path))
             tic = get_ticket_model().objects.select_related('type', 'state', 'assigned', 'priority', 'customer').all()
             search_params, tic = build_ticket_search_ext(request, tic, json.loads(rep.search))
 
             for item in tic:
                 text = self._itemToICal(item)
-                items.update(self._parse(text, ICAL_TYPES))
+                itms.update(self._parse(text, ICAL_TYPES))
 
-        except:
+        except Exception:
             import sys
             a = sys.exc_info()
 
-        return items
+        return itms
 
     @classmethod
     def _getRequestFromUrl(cls, path):
@@ -312,16 +315,16 @@ class Collection(ical.Collection):
         if item.description:
             cal.vtodo.add('description').value = item.description
         if item.show_start:
-            #cal.vtodo.add('dstart').value = item.show_start
+            # cal.vtodo.add('dstart').value = item.show_start
             cal.vtodo.add('due').value = item.show_start
             cal.vtodo.add('valarm')
             cal.vtodo.valarm.add('uuid').value = '%s-%s' % (str(item.uuid), item.pk)
             cal.vtodo.valarm.add('x-wr-alarmuid').value = '%s-%s' % (str(item.uuid), item.pk)
             cal.vtodo.valarm.add('action').value = 'DISPLAY'
-            #cal.vtodo.valarm.add('x-apple-proximity').value = 'DEPART'
+            # cal.vtodo.valarm.add('x-apple-proximity').value = 'DEPART'
             cal.vtodo.valarm.add('description').value = 'Erinnerung an ein Ereignis'
-            #cal.vtodo.valarm.add('trigger').value =
-            #TRIGGER;VALUE=DATE-TIME:20180821T200000Z
+            # cal.vtodo.valarm.add('trigger').value =
+            # TRIGGER;VALUE=DATE-TIME:20180821T200000Z
 
         cal.vtodo.add('x-radicale-name').value = '%s.ics' % str(item.uuid)
-        return cal.serialize().decode('utf-8')
+        return cal.serialize()

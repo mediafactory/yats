@@ -19,7 +19,7 @@ class ticket_component(base):
 
     name = models.CharField(max_length=255)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -54,11 +54,11 @@ def getGibthubTags():
         h = httplib2.Http()
         header, content = h.request('https://api.github.com/repos/%s/%s/tags' % (owner, repo), 'GET', headers=headers)
         if header['status'] != '200':
-            print 'ERROR fetching data from GitHub: %s' % content
+            print('ERROR fetching data from GitHub: %s' % content)
             return ()
 
-    except:
-        print 'ERROR fetching data from GitHub'
+    except Exception:
+        print('ERROR fetching data from GitHub')
         return ()
 
     tags = json.loads(content)
@@ -76,7 +76,7 @@ BILLING_TYPE_CHOICES = (
 )
 
 class test(tickets):
-    component = models.ForeignKey(ticket_component, verbose_name=_('component'))
+    component = models.ForeignKey(ticket_component, on_delete=models.CASCADE, verbose_name=_('component'))
     version = models.CharField(_('version'), max_length=255, choices=lazy(getGibthubTags, tuple)())
     keywords = models.CharField(_('keywords'), max_length=255, blank=True)
     reproduction = models.TextField(_('reproduction'), null=True)

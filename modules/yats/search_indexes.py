@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from haystack import indexes
-from models import docs
-from shortcuts import get_ticket_model
+from yats.models import docs
+from yats.shortcuts import get_ticket_model
 
 
 class DocIndex(indexes.SearchIndex, indexes.Indexable):

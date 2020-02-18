@@ -2,7 +2,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import get_user_model
 import getpass
-import xmlrpclib
+from xmlrpc import client as xmlrpclib
 from furl import furl
 from yats.models import docs, docs_files
 from yats.docs import get_doc_files_folder
@@ -11,10 +11,6 @@ import re
 import os
 import mimetypes
 import hashlib
-try:
-    from xmlrpclib import Binary
-except ImportError:
-    from xmlrpc.client import Binary
 
 def convert(text, base_path, multilines=True):
     text = re.sub('\r\n', '\n', text)
@@ -129,7 +125,7 @@ class Command(BaseCommand):
 
             atts = rpc_srv.wiki.listAttachments(doc)
             for att in atts:
-                print '=> %s' % att
+                print('=> %s' % att)
                 path, filename = os.path.split(att)
                 file = rpc_srv.wiki.getAttachment(att)
                 mimetype = mimetypes.guess_type(filename)

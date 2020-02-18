@@ -56,9 +56,9 @@ def convertPrio(value):
 
 # user profiles
 class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
-    organisation = models.ForeignKey('organisation', null=True)
+    organisation = models.ForeignKey('organisation', on_delete=models.CASCADE, null=True)
     jabber = models.CharField(max_length=255, null=True, blank=True)
     day_since_closed_tickets = models.SmallIntegerField(default=5)
 
@@ -92,13 +92,13 @@ class base(models.Model):
 
     # creation
     c_date = models.DateTimeField(_('creation time'), default=timezone.now)
-    c_user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('creator'), related_name='+')
+    c_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('creator'), related_name='+')
     # update
     u_date = models.DateTimeField(default=timezone.now)
-    u_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    u_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='+')
     # deletion'
     d_date = models.DateTimeField(null=True)
-    d_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', null=True)
+    d_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='+', null=True)
 
     def save(self, *args, **kwargs):
         if 'user' not in kwargs and 'user_id' not in kwargs:
@@ -138,13 +138,13 @@ class organisation(base):
     name = models.CharField(max_length=255)
     hourly_rate = models.FloatField(null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class ticket_type(base):
     name = models.CharField(max_length=255)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -158,7 +158,7 @@ class ticket_priority(base):
     color = models.CharField(max_length=255, default='transparent')
     caldav = models.SmallIntegerField(default=0)  # defined from 0-9 0=undefined, 1=highest, 9=lowest
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -168,7 +168,7 @@ class ticket_priority(base):
 class ticket_resolution(base):
     name = models.CharField(max_length=255)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -179,7 +179,7 @@ class ticket_flow(base):
     name = models.CharField(max_length=255)
     type = models.SmallIntegerField(default=0, choices=STATE_CHOICES)  # 1 = open, 2 = close, 0 = all nodes in between
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -187,19 +187,19 @@ class ticket_flow(base):
         verbose_name_plural = _(u'ticket states')
 
 class ticket_flow_edges(base):
-    now = models.ForeignKey(ticket_flow, related_name='now')
-    next = models.ForeignKey(ticket_flow, related_name='next')
+    now = models.ForeignKey(ticket_flow, on_delete=models.CASCADE, related_name='now')
+    next = models.ForeignKey(ticket_flow, on_delete=models.CASCADE, related_name='next')
 
 class tickets(base):
     caption = models.CharField(verbose_name=_('caption'), max_length=255)
     description = models.TextField(verbose_name=_('description'))
-    type = models.ForeignKey(ticket_type, verbose_name=_('type'), null=True)
-    priority = models.ForeignKey(ticket_priority, verbose_name=_('priority'), null=True)
-    customer = models.ForeignKey(organisation, verbose_name=_('organisation'))
-    assigned = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('assigned'), related_name='+', null=True, blank=True)
-    resolution = models.ForeignKey(ticket_resolution, verbose_name=_('resolution'), null=True)
+    type = models.ForeignKey(ticket_type, on_delete=models.CASCADE, verbose_name=_('type'), null=True)
+    priority = models.ForeignKey(ticket_priority, on_delete=models.CASCADE, verbose_name=_('priority'), null=True)
+    customer = models.ForeignKey(organisation, on_delete=models.CASCADE, verbose_name=_('organisation'))
+    assigned = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('assigned'), related_name='+', null=True, blank=True)
+    resolution = models.ForeignKey(ticket_resolution, on_delete=models.CASCADE, verbose_name=_('resolution'), null=True)
     closed = models.BooleanField(verbose_name=_('closed'), default=False)
-    state = models.ForeignKey(ticket_flow, verbose_name=_('state'), null=True, blank=True, default=get_flow_start)
+    state = models.ForeignKey(ticket_flow, on_delete=models.CASCADE, verbose_name=_('state'), null=True, blank=True, default=get_flow_start)
     close_date = models.DateTimeField(verbose_name=_('close date'), null=True)
     last_action_date = models.DateTimeField(verbose_name=_('last action'), null=True)
     keep_it_simple = models.BooleanField(default=True)
@@ -226,16 +226,16 @@ class tickets(base):
         return tickets_comments.objects.filter(ticket=self.pk)
 
 class tickets_participants(models.Model):
-    ticket = models.ForeignKey(tickets)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    ticket = models.ForeignKey(tickets, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='+')
     seen = models.BooleanField(default=False)
 
 class tickets_ignorants(models.Model):
-    ticket = models.ForeignKey(tickets)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    ticket = models.ForeignKey(tickets, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='+')
 
 class tickets_comments(base):
-    ticket = models.ForeignKey(tickets)
+    ticket = models.ForeignKey(tickets, on_delete=models.CASCADE)
     comment = models.TextField()
     action = models.SmallIntegerField(default=0)  # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 6 = comment, 7 = reassign
     edited = models.BooleanField(default=False)
@@ -247,7 +247,7 @@ class tickets_comments(base):
         tickets.objects.filter(id=self.ticket_id).update(last_action_date=self.c_date, hasComments=tickets_comments.objects.filter(ticket=self.ticket_id, active_record=True).count() > 0)
 
 class tickets_files(base):
-    ticket = models.ForeignKey(tickets)
+    ticket = models.ForeignKey(tickets, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     content_type = models.CharField(max_length=255)
     size = models.PositiveIntegerField()
@@ -284,7 +284,7 @@ class tickets_reports(base):
         super(tickets_reports, self).delete(*args, **kwargs)
 
 class tickets_history(base):
-    ticket = models.ForeignKey(tickets)
+    ticket = models.ForeignKey(tickets, on_delete=models.CASCADE)
     old = models.TextField()
     new = models.TextField()
     action = models.SmallIntegerField(default=0)  # 0 = nothing, 1 = close, 2 = reopen, 3 = ref, 4 = ticket changed, 5 = file added, 6 = comment added, 7 = reassign, 8 = del file, 9 = todo
@@ -293,7 +293,7 @@ class boards(base):
     name = models.CharField(max_length=255)
     columns = models.TextField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class docs(base):
@@ -301,20 +301,20 @@ class docs(base):
     text = MarkdownxField()
     wiki = models.CharField(max_length=255, null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.caption
 
     def get_absolute_url(self):
         return "/docs/view/%i/" % self.id
 
 class docs_history(base):
-    doc = models.ForeignKey(docs)
+    doc = models.ForeignKey(docs, on_delete=models.CASCADE)
     old = models.TextField()
     new = models.TextField()
     action = models.SmallIntegerField(default=0)  # 0 = nothing
 
 class docs_files(base):
-    doc = models.ForeignKey(docs)
+    doc = models.ForeignKey(docs, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     content_type = models.CharField(max_length=255)
     size = models.PositiveIntegerField()

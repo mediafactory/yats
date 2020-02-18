@@ -30,8 +30,10 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
+from urllib.parse import unquote_plus
+
 def root(request, form=None):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         if request.method == 'POST':
             form = PasswordForm(request.POST)
             if form.is_valid():
@@ -47,7 +49,7 @@ def root(request, form=None):
         return HttpResponseRedirect('/local_login/')
 
 def login(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         if 'next' in request.GET:
             return HttpResponseRedirect(request.GET['next'])
         else:
@@ -97,6 +99,8 @@ def show_board(request, name):
             }
         ]
     """
+
+    name = unquote_plus(name)
 
     if request.method == 'POST':
         if 'method' in request.POST:
@@ -321,7 +325,7 @@ def autocomplete(request):
     else:
         for ele in sqs:
             data = {
-                'caption': unicode(ele.caption),
+                'caption': str(ele.caption),
                 'id': ele.pk
             }
             if hasattr(ele, 'closed') and ele.closed:

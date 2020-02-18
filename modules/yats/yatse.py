@@ -16,7 +16,7 @@ except ImportError:
 import datetime
 
 def api_login(request):
-    if request.META.get('HTTP_API_KEY') == settings.API_KEY and request.META.get('HTTP_API_USER') <> '':
+    if request.META.get('HTTP_API_KEY') == settings.API_KEY and request.META.get('HTTP_API_USER') != '':
         try:
             user = User.objects.get(username=request.META.get('HTTP_API_USER'), is_active=True)
             request.user = user
@@ -40,7 +40,7 @@ def buildYATSFields(exclude_list):
             options = []
             opts = apps.get_model(modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__).objects.all()
             for opt in opts:
-                options.append(unicode(opt))
+                options.append(str(opt))
 
             TicketFields[field.name] = (modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__)
 

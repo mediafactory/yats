@@ -25,7 +25,7 @@ echo "Installing Xapian-core..."
 cd $VIRTUAL_ENV/packages/${CORE}
 ./configure --prefix=$VIRTUAL_ENV && make && make install
 
-PYV=`python -c "import sys;t='{v[0]}'.format(v=list(sys.version_info[:1]));sys.stdout.write(t)";`
+PYV=`python3 -c "import sys;t='{v[0]}'.format(v=list(sys.version_info[:1]));sys.stdout.write(t)";`
 
 if [ $PYV = "2" ]; then
     PYTHON_FLAG=--with-python
@@ -41,7 +41,7 @@ fi
 
 # The bindings for Python require python-sphinx
 echo "Installing Python-Sphinx..."
-pip install sphinx
+#pip3 install sphinx
 
 echo "Installing Xapian-bindings..."
 cd $VIRTUAL_ENV/packages/${BINDINGS}
@@ -53,4 +53,4 @@ rm -rf $VIRTUAL_ENV/packages
 
 # test
 echo "Testing Xapian..."
-python -c "import xapian"
+python3 -c "import xapian"

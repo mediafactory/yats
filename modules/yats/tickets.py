@@ -460,7 +460,7 @@ def action(request, mode, ticket):
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
 
             else:
-                msg = unicode(form.errors['file'])
+                msg = str(form.errors['file'])
                 msg = re.sub('<[^<]+?>', '', msg)
                 messages.add_message(request, messages.ERROR, msg)
                 if request.GET.get('Ajax') == '1':
@@ -528,7 +528,7 @@ def action(request, mode, ticket):
                             # We need to get a file object for clamav. We might have a path or we might
                             # have to read the data into memory.
                             if hasattr(file_obj, 'temporary_file_path'):
-                                os.chmod(file_obj.temporary_file_path(), 0664)
+                                os.chmod(file_obj.temporary_file_path(), 0o664)
                                 result = cd.scan_file(file_obj.temporary_file_path())
                             else:
                                 if hasattr(file_obj, 'read'):
@@ -799,7 +799,7 @@ def table(request, **kwargs):
                 return _('yes')
             else:
                 return _('no')
-        return unicode(value)
+        return str(value)
 
     def formatQuery(rules, condition):
         result = '('
@@ -968,7 +968,7 @@ def workflow(request):
     g.solve()
 
     for id in g:
-        # print '%s => %s,%s' % (id, g[id].x, g[id].y)
+        # print('%s => %s,%s' % (id, g[id].x, g[id].y))
         nodes[id] = (g[id].x, g[id].y)
         min_x = min(min_x, g[id].x)
         min_y = min(min_y, g[id].y)

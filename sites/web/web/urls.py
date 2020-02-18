@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.urls import path
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
@@ -14,11 +15,10 @@ test_client = Client(settings.SSO_SERVER, settings.SSO_PUBLIC_KEY, settings.SSO_
 urlpatterns = [
     url(r'^', include('yats.check.urls')),
     url(r'^', include('yats.urls')),
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^client/', include(test_client.get_urls())),
+    path(r'^admin/', admin.site.urls),
+    path(r'^client/', include(test_client.get_urls())),
 
-    url(r'^' + settings.DJRADICALE_CONFIG['server']['base_prefix'].lstrip('/'),
-        include('djradicale.urls', namespace='djradicale')),
+    url(r'^' + settings.DJRADICALE_CONFIG['server']['base_prefix'].lstrip('/'), include(('djradicale.urls', 'djradicale'))),
 
     # .well-known external implementation
     url(r'^\.well-known/(?P<type>(caldav|carddav))$',
