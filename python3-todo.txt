@@ -2,6 +2,7 @@
 - ErrorCaptureMiddleware
 - pyxmpp2 py3
 - webdav??? User???
+- graph iteritems() ???
 
 YWRtaW46YWRtaW4= <=> admin:admin
 
@@ -38,6 +39,7 @@ replace long() by int()
 replace __unicode__ by __str__
 replace print by print()
 replace import xmlrpclib by from xmlrpc import client as xmlrpclib
+replace iteritems() by items()
 
 add renderer=None to widget def render(
 https://stackoverflow.com/questions/52039654/django-typeerror-render-got-an-unexpected-keyword-argument-renderer

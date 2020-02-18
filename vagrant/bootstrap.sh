@@ -75,16 +75,15 @@ chown root:vagrant /var/web/yats/index
 chmod go+w /var/web/yats/index
 
 cd /var/web/yats/web/
+
+touch /var/web/yats/db/yats2.sqlite
+chown root:vagrant /var/web/yats/db/yats2.sqlite
+chmod go+w /var/web/yats/db/yats2.sqlite
 python3 manage.py migrate
 python3 manage.py createsuperuser --username root --email root@localhost --noinput
 python3 manage.py loaddata /vagrant/init_db.json
 pygmentize -S default -f html -a .codehilite > /vagrant_modules/yats/static/pygments.css
 python3 manage.py collectstatic  -l --noinput
-python3 /vagrant_project/test/api_simple_create.py
-python3 manage.py rebuild_index --noinput
-
-chown root:vagrant /var/web/yats/db/yats2.sqlite
-chmod go+w /var/web/yats/db/yats2.sqlite
 
 # apache config
 a2enmod ssl
@@ -97,6 +96,13 @@ a2dissite default
 a2dissite 000-default
 a2ensite yats
 apache2ctl restart
+
+# testticket via API
+python3 /vagrant_project/test/api_simple_create.py
+
+# rebuid Index
+python3 manage.py clear_index --noinput
+python3 manage.py update_index --noinput
 
 # deb upgrade
 apt-get -y upgrade &
