@@ -1,41 +1,36 @@
 # -*- coding: utf-8 -*-
-from ConfigParser import RawConfigParser
-
-config = RawConfigParser()
-config.read('/usr/local/yats/config/web.ini')
-
-DEBUG = config.getboolean('debug','DEBUG')
-#DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
+DEBUG = True
+# DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
 XMLRPC_DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 USE_TZ = True
 SITE_ID = 1
 
-TESTSYTEM = config.getboolean('debug','TESTSYTEM')
+TESTSYTEM = True
 
-ADMINS = tuple(config.items('admins'))
+ADMINS = []
 MANAGERS = ADMINS
 
 EMAIL_SUBJECT_PREFIX = 'yats-dev'
-EMAIL_HOST = config.get('mail', 'EMAIL_HOST')
-EMAIL_PORT = config.get('mail', 'EMAIL_PORT')
-SERVER_EMAIL = config.get('mail', 'SERVER_EMAIL')
-EMAIL_HOST_USER = config.get('mail', 'EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config.get('mail', 'EMAIL_HOST_PASSWORD')
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 25
+SERVER_EMAIL = 'develope@mediafactory.de'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 
 JABBER_HOST_USER = ''
 JABBER_HOST_PASSWORD = ''
 
-#DATABASE_ROUTERS = ['web.routers.ModelRouter']
+# DATABASE_ROUTERS = ['web.routers.ModelRouter']
 DATABASES = {
     'default': {
-        'ENGINE': config.get('database', 'DATABASE_ENGINE'),
-        'NAME': config.get('database', 'DATABASE_NAME'),
-        'USER': config.get('database', 'DATABASE_USER'),
-        'PASSWORD': config.get('database', 'DATABASE_PASSWORD'),
-        'HOST': config.get('database', 'DATABASE_HOST'),
-        'PORT': config.get('database', 'DATABASE_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/var/web/yats/db/yats2.sqlite',
+        'USER': 'root',
+        'PASSWORD': None,
+        'HOST': 'localhost',
+        'PORT': None,
         # 'ATOMIC_REQUESTS': config.get('database', 'ATOMIC_REQUESTS'),
         'OPTIONS': {
             'timeout': 20,
@@ -45,15 +40,15 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': config.get('cache', 'CACHE_BACKEND'),
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '127.0.0.1:11211',
     }
 }
 
 AUTH_PROFILE_MODULE = 'yats.UserProfile'
 
-TIME_ZONE = config.get('locale', 'TIME_ZONE')
-LANGUAGE_CODE = config.get('locale', 'LANGUAGE_CODE')
+TIME_ZONE = 'Europe/Berlin'
+LANGUAGE_CODE = 'de'
 
 gettext = lambda s: s
 LANGUAGES = (
@@ -64,7 +59,7 @@ USE_I18N = True
 USE_L10N = True
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 * 1024
-FILE_UPLOAD_PATH = config.get('folder', 'FILE_UPLOAD_PATH')
+FILE_UPLOAD_PATH = '/var/web/yats/files/'
 FILE_UPLOAD_VIRUS_SCAN = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
@@ -76,7 +71,7 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = ''
 
-STATIC_ROOT = config.get('folder', 'STATIC_ROOT')
+STATIC_ROOT = '/var/web/yats/static/'
 
 # Absolute path to the directory temp files should be saved to.
 # used for reports
@@ -127,7 +122,7 @@ TEMPLATES = [
     },
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -140,7 +135,7 @@ MIDDLEWARE_CLASSES = [
     'yats.middleware.auth.TryBasicAuthMiddleware',
     # 'yats.middleware.auth.BasicAuthMiddleware',
     'yats.middleware.auth.OrgaAdditionMiddleware',
-    'yats.middleware.error.ErrorCaptureMiddleware',
+    #'yats.middleware.error.ErrorCaptureMiddleware',
 ]
 
 ROOT_URLCONF = 'web.urls'
@@ -180,7 +175,7 @@ LOGGING = {
         'request_handler': {
                 'level': 'DEBUG',
                 'class': 'logging.handlers.RotatingFileHandler',
-                'filename': config.get('folder', 'LOGGING_PATH'),
+                'filename': '/var/web/yats/logs/django_request.log',
                 'maxBytes': 1024 * 1024 * 5,  # 5 MB
                 'backupCount': 5,
         },
@@ -212,10 +207,10 @@ TICKET_NON_PUBLIC_FIELDS = ['billing_needed', 'billing_reason', 'billing_done', 
 TICKET_SEARCH_FIELDS = ['caption', 'c_user', 'priority', 'type', 'customer', 'component', 'deadline', 'billing_needed', 'billing_done', 'closed', 'assigned', 'state', 'description', 'hasAttachments', 'hasComments']
 TICKET_EDITABLE_FIELDS_AFTER_CLOSE = ['billing_done']
 
-GITHUB_REPO = config.get('github', 'GITHUB_REPO')
-GITHUB_OWNER = config.get('github', 'GITHUB_OWNER')
-GITHUB_USER = config.get('github', 'GITHUB_USER')
-GITHUB_PASS = config.get('github', 'GITHUB_PASS')
+GITHUB_REPO = 'yats'
+GITHUB_OWNER = 'mediafactory'
+GITHUB_USER = None
+GITHUB_PASS = None
 
 LOGIN_URL = '/client'
 SSO_PRIVATE_KEY = 'Your Private Key'
@@ -242,18 +237,17 @@ DJRADICALE_CONFIG = {
     },
     'auth': {
         'type': 'custom',
-        'custom_handler': 'djradicale.auth.main',
+        'custom_handler': 'djradicale.auth.django',
     },
     'rights': {
         'type': 'custom',
-        'custom_handler': 'djradicale.rights.main',
+        'custom_handler': 'djradicale.rights.django',
     },
     'storage': {
         'type': 'custom',
         'custom_handler': 'yats.caldav.storage',
     },
     'well-known': {
-        #'carddav': '/pim/%(user)s/addressbook.vcf',
         'caldav': '/tickets/dav/%(user)s/calendar.ics',
     },
 }

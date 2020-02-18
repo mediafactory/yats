@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 from django import template
 from django.conf import settings
-from urlparse import urlsplit, urlunsplit
+from urllib.parse import urlparse
 
 register = template.Library()
 
 @register.simple_tag()
 def YATSServer():
     if hasattr(settings, 'SSO_SERVER'):
-        parts = list(urlsplit(settings.SSO_SERVER))
+        parts = list(urlparse.urlsplit(settings.SSO_SERVER))
         parts[2] = ''
-        return urlunsplit(parts)
+        return urlparse.urlunsplit(parts)
     else:
         return ''
 

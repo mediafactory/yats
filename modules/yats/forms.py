@@ -40,7 +40,7 @@ def save_instance(form, instance, fields=None, fail_message='saved',
         # virtual_fields here. (GenericRelation was previously a fake
         # m2m field).
 
-        for f in list(opts.many_to_many) + opts.virtual_fields:
+        for f in list(opts.many_to_many) + opts.private_fields:
             if not hasattr(f, 'save_form_data'):
                 continue
             if fields and f.name not in fields:

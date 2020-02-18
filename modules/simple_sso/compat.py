@@ -26,4 +26,4 @@ DJANGO_GTE_10 = django.VERSION >= (1, 10)
 def user_is_authenticated(user):
     if DJANGO_GTE_10:
         return user.is_authenticated
-    return user.is_authenticated()
+    return user.is_authenticated

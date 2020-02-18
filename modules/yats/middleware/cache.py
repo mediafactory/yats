@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 from django.middleware.cache import UpdateCacheMiddleware, FetchFromCacheMiddleware
 from django.core.cache import cache
 from django.conf import settings
@@ -33,19 +33,19 @@ def get_cache_key(request, key_prefix=None):
         method = ''
         content = md5_constructor()
     path = md5_constructor(iri_to_uri(request.path))
-    
-    if request.user.is_authenticated():
+
+    if request.user.is_authenticated:
         user = iri_to_uri(request.user)
     else:
         user = ''
-    
-    # on response lang was DE again although on request it was EN, so cache that :-)        
+
+    # on response lang was DE again although on request it was EN, so cache that :-)
     if hasattr(request, '_cache_lang'):
         lang = request._cache_lang
     else:
         lang = get_language()
         request._cache_lang = lang
-    
+
     return '%s.%s.%s.%s.%s.%s.%s' % (
                request.get_host(), key_prefix, lang, method, user, path.hexdigest(), content.hexdigest())
 
@@ -86,7 +86,7 @@ class yatsFetchFromCacheMiddleware(FetchFromCacheMiddleware):
     """
     extending djangos standard cache mechanism for POST
     """
-    
+
     def process_request(self, request):
         """
         Checks whether the page is already cached and returns the cached
@@ -115,8 +115,8 @@ class yatsFetchFromCacheMiddleware(FetchFromCacheMiddleware):
 
         # hit, return cached response
         request._cache_update_cache = False
-        return response    
-    
+        return response
+
 class yatsCacheMiddleware(yatsUpdateCacheMiddleware, yatsFetchFromCacheMiddleware):
     """
     Cache middleware that provides basic behavior for many simple sites.

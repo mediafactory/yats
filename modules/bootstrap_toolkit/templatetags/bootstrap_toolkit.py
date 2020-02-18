@@ -7,7 +7,7 @@ from django.forms import BaseForm
 from django.forms.forms import BoundField
 from django.forms.widgets import TextInput, CheckboxInput, CheckboxSelectMultiple, RadioSelect
 from django.template import Context
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
@@ -150,16 +150,14 @@ def as_bootstrap(form_or_field, layout='vertical,false'):
         bootstrap_float = False
 
     if isinstance(form_or_field, BaseForm):
-        return get_template("bootstrap_toolkit/form.html").render(
-            {
+        return render_to_string("bootstrap_toolkit/form.html", context={
                 'form': form_or_field,
                 'layout': layout,
                 'float': bootstrap_float,
             }
         )
     elif isinstance(form_or_field, BoundField):
-        return get_template("bootstrap_toolkit/field.html").render(
-            {
+        return render_to_string("bootstrap_toolkit/field.html", context={
                 'field': form_or_field,
                 'layout': layout,
                 'float': bootstrap_float,
@@ -203,7 +201,7 @@ def bootstrap_input_type(field):
         raise ValueError("Expected a Field, got a %s" % type(field))
     input_type = getattr(widget, 'bootstrap_input_type', None)
     if input_type:
-        return unicode(input_type)
+        return str(input_type)
     if isinstance(widget, TextInput):
         return u'text'
     if isinstance(widget, CheckboxInput):
@@ -229,7 +227,7 @@ def pagination(page, url=None, pages_to_show=11):
     Generate Bootstrap pagination links from a page object
     """
     context = get_pagination_context(page, pages_to_show, url=url)
-    return get_template("bootstrap_toolkit/pagination.html").render(context)
+    return get_template("bootstrap_toolkit/pagination.html").render(context=context)
 
 
 @register.filter
@@ -381,7 +379,7 @@ def get_pagination_context(page, pages_to_show=11, url=None, size=None, align=No
         pages_forward = None
         if first_page > 1:
             first_page -= 1
-        if pages_back > 1:
+        if pages_back is not None and pages_back > 1:
             pages_back -= 1
         else:
             pages_back = None
@@ -391,7 +389,7 @@ def get_pagination_context(page, pages_to_show=11, url=None, size=None, align=No
     # Append proper character to url
     if url:
         # Remove existing page GET parameters
-        url = unicode(url)
+        url = str(url)
         url = re.sub(r'\?page\=[^\&]+', u'?', url)
         url = re.sub(r'\&page\=[^\&]+', u'', url)
         # Append proper separator
@@ -403,7 +401,7 @@ def get_pagination_context(page, pages_to_show=11, url=None, size=None, align=No
     if extra:
         if not url:
             url = u'?'
-        url += unicode(extra) + u'&'
+        url += str(extra) + u'&'
     if url:
         url = url.replace(u'?&', u'?')
     # Set CSS classes, see http://twitter.github.io/bootstrap/components.html#pagination

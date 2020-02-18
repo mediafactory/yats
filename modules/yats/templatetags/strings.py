@@ -50,8 +50,8 @@ def contains(value, search):
 @register.filter
 def numberToTicketURL(value):
     # https://regex101.com/r/fC1wX4/10
-    value = re.sub(u'(?<!&)§([0-9]+)', ur'<a href="/docs/view/\1/">§\1</a>', value)
-    return re.sub(u'(?<!&)#([0-9]+)', ur'<a href="/tickets/view/\1/">#\1</a>', value)
+    value = re.sub(u'(?<!&)§([0-9]+)', r'<a href="/docs/view/\1/">§\1</a>', value)
+    return re.sub(u'(?<!&)#([0-9]+)', r'<a href="/tickets/view/\1/">#\1</a>', value)
 
 @register.filter
 def buildToDoList(value):

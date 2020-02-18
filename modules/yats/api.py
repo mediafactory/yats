@@ -5,7 +5,7 @@ from django.conf import settings
 from django.http import QueryDict
 from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_changes, mail_ticket, jabber_ticket, check_references
 from rpc4django import rpcmethod
-from xmlrpclib import Fault
+from xmlrpc.client import Fault
 import datetime
 
 """
@@ -47,7 +47,7 @@ def buildFields(exclude_list):
             options = []
             opts = apps.get_model(modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__).objects.all()
             for opt in opts:
-                options.append(unicode(opt))
+                options.append(str(opt))
 
             TicketFields[field.name] = (modulePathToModuleName(field.rel.to.__module__), field.rel.to.__name__)
 
@@ -221,7 +221,7 @@ def get(id, **kwargs):
                 attributes[fieldNameToTracName(field.name)] = None
 
         else:
-            attributes[fieldNameToTracName(field.name)] = unicode(getattr(ticket, field.name))
+            attributes[fieldNameToTracName(field.name)] = str(getattr(ticket, field.name))
     return [id, ticket.c_date, ticket.last_action_date, attributes]
 
 @rpcmethod(name='ticket.update', signature=['array', 'int', 'string', 'struct', 'bool'], login_required=True)

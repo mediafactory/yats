@@ -8,59 +8,56 @@ from yats.models import UserProfile
 import re
 import base64
 
-class OrgaAdditionMiddleware(object):
-    def process_request(self, request):
-        if request.user.is_active and request.user.is_authenticated():
+def OrgaAdditionMiddleware(get_response):
+
+    def middleware(request):
+        if request.user.is_active and request.user.is_authenticated:
             try:
                 request.organisation = UserProfile.objects.get(user=request.user).organisation
-            except:
+            except Exception:
                 pass
 
             if not hasattr(request, 'organisation') or not request.organisation:
                 response = HttpResponse(loader.render_to_string('no_orga.html', {'source': 'middleware', 'request_path': request.build_absolute_uri()}, RequestContext(request)))
                 response.status_code = 200
                 return response
-            return
+            return get_response(request)
 
         else:
             request.organisation = None
 
-class BasicAuthMiddleware(object):
-    def __init__(self):
-        self.realm = 'yats'
-        self.login_url = getattr(settings, 'LOGIN_URL', '/accounts/login/' )
+        response = get_response(request)
+        return response
 
-        if hasattr(settings,'PUBLIC_URLS'):
+    return middleware
+
+class BasicAuthMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.realm = 'yats'
+        self.login_url = getattr(settings, 'LOGIN_URL', '/accounts/login/')
+
+        if hasattr(settings, 'PUBLIC_URLS'):
             public_urls = [re.compile(url) for url in settings.PUBLIC_URLS]
         else:
-            public_urls = [(re.compile("^%s$" % ( self.login_url[1:] )))]
+            public_urls = [(re.compile("^%s$" % (self.login_url[1:])))]
+        public_urls.append(re.compile(r'^' + settings.DJRADICALE_CONFIG['server']['base_prefix'].lstrip('/')))
 
         self.public_urls = tuple(public_urls)
 
-    def _checkUnicode(self, credentials):
-        try:
-            credentials[0].decode('utf-8')
-        except UnicodeDecodeError:
-            credentials[0] = credentials[0].decode('iso-8859-1').encode('utf8')
-        try:
-            credentials[1].decode('utf-8')
-        except UnicodeDecodeError:
-            credentials[1] = credentials[1].decode('iso-8859-1').encode('utf8')
-        return credentials
-
-    def process_request(self, request):
+    def __call__(self, request):
         for url in self.public_urls:
             if url.match(request.path[1:]):
-                return None
+                return self.get_response(request)
 
         # lookup, if user was already authenticated
         request.user = get_user(request)
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             try:
                 request.organisation = UserProfile.objects.get(user=request.user).organisation
-            except:
+            except Exception:
                 pass
-            return
+            return self.get_response(request)
 
         if 'HTTP_AUTHORIZATION' in request.META:
             auth = request.META['HTTP_AUTHORIZATION'].split()
@@ -68,17 +65,20 @@ class BasicAuthMiddleware(object):
                 # NOTE: We only support basic authentication for now.
                 #
                 if auth[0].lower() == "basic":
-                    uname, passwd = self._checkUnicode(base64.b64decode(auth[1]).split(':', 1))
+                    auth_data = auth[1]
+                    auth_data += "=" * ((4 - len(auth_data) % 4) % 4)
+                    auth_data = base64.b64decode(auth_data).decode('utf-8')
+                    uname, passwd = auth_data.split(':', 1)
                     user = authenticate(username=uname, password=passwd)
                     if user:
                         if user.is_active:
                             request.user = user
                             try:
                                 request.organisation = UserProfile.objects.get(user=user).organisation
-                            except:
+                            except Exception:
                                 pass
                             login(request, user)
-                            return
+                            return self.get_response(request)
 
         # Either they did not provide an authorization header or
         # something in the authorization attempt failed. Send a 401
@@ -92,19 +92,19 @@ class BasicAuthMiddleware(object):
         return response
 
 class TryBasicAuthMiddleware(BasicAuthMiddleware):
-    def process_request(self, request):
+    def __call__(self, request):
         for url in self.public_urls:
             if url.match(request.path[1:]):
-                return None
+                return self.get_response(request)
 
         # lookup, if user was already authenticated
         request.user = get_user(request)
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             try:
                 request.organisation = UserProfile.objects.get(user=request.user).organisation
-            except:
+            except Exception:
                 pass
-            return
+            return self.get_response(request)
 
         if 'HTTP_AUTHORIZATION' in request.META:
             auth = request.META['HTTP_AUTHORIZATION'].split()
@@ -112,14 +112,19 @@ class TryBasicAuthMiddleware(BasicAuthMiddleware):
                 # NOTE: We only support basic authentication for now.
                 #
                 if auth[0].lower() == "basic":
-                    uname, passwd = self._checkUnicode(base64.b64decode(auth[1]).split(':', 1))
+                    auth_data = auth[1]
+                    auth_data += "=" * ((4 - len(auth_data) % 4) % 4)
+                    auth_data = base64.b64decode(auth_data).decode('utf-8')
+                    uname, passwd = auth_data.split(':', 1)
                     user = authenticate(username=uname, password=passwd)
                     if user:
                         if user.is_active:
                             request.user = user
                             try:
                                 request.organisation = UserProfile.objects.get(user=user).organisation
-                            except:
+                            except Exception:
                                 pass
                             login(request, user)
-                            return
+                            return self.get_response(request)
+
+        return self.get_response(request)

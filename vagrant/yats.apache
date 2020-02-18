@@ -1,7 +1,9 @@
 <VirtualHost *:80>
+    ServerName dev.yats.net
+
     WSGIScriptAlias / /var/web/yats/web/web/wsgi.py
     WSGIPassAuthorization on
-    WSGIDaemonProcess yats_demo.web python-path=/var/web/yats/web:/vagrant_modules/pysrc threads=1
+    WSGIDaemonProcess yats_demo.web python-path=/var/web/yats/web
     WSGIProcessGroup yats_demo.web
 
     <Directory "/var/web/yats/web/web">
@@ -23,4 +25,34 @@
    CustomLog     /var/log/apache2/yats-demo-acces.log combined
    ErrorLog      /var/log/apache2/yats-demo-error.log
 
+</VirtualHost>
+
+<VirtualHost *:443>
+    SSLEngine on
+    SSLCertificateFile /etc/apache2/certs/dev.yats.net.cert
+    SSLCertificateKeyFile /etc/apache2/certs/dev.yats.net.key
+
+    WSGIScriptAlias / /var/web/yats/web/web/wsgi.py
+    WSGIPassAuthorization on
+    WSGIDaemonProcess yats_demo.sec python-path=/var/web/yats/web
+    WSGIProcessGroup yats_demo.sec
+
+    <Directory "/var/web/yats/web/web">
+        AllowOverride AuthConfig
+        <Files "wsgi.py">
+          Order deny,allow
+          Allow from all
+          Require all granted
+        </Files>
+    </Directory>
+
+    <Directory "/var/web/yats/static">
+        Require all granted
+    </Directory>
+
+    Alias /static /var/web/yats/static
+    Alias /favicon.ico /var/web/yats/static/favicon.ico
+
+   CustomLog     /var/log/apache2/yats-demo-acces.log combined
+   ErrorLog      /var/log/apache2/yats-demo-error.log
 </VirtualHost>

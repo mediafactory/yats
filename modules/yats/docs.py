@@ -174,7 +174,7 @@ def docs_action(request, mode, docid):
                 return HttpResponseRedirect('/docs/view/%s/' % doc.pk)
 
             else:
-                msg = unicode(form.errors['file'])
+                msg = str(form.errors['file'])
                 msg = re.sub('<[^<]+?>', '', msg)
                 messages.add_message(request, messages.ERROR, msg)
                 if request.GET.get('Ajax') == '1':

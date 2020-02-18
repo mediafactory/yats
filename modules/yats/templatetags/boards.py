@@ -18,7 +18,7 @@ def lookup_seen(context, seen, ticket):
 def board_list(context):
     user = context['user']
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         context['boards'] = boards.objects.filter(c_user=user, active_record=True)
     else:
         context['boards'] = []

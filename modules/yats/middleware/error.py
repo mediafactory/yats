@@ -6,7 +6,7 @@ import sys
 import pprint
 import datetime
 
-class ErrorCaptureMiddleware(object):
+class ErrorCaptureMiddleware():
     """
     Middleware to capture exceptins and create a ticket/bug for it.
     see: django.core.handlers.base
@@ -35,7 +35,7 @@ class ErrorCaptureMiddleware(object):
                 from yats import get_version, get_python_version
                 from django import get_version as get_django_version
                 yats_data = 'URL: %s\nRAW_POST: %s\nHOST_NAME: %s\nYATS_APP_VERSION: %s\nDJANGO_VERSION: %s\nPYTHON: %s' % (request.build_absolute_uri(), request.body, gethostname(), get_version(), get_django_version(), get_python_version())
-                if hasattr(request, 'user') and request.user.is_authenticated():
+                if hasattr(request, 'user') and request.user.is_authenticated:
                     yats_data += '\nUSER: %s' % request.user.email
                 message = "%s\n\n%s" % (yats_data, '%s\n\n%s' % (session_repr, request_repr))
                 mail_admins(subject, message, fail_silently=True)
@@ -82,7 +82,7 @@ class ErrorCaptureMiddleware(object):
         if hasattr(request, 'organisation'):
             yats_data += '\nORGA: %s' % request.organisation.name
         else:
-            if hasattr(request, 'user') and request.user.is_authenticated():
+            if hasattr(request, 'user') and request.user.is_authenticated:
                 yats_data += '\nUSER: %s' % request.user.email
         message = "%s\n\n%s\n\n%s" % (self._get_traceback(exc_info), yats_data, '%s\n\n%s' % (session_repr, request_repr))
         mail_admins(subject, message, fail_silently=False)

@@ -36,7 +36,7 @@ class yatsFileField(forms.FileField):
                 # We need to get a file object for clamav. We might have a path or we might
                 # have to read the data into memory.
                 if hasattr(data, 'temporary_file_path'):
-                    chmod(data.temporary_file_path(), 0664)
+                    chmod(data.temporary_file_path(), 0o664)
                     result = cd.scan_file(data.temporary_file_path())
                 else:
                     if hasattr(data, 'read'):
