@@ -13,7 +13,7 @@ vobject
 monotonic
 SpeechRecognition
 django-markdownx
-django-haystack
+# django-haystack==2.5.1
 # xapian-haystack
 pygments
 furl
@@ -21,3 +21,4 @@ rpc4django
 # radicale==1.1.6
 djradicale
 pyxmpp2
+yolk3k
