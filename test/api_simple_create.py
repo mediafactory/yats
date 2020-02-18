@@ -17,7 +17,7 @@ print('ticket created #%s' % info[0])
 h = httplib2.Http()
 headers = {
    'User-Agent': 'miadi',
-   'Authorization': 'Basic ' + base64.b64encode('admin:admin'),
+   'Authorization': 'Basic YWRtaW46YWRtaW4=',
    'content-type': 'text/plain',
 }
 (resp, content) = h.request("http://192.168.33.11/tickets/upload/%s/?filename=test.txt" % info[0],
