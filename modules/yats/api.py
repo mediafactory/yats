@@ -234,7 +234,7 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
 
     request = kwargs['request']
     params = {}
-    for key, value in attributes.iteritems():
+    for key, value in attributes.items():
         params[TracNameTofieldName(key)] = value
 
     ticket = get_ticket_model().objects.get(pk=id)
@@ -248,7 +248,7 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
     form.cleaned_data = params
     form._changed_data = [name for name in params]
 
-    for key, value in params.iteritems():
+    for key, value in params.items():
         setattr(ticket, key, value)
         if key == 'assigned':
             touch_ticket(value, ticket.pk)
@@ -287,7 +287,7 @@ def create(attributes={}, notify=True, **kwargs):
 
     request = kwargs['request']
     params = {}
-    for key, value in attributes.iteritems():
+    for key, value in attributes.items():
         params[TracNameTofieldName(key)] = value
 
     fakePOST = QueryDict(mutable=True)
@@ -325,7 +325,7 @@ def createSimple(attributes={}, notify=True, **kwargs):
 
     request = kwargs['request']
     params = {}
-    for key, value in attributes.iteritems():
+    for key, value in attributes.items():
         params[TracNameTofieldName(key)] = value
 
     fakePOST = QueryDict(mutable=True)
