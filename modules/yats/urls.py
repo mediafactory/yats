@@ -11,7 +11,7 @@ handler500 = 'yats.errors.server_error'
 urlpatterns = [
    url(r'^rpc/$',
        view=serve_rpc_request,
-       name='tx.tickets.callback'),
+       name='rpc'),
 
    url(r'^$',
        view=root,
@@ -27,8 +27,8 @@ urlpatterns = [
        name='new'),
 
    url(r'^tickets/simple/$',
-        view=simple,
-        name='simple'),
+       view=simple,
+       name='simple'),
 
    url(r'^tickets/list/$',
        view=table,
