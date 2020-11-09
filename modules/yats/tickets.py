@@ -826,6 +826,8 @@ def table(request, **kwargs):
         search_params = convert_sarch({'closed': False})
         is_search = False
         tic = tic.filter(closed=False).order_by('-id')
+        if not request.user.is_staff:
+            tic = tic.filter(customer=request.organisation)
 
     sort = request.GET.get('sort', 'desc')
     col = request.GET.get('col', 'id')
