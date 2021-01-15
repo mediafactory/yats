@@ -215,7 +215,7 @@ def get(id, **kwargs):
         if type(field).__name__ in ['DateTimeField', 'BooleanField', 'NullBooleanField']:
             attributes[fieldNameToTracName(field.name)] = getattr(ticket, field.name)
         elif type(field).__name__ == 'DateField':
-            if not getattr(ticket, field.name) == None:
+            if not getattr(ticket, field.name) is None:
                 attributes[fieldNameToTracName(field.name)] = datetime.datetime.combine(getattr(ticket, field.name), datetime.datetime.min.time())
             else:
                 attributes[fieldNameToTracName(field.name)] = None
