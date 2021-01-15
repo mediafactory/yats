@@ -3,28 +3,38 @@
 #set -e
 
 if [ "$1" = "configure" ] ; then
-	echo "mod package: configureing"
+		echo "mod package: configureing"
 
-	sites=`python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
+		sites=`python3 -c "import site; print(site.getsitepackages()[0])"`
 
-    ln -s /usr/share/yats/site-packages/yats $sites 2>/dev/null
-    ln -s /usr/share/yats/site-packages/simple_sso $sites 2>/dev/null
-    ln -s /usr/share/yats/site-packages/bootstrap_toolkit $sites 2>/dev/null
-    ln -s /usr/share/yats/site-packages/rpc4django $sites 2>/dev/null
-    ln -s /usr/share/yats/site-packages/graph $sites 2>/dev/null
-		ln -s /usr/share/yats/site-packages/pyxmpp2 $sites 2>/dev/null
-		ln -s /usr/share/yats/site-packages/djradicale $sites 2>/dev/null
-		ln -s /usr/share/yats/site-packages/radicale $sites 2>/dev/null		
+		ln -s /usr/share/yats/site-packages/yats $sites 2>/dev/null
+		ln -s /usr/share/yats/site-packages/simple_sso $sites 2>/dev/null
+		ln -s /usr/share/yats/site-packages/bootstrap_toolkit $sites 2>/dev/null
+		ln -s /usr/share/yats/site-packages/graph $sites 2>/dev/null
 
-     ret=`grep -ir "TCPSocket" /etc/clamav/clamd.conf`
-     if [ "" = "$ret" ]; then
+		ret=`grep -ir "TCPSocket" /etc/clamav/clamd.conf`
+		if [ "" = "$ret" ]; then
+				echo "TCPSocket 3310" >> /etc/clamav/clamd.conf
+		fi
+
+		# clamav config
+		ret=`grep -ir "TCPSocket" /etc/clamav/clamd.conf`
+		if [ "" = "$ret" ]; then
 		echo "TCPSocket 3310" >> /etc/clamav/clamd.conf
-     fi
-
-     ret=`grep -ir "TCPAddr" /etc/clamav/clamd.conf`
-     if [ "" = "$ret" ]; then
+		fi
+		ret=`grep -ir "TCPAddr" /etc/clamav/clamd.conf`
+		if [ "" = "$ret" ]; then
 		echo "TCPAddr 127.0.0.1" >> /etc/clamav/clamd.conf
-     fi
+		fi
+		echo "ListenStream=127.0.0.1:3310" >> /etc/systemd/system/clamav-daemon.service.d/extend.conf
+		systemctl --system daemon-reload
+		#systemctl restart clamav-daemon.socket
+		#systemctl restart clamav-daemon.service
+		systemctl restart clamav-daemon
+		freshclam&
+
+		# python packages
+		pip3 install -r /usr/share/yats/site-packages/requirements.txt
 fi
 
 exit 0
