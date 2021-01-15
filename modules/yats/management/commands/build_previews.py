@@ -28,7 +28,7 @@ class Command(BaseCommand):
                         convertPDFtoImg('%s%s.dat' % (dest, file.id), '%s%s.preview' % (dest, file.id))
                     else:
                         if 'image' not in file.content_type:
-                            tmp = convertOfficeTpPDF('%s%s.dat' % (dest, file.id))
+                            tmp = convertOfficeTpPDF('%s%s.dat' % (dest, file.id), file.content_type)
                             convertPDFtoImg(tmp, '%s%s.preview' % (dest, file.id))
                             if os.path.isfile(tmp):
                                 os.unlink(tmp)
