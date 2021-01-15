@@ -20,7 +20,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-non_previewable_contenttypes = ['access', 'audio', 'octet-stream', 'x-diskcopy', 'application/zip', 'x-msdownload']
+non_previewable_contenttypes = ['access', 'audio', 'octet-stream', 'x-diskcopy', 'application/zip', 'x-msdownload', 'application/x-zip-compressed']
 
 def isPreviewable(mime):
     if not mime:
@@ -778,17 +778,18 @@ def convertPDFtoImg(pdf, dest=None):
         import PythonMagick
         img = PythonMagick.Image()
         img.density('100')
-        img.read(pdf)
+        img.read('%s[0]' % pdf)
         path, ext = os.path.splitext(pdf)
-        img.write('%s.png' % path)
+        img.write('PNG8:%s.png' % path)
 
         if dest:
             os.rename('%s.png' % path, dest)
         else:
             return '%s.png' % path
 
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
+        print('could not convert %s' % pdf)
     return dest
 
 class yatsCalledProcessError(subprocess.CalledProcessError):
@@ -799,8 +800,19 @@ class yatsCalledProcessError(subprocess.CalledProcessError):
     def __str__(self):
         return "Command '%s' returned non-zero exit status %d - error: %s" % (self.cmd, self.returncode, self.output)
 
-def convertOfficeTpPDF(office):
-    command = '/usr/bin/libreoffice --headless --invisible --convert-to pdf --outdir /tmp %s' % (office)
+def convertOfficeTpPDF(office, mimetype=None):
+    if mimetype and 'html' in mimetype.lower():
+        command = '/usr/bin/libreoffice --headless --invisible --infilter=HTML --convert-to pdf --outdir /tmp %s' % (office)
+
+    elif mimetype and 'text' in mimetype.lower():
+        command = '/usr/bin/libreoffice --headless --invisible --infilter=Text --convert-to pdf --outdir /tmp %s' % (office)
+
+    elif mimetype and 'json' in mimetype.lower():
+        command = '/usr/bin/libreoffice --headless --invisible --infilter=Text --convert-to pdf --outdir /tmp %s' % (office)
+
+    else:
+        command = '/usr/bin/libreoffice --headless --invisible --convert-to pdf --outdir /tmp %s' % (office)
+    print(command)
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd='.')
     output, unused_err = process.communicate()
     retcode = process.poll()
