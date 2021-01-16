@@ -145,7 +145,7 @@ def getModelValue(mod_path, cls_name, value):
     mod_path = modulePathToModuleName(mod_path)
     try:
         return str(apps.get_model(mod_path, cls_name).objects.get(pk=value))
-    except:
+    except Exception:
         return u''
 
 def getNameOfModelValue(field, value):
@@ -221,7 +221,7 @@ def jabber_ticket(request, ticket_id, form, **kwargs):
                 format_chanes(new, True),
                 get_ticket_url(request, ticket_id)
             ), int_rcpt)
-        except:
+        except Exception:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
 
@@ -235,7 +235,7 @@ def jabber_ticket(request, ticket_id, form, **kwargs):
                 format_chanes(new, False),
                 get_ticket_url(request, ticket_id, for_customer=True)
             ), pub_rcpt)
-        except:
+        except Exception:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
 
@@ -255,7 +255,7 @@ def mail_ticket(request, ticket_id, form, **kwargs):
         try:
             new['author'] = tic.c_user
             send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, True), get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, int_rcpt, False)
-        except:
+        except Exception:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
@@ -263,7 +263,7 @@ def mail_ticket(request, ticket_id, form, **kwargs):
         try:
             new['author'] = tic.u_user
             send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, False), get_ticket_url(request, ticket_id, for_customer=True)), settings.SERVER_EMAIL, pub_rcpt, False)
-        except:
+        except Exception:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
