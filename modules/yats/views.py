@@ -285,8 +285,10 @@ def kanban(request):
 def xptest(request, test):
     if test == 'xmpp':
         from pyxmpp2.simple import send_message
-        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, 'genssen_intern@miadi.net', 'moin hinnack 1')
-        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, 'genssen_intern@miadi.net', 'moin hinnack 2')
+        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, 'genssen@miadi.net', 'moin hinnack 1')
+        import time
+        time.sleep(2)
+        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, 'genssen@miadi.net', 'moin hinnack 2')
         return HttpResponse('OK')
 
     else:
