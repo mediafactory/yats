@@ -237,7 +237,7 @@ def send_signal(msg, rcpt_list):
         if hasattr(settings, 'SIGNAL_CONFIG') and settings.SIGNAL_CONFIG != '':
             command = '%s --config %s' % (command, settings.SIGNAL_CONFIG)
         command = '%s -u %s send -m "%s" %s' % (command, settings.SIGNAL_USERNAME, msg.replace('"', ''), rcpt)
-        test = subprocess.run([command, '2>> /tmp/signal_err'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run([command, '2>> /tmp/signal_err'], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 
 def jabber_ticket(request, ticket_id, form, **kwargs):
     int_rcpt, pub_rcpt = list(get_jabber_recipient_list(request, ticket_id))
