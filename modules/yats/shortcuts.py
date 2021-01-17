@@ -12,6 +12,7 @@ import datetime
 import re
 import os
 import subprocess
+import time
 from pyxmpp2.simple import send_message
 from dateutil import parser
 
@@ -198,6 +199,7 @@ def send_jabber(msg, rcpt_list):
 
     for rcpt in rcpt_list:
         send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, rcpt, msg)
+        time.sleep(2)
 
 def jabber_ticket(request, ticket_id, form, **kwargs):
     int_rcpt, pub_rcpt = list(get_jabber_recipient_list(request, ticket_id))
