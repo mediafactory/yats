@@ -15,7 +15,7 @@ test_client = Client(settings.SSO_SERVER, settings.SSO_PUBLIC_KEY, settings.SSO_
 urlpatterns = [
     url(r'^', include('yats.check.urls')),
     url(r'^', include('yats.urls')),
-    path(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin.site.urls),
     path(r'^client/', include(test_client.get_urls())),
 
     url(r'^' + settings.DJRADICALE_CONFIG['server']['base_prefix'].lstrip('/'), include(('djradicale.urls', 'djradicale'))),
