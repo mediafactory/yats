@@ -22,6 +22,12 @@ EMAIL_HOST_PASSWORD = ''
 
 JABBER_HOST_USER = ''
 JABBER_HOST_PASSWORD = ''
+JABBER_TEST_RECIPIENT = ''
+
+SIGNAL_BIN = 'sudo /usr/local/bin/signal-cli'  # defaul
+SIGNAL_CONFIG = ''  # default
+SIGNAL_USERNAME = ''
+SIGNAL_TEST_RECIPIENT = ''
 
 # DATABASE_ROUTERS = ['web.routers.ModelRouter']
 DATABASES = {

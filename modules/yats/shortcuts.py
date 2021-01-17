@@ -103,6 +103,29 @@ def get_jabber_recipient_list(request, ticket_id):
     #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by jabber (address missing): %s') % ', '.join(error))
     return int_result, pub_result
 
+def get_signal_recipient_list(request, ticket_id):
+    from yats.models import tickets_participants, UserProfile
+    pub_result = []
+    int_result = []
+    error = []
+    rcpts = tickets_participants.objects.select_related('user').filter(ticket=ticket_id)
+    for rcpt in rcpts:
+        # leave out myself
+        if rcpt.user != request.user:
+            fqpn = UserProfile.objects.get(user=rcpt.user).signal
+            if fqpn:
+                rcpts = fqpn.split(',')
+                for an in rcpts:
+                    if rcpt.user.is_staff:
+                        int_result.append(an)
+                    else:
+                        pub_result.append(an)
+            else:
+                error.append(str(rcpt.user))
+    # if len(error) > 0:
+    #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by jabber (address missing): %s') % ', '.join(error))
+    return int_result, pub_result
+
 def get_mail_recipient_list(request, ticket_id):
     from yats.models import tickets_participants
     pub_result = []
@@ -201,6 +224,21 @@ def send_jabber(msg, rcpt_list):
         send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, rcpt, msg)
         time.sleep(2)
 
+def send_signal(msg, rcpt_list):
+    if len(rcpt_list) == 0:
+        return
+
+    if not hasattr(settings, 'SIGNAL_BIN') or settings.SIGNAL_BIN == '' or not hasattr(settings, 'SIGNAL_USERNAME') or settings.SIGNAL_USERNAME == '':
+        return
+
+    for rcpt in rcpt_list:
+        # signal-cli -u USERNAME send -m "test" RECIPIENT
+        command = settings.SIGNAL_BIN
+        if hasattr(settings, 'SIGNAL_CONFIG') and settings.SIGNAL_CONFIG != '':
+            command = '%s --config %s' % (command, settings.SIGNAL_CONFIG)
+        command = '%s -u %s send -m "%s" %s' % (command, settings.SIGNAL_USERNAME, msg.replace('"', ''), rcpt)
+        test = subprocess.run([command, '2>> /tmp/signal_err'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
 def jabber_ticket(request, ticket_id, form, **kwargs):
     int_rcpt, pub_rcpt = list(get_jabber_recipient_list(request, ticket_id))
     tic = get_ticket_model().objects.get(pk=ticket_id)
@@ -240,6 +278,46 @@ def jabber_ticket(request, ticket_id, form, **kwargs):
         except Exception:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
+
+def signal_ticket(request, ticket_id, form, **kwargs):
+    int_rcpt, pub_rcpt = list(get_signal_recipient_list(request, ticket_id))
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+    if not tic.assigned:
+        if 'rcpt' in kwargs and kwargs['rcpt']:
+            rcpts = kwargs['rcpt'].split(',')
+            for rcpt in rcpts:
+                if rcpt not in int_rcpt:
+                    int_rcpt.append(rcpt)
+
+    new, old = field_changes(form)
+
+    if len(int_rcpt) > 0:
+        try:
+            new['author'] = tic.c_user
+            send_signal('%s#%s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                tic.caption,
+                format_chanes(new, True),
+                get_ticket_url(request, ticket_id)
+            ), int_rcpt)
+        except Exception:
+            if not kwargs.get('is_api', False):
+                messages.add_message(request, messages.ERROR, _('signal not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0 and has_public_fields(new):
+        try:
+            new['author'] = tic.u_user
+            send_signal('%s#%s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                tic.caption,
+                format_chanes(new, False),
+                get_ticket_url(request, ticket_id, for_customer=True)
+            ), pub_rcpt)
+        except Exception:
+            if not kwargs.get('is_api', False):
+                messages.add_message(request, messages.ERROR, _('signal not send: %s') % sys.exc_info()[1])
 
 def mail_ticket(request, ticket_id, form, **kwargs):
     int_rcpt, pub_rcpt = list(get_mail_recipient_list(request, ticket_id))
@@ -302,6 +380,40 @@ def jabber_comment(request, comment_id):
             ), pub_rcpt)
         except Exception:
             messages.add_message(request, messages.ERROR, _('internal jabber not send: %s') % sys.exc_info()[1])
+
+def signal_comment(request, comment_id):
+    from yats.models import tickets_comments
+    com = tickets_comments.objects.get(pk=comment_id)
+    ticket_id = com.ticket_id
+    int_rcpt, pub_rcpt = get_signal_recipient_list(request, ticket_id)
+
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+
+    if len(int_rcpt) > 0:
+        try:
+            send_signal('%s#%s: %s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new comment'),
+                tic.caption,
+                com.comment,
+                get_ticket_url(request, ticket_id)
+            ), int_rcpt)
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('internal signal not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0:
+        try:
+            send_signal('%s#%s: %s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new comment'),
+                tic.caption,
+                com.comment,
+                get_ticket_url(request, ticket_id, for_customer=True)
+            ), pub_rcpt)
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('internal signal not send: %s') % sys.exc_info()[1])
 
 def mail_comment(request, comment_id):
     from yats.models import tickets_comments

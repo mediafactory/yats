@@ -3,7 +3,7 @@ from django.utils.translation import ugettext as _
 from django.apps import apps
 from django.conf import settings
 from django.http import QueryDict
-from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_changes, mail_ticket, jabber_ticket, check_references
+from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_changes, mail_ticket, jabber_ticket, signal_ticket, check_references
 from rpc4django import rpcmethod
 from xmlrpc.client import Fault
 import datetime
@@ -272,6 +272,7 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
     if notify:
         mail_ticket(request, ticket.pk, form, is_api=True)
         jabber_ticket(request, ticket.pk, form, is_api=True)
+        signal_ticket(request, ticket.pk, form, is_api=True)
 
     return get(id, **kwargs)
 
@@ -313,6 +314,7 @@ def create(attributes={}, notify=True, **kwargs):
         if notify:
             mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
             jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
+            signal_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
 
         return get(tic.id, **kwargs)
 
@@ -367,6 +369,7 @@ def createSimple(attributes={}, notify=True, **kwargs):
         if notify:
             mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
             jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
+            signal_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
 
         return get(tic.id, **kwargs)
 

@@ -48,7 +48,7 @@ def convertPrio(value):
             prios = ticket_priority.objects.get(caldav__gt=value).order_by('caldav').pk
             try:
                 return prios[0]
-            except:
+            except Exception:
                 return None
     else:
         return None
@@ -60,6 +60,7 @@ class UserProfile(models.Model):
 
     organisation = models.ForeignKey('organisation', on_delete=models.CASCADE, null=True)
     jabber = models.CharField(max_length=255, null=True, blank=True)
+    signal = models.CharField(max_length=255, null=True, blank=True)
     day_since_closed_tickets = models.SmallIntegerField(default=5)
 
     def save(self, *args, **kwargs):
@@ -82,8 +83,9 @@ def create_user_profile(sender, instance, created, **kwargs):
         # try/except just for syncdb / south
         try:
             UserProfile.objects.get_or_create(user=instance)
-        except:
+        except Exception:
             pass
+
 
 post_save.connect(create_user_profile, sender=settings.AUTH_USER_MODEL)
 
