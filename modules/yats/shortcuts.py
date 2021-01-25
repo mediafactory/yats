@@ -21,7 +21,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-non_previewable_contenttypes = ['access', 'audio', 'octet-stream', 'x-diskcopy', 'application/zip', 'x-msdownload', 'application/x-zip-compressed']
+non_previewable_contenttypes = ['access', 'audio', 'octet-stream', 'x-diskcopy', 'application/zip', 'x-msdownload', 'application/x-zip-compressed', 'video/quicktime']
 
 def isPreviewable(mime):
     if not mime:
@@ -237,7 +237,7 @@ def send_signal(msg, rcpt_list):
         if hasattr(settings, 'SIGNAL_CONFIG') and settings.SIGNAL_CONFIG != '':
             command = '%s --config %s' % (command, settings.SIGNAL_CONFIG)
         command = '%s -u %s send -m "%s" %s' % (command, settings.SIGNAL_USERNAME, msg.replace('"', ''), rcpt)
-        subprocess.run([command, '2>> /tmp/signal_err'], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+        subprocess.run([command, '2>> /tmp/signal_err'], shell=True, stdin=None, stdout=None, stderr=None, env={'LANG': 'de_DE.UTF-8'}, close_fds=True)
 
 def jabber_ticket(request, ticket_id, form, **kwargs):
     int_rcpt, pub_rcpt = list(get_jabber_recipient_list(request, ticket_id))
