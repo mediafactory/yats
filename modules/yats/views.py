@@ -293,8 +293,8 @@ def xptest(request, test):
 
     if test == 'signal':
         from yats.shortcuts import send_signal
-        send_signal('moin 1', [settings.SIGNAL_TEST_RECIPIENT])
-        send_signal('moin, moin 2', [settings.SIGNAL_TEST_RECIPIENT])
+        send_signal('moin 1 - äöüß', [settings.SIGNAL_TEST_RECIPIENT])
+        send_signal('moin, moin 2 - äöüß', [settings.SIGNAL_TEST_RECIPIENT])
         return HttpResponse('OK')
 
     else:
