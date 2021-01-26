@@ -72,7 +72,7 @@ def new(request):
 
             mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
             jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
-            signal_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
+            signal_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_SIGNAL_RCPT)
 
             if form.cleaned_data.get('file_addition', False):
                 return HttpResponseRedirect('/tickets/upload/%s/' % tic.pk)
@@ -120,7 +120,7 @@ def simple(request):
 
             mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
             jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
-            signal_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
+            signal_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_SIGNAL_RCPT)
 
             return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
 

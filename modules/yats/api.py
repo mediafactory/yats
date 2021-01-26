@@ -314,7 +314,7 @@ def create(attributes={}, notify=True, **kwargs):
         if notify:
             mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
             jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
-            signal_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
+            signal_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_SIGNAL_RCPT)
 
         return get(tic.id, **kwargs)
 
@@ -369,7 +369,7 @@ def createSimple(attributes={}, notify=True, **kwargs):
         if notify:
             mail_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_MAIL_RCPT)
             jabber_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
-            signal_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_JABBER_RCPT)
+            signal_ticket(request, tic.pk, form, rcpt=settings.TICKET_NEW_SIGNAL_RCPT)
 
         return get(tic.id, **kwargs)
 
