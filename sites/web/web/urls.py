@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^', include('yats.check.urls')),
     url(r'^', include('yats.urls')),
     url(r'^admin/', admin.site.urls),
-    path(r'^client/', include(test_client.get_urls())),
+    url(r'^client/', include(test_client.get_urls())),
 
     url(r'^' + settings.DJRADICALE_CONFIG['server']['base_prefix'].lstrip('/'), include(('djradicale.urls', 'djradicale'))),
 
