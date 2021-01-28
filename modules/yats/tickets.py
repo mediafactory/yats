@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.http import parse_http_date_safe, http_date
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end, tickets_ignorants
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, signal_ticket, mail_comment, jabber_comment, signal_comment, mail_file, jabber_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, signal_ticket, mail_comment, jabber_comment, signal_comment, mail_file, jabber_file, signal_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
 from yats.request import streamRanges
 import os
 import io
@@ -447,6 +447,7 @@ def action(request, mode, ticket):
 
                 mail_file(request, f.pk)
                 jabber_file(request, f.pk)
+                signal_file(request, f.pk)
 
                 dest = settings.FILE_UPLOAD_PATH
                 if not os.path.exists(dest):
@@ -587,6 +588,7 @@ def action(request, mode, ticket):
 
                     mail_file(request, f.pk)
                     jabber_file(request, f.pk)
+                    signal_file(request, f.pk)
 
                     dest = settings.FILE_UPLOAD_PATH
                     if not os.path.exists(dest):

@@ -224,7 +224,7 @@ def send_jabber(msg, rcpt_list):
         send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, rcpt, msg)
         time.sleep(2)
 
-def send_signal(msg, rcpt_list):
+def send_signal(msg, rcpt_list, atts=[]):
     if len(rcpt_list) == 0:
         return
 
@@ -237,6 +237,9 @@ def send_signal(msg, rcpt_list):
         if hasattr(settings, 'SIGNAL_CONFIG') and settings.SIGNAL_CONFIG != '':
             command = '%s --config %s' % (command, settings.SIGNAL_CONFIG)
         command = '%s -u %s send -m "%s" %s' % (command, settings.SIGNAL_USERNAME, msg.replace('"', ''), rcpt)
+        if len(atts) > 0:
+            for att in atts:
+                command = '%s -a %s' & (command, att)
         subprocess.run([command, '2>> /tmp/signal_err'], shell=True, stdin=None, stdout=None, stderr=None, env={'LANG': 'de_DE.UTF-8'}, close_fds=True)
 
 def jabber_ticket(request, ticket_id, form, **kwargs):
@@ -492,6 +495,46 @@ def mail_file(request, file_id):
             send_mail('%s#%s: %s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, _('new file'), tic.caption), body, settings.SERVER_EMAIL, int_rcpt, False)
         except Exception:
             messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
+
+def signal_file(request, file_id):
+    from yats.models import tickets_files
+    io = tickets_files.objects.get(pk=file_id)
+    ticket_id = io.ticket_id
+    int_rcpt, pub_rcpt = get_signal_recipient_list(request, ticket_id)
+
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+
+    preview_file = []
+    if os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, file_id)):
+        preview_file.append('%s%s.preview' % (settings.FILE_UPLOAD_PATH, file_id))
+    if len(preview_file) == 0 and 'image' in io.content_type:
+        preview_file.append('%s%s.dat' % (settings.FILE_UPLOAD_PATH, file_id))
+
+    if len(int_rcpt) > 0:
+        body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
+        try:
+            send_signal('%s#%s: %s - %s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new file'),
+                tic.caption,
+                body
+            ), int_rcpt, atts=preview_file)
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('signal not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0:
+        body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id, for_customer=True))
+        try:
+            send_signal('%s#%s: %s - %s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new file'),
+                tic.caption,
+                body
+            ), pub_rcpt, atts=preview_file)
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('signal not send: %s') % sys.exc_info()[1])
 
 def clean_search_values(search):
     # clean only old
