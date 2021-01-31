@@ -22,3 +22,4 @@ rpc4django
 djradicale
 pyxmpp2
 yolk3k
+django-background-tasks

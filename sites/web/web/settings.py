@@ -165,6 +165,7 @@ INSTALLED_APPS = [
     'djradicale',
     'markdownx',
     'haystack',
+    'background_task',
 ]
 
 LOGGING = {
