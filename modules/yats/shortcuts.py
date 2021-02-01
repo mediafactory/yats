@@ -923,12 +923,12 @@ def convertPDFtoImg(pdf, dest=None):
         img.density('100')
         img.read('%s[0]' % pdf)
         path, ext = os.path.splitext(os.path.basename(pdf))
-        img.write('PNG8:/tmp/%s.png' % path)
+        img.write('PNG8:/convert/%s.png' % path)
 
         if dest:
-            os.rename('/tmp/%s.png' % path, dest)
+            os.rename('/convert/%s.png' % path, dest)
         else:
-            return '/tmp/%s.png' % path
+            return '/convert/%s.png' % path
 
     except Exception as e:
         print(e)
@@ -945,16 +945,16 @@ class yatsCalledProcessError(subprocess.CalledProcessError):
 
 def convertOfficeTpPDF(office, mimetype=None):
     if mimetype and 'html' in mimetype.lower():
-        command = 'sudo /usr/bin/libreoffice --headless --invisible --infilter=HTML --convert-to pdf --outdir /root/ %s' % (office)
+        command = 'sudo /usr/bin/libreoffice --headless --invisible --infilter=HTML --convert-to pdf --outdir /convert %s' % (office)
 
     elif mimetype and 'text' in mimetype.lower():
-        command = 'sudo /usr/bin/libreoffice --headless --invisible --infilter=Text --convert-to pdf --outdir /root %s' % (office)
+        command = 'sudo /usr/bin/libreoffice --headless --invisible --infilter=Text --convert-to pdf --outdir /convert %s' % (office)
 
     elif mimetype and 'json' in mimetype.lower():
-        command = 'sudo /usr/bin/libreoffice --headless --invisible --infilter=Text --convert-to pdf --outdir /root %s' % (office)
+        command = 'sudo /usr/bin/libreoffice --headless --invisible --infilter=Text --convert-to pdf --outdir /convert %s' % (office)
 
     else:
-        command = 'sudo /usr/bin/libreoffice --headless --invisible --convert-to pdf --outdir /root %s' % (office)
+        command = 'sudo /usr/bin/libreoffice --headless --invisible --convert-to pdf --outdir /convert %s' % (office)
     print(command)
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd='.')
     output, unused_err = process.communicate()
@@ -964,4 +964,4 @@ def convertOfficeTpPDF(office, mimetype=None):
 
     path, fileName = os.path.split(office)
 
-    return '/root/%s.%s' % (fileName.split('.')[0], 'pdf')
+    return '/convert/%s.%s' % (fileName.split('.')[0], 'pdf')
