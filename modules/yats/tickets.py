@@ -459,8 +459,9 @@ def action(request, mode, ticket):
                     if 'image' not in f.content_type and isPreviewable(f.content_type):
                         tmp = convertOfficeTpPDF('%s/%s.dat' % (dest, f.id))
                         convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
-                        if os.path.isfile(tmp):
-                            os.unlink(tmp)
+
+                        from yats.tasks import unlink_file
+                        unlink_file(tmp)
 
                 mail_file(request, f.pk)
                 jabber_file(request, f.pk)
