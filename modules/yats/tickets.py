@@ -445,10 +445,6 @@ def action(request, mode, ticket):
 
                 add_history(request, tic, 5, request.FILES['file'].name)
 
-                mail_file(request, f.pk)
-                jabber_file(request, f.pk)
-                signal_file(request, f.pk)
-
                 dest = settings.FILE_UPLOAD_PATH
                 if not os.path.exists(dest):
                     os.makedirs(dest)
@@ -465,6 +461,10 @@ def action(request, mode, ticket):
                         convertPDFtoImg(tmp, '%s/%s.preview' % (dest, f.id))
                         if os.path.isfile(tmp):
                             os.unlink(tmp)
+
+                mail_file(request, f.pk)
+                jabber_file(request, f.pk)
+                signal_file(request, f.pk)
 
                 return HttpResponseRedirect('/tickets/view/%s/' % tic.pk)
 
