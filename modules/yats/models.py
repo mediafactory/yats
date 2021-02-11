@@ -62,6 +62,7 @@ class UserProfile(models.Model):
     jabber = models.CharField(max_length=255, null=True, blank=True)
     signal = models.CharField(max_length=255, null=True, blank=True)
     day_since_closed_tickets = models.SmallIntegerField(default=5)
+    impersonate_alias = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -76,6 +77,9 @@ class UserProfile(models.Model):
     class Meta:
         verbose_name = _('user profile')
         verbose_name_plural = _(u'user profiles')
+        permissions = (
+            ('can_impersonate', 'impersonate'),
+        )
 
 
 def create_user_profile(sender, instance, created, **kwargs):

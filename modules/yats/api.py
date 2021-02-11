@@ -17,6 +17,20 @@ import datetime
 APPLICATION_ERROR = -32500
 FIELD_EXCLUDE_LIST = ['id', 'active_record', 'd_user', 'd_date', 'u_user', 'close_date', 'last_action_date', 'tickets_ptr', 'closed']
 
+def checkImpersonate(request):
+    from yats.models import UserProfile
+
+    if 'HTTP_IMPERSONATE_USER' in request.META and request.META['HTTP_IMPERSONATE_USER']:
+        # check rights
+
+        # lookup new user
+        try:
+            request.user = UserProfile.objects.get(impersonate_alias=request.META['HTTP_IMPERSONATE_USER']).user
+
+        except Exception:
+            raise Exception('alias user not found: %s' % request.META['HTTP_IMPERSONATE_USER'])
+
+
 def fieldNameToTracName(field):
     if field == 'c_date':
         return 'time created'
@@ -88,7 +102,7 @@ def TracNameTofieldName(field):
     return field
 
 def add_search_terms(field_defs, parts, compare, results):
-    if field_defs[parts[0]] == None:
+    if field_defs[parts[0]] is None:
         results['%s%s' % (parts[0], compare)] = parts[1]
     else:
         results[parts[0]] = apps.get_model(field_defs[parts[0]][0], field_defs[parts[0]][1]).objects.get(name=parts[1]).pk
@@ -132,7 +146,7 @@ def search_terms(q):
 
 @rpcmethod(name='system.getAPIVersion', signature=['array'], login_required=True)
 def getAPIVersion():
-    return [-1,0,1]
+    return [-1, 0, 1]
 
 @rpcmethod(name='ticket.getTicketFields', signature=['array'], login_required=True)
 def getTicketFields(**kwargs):
@@ -185,10 +199,11 @@ def query(*args, **kwargs):
     array ticket.query(string qstr="status!=closed")
     """
     request = kwargs['request']
+    checkImpersonate(request)
 
     tickets = get_ticket_model().objects.all()
     if len(args) > 0:
-        tickets =  tickets.filter(**search_terms(args[0]))
+        tickets = tickets.filter(**search_terms(args[0]))
 
     ids = tickets.values_list('id', flat=True)
     return list(ids)
@@ -199,9 +214,10 @@ def get(id, **kwargs):
     array ticket.get(int id)
     """
     exclude_list = FIELD_EXCLUDE_LIST
-    #exclude_list.pop(exclude_list.index('id'))
+    # exclude_list.pop(exclude_list.index('id'))
 
     request = kwargs['request']
+    checkImpersonate(request)
 
     if not request.user.is_staff:
         exclude_list = list(set(exclude_list + settings.TICKET_NON_PUBLIC_FIELDS))
@@ -233,6 +249,8 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
     from yats.forms import TicketsForm
 
     request = kwargs['request']
+    checkImpersonate(request)
+
     params = {}
     for key, value in attributes.items():
         params[TracNameTofieldName(key)] = value
@@ -287,6 +305,8 @@ def create(attributes={}, notify=True, **kwargs):
     excludes = ['resolution']
 
     request = kwargs['request']
+    checkImpersonate(request)
+
     params = {}
     for key, value in attributes.items():
         params[TracNameTofieldName(key)] = value
@@ -326,6 +346,8 @@ def createSimple(attributes={}, notify=True, **kwargs):
     from yats.forms import SimpleTickets
 
     request = kwargs['request']
+    checkImpersonate(request)
+
     params = {}
     for key, value in attributes.items():
         params[TracNameTofieldName(key)] = value
