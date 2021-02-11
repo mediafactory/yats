@@ -144,18 +144,18 @@
         <div id="myModal-{{ line.id }}" class="modal hide fade">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3>Edit Comment</h3>
+                <h3>{% trans "Edit Comment" %}</h3>
             </div>
 
             <div class="modal-body">
                 <form id="form-{{ line.id }}" class="comment-edit-form" action="/tickets/update_comment/{{ ticket.id }}/?comment_id={{ line.id }}" method="POST">
-                    <textarea name="comment_body" id="comment_body" cols="30" rows="10" style="width: 95%">{{ line.comment|force_escape|safe|linebreaksbr }}</textarea>
+                    <textarea name="comment_body" id="comment_body" cols="30" rows="10" style="width: 95%">{{ line.comment|force_escape|safe }}</textarea>
                 </form>
             </div>
 
             <div class="modal-footer">
-                <a href="#" class="btn" data-dismiss="modal">Close</a>
-                <input class="btn btn-primary" type="submit" value="Submit" form="form-{{ line.id }}" style="width: auto;">
+                <a href="#" class="btn" data-dismiss="modal">{% trans "Close" %}</a>
+                <input class="btn btn-primary" type="submit" value="{% trans "Save" %}" form="form-{{ line.id }}" style="width: auto;">
             </div>
         </div>
         {% endif %}
