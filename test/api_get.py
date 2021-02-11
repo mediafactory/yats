@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import base64
 from xmlrpc import client as xmlrpclib
