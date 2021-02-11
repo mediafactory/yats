@@ -21,7 +21,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-non_previewable_contenttypes = ['access', 'audio', 'octet-stream', 'x-diskcopy', 'application/zip', 'x-msdownload', 'application/x-zip-compressed', 'video/quicktime', 'application/pkcs7-signature']
+non_previewable_contenttypes = ['access', 'audio', 'octet-stream', 'x-diskcopy', 'application/zip', 'x-msdownload', 'application/x-zip-compressed', 'video/quicktime', 'application/pkcs7-signature', 'application/x-7z-compressed']
 
 def isPreviewable(mime):
     if not mime:
