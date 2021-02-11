@@ -314,7 +314,7 @@ def action(request, mode, ticket):
 
                     history_data = {
                                     'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state), 'priority': str(old_priority)},
-                                    'new': {'comment': request.POST.get('reassign_comment', ''), 'assigned': str(User.objects.get(pk=request.POST['assigned'])), 'state': str(tic.state), 'old_priority': str(tic.priority)}
+                                    'new': {'comment': request.POST.get('reassign_comment', ''), 'assigned': str(User.objects.get(pk=request.POST['assigned'])), 'state': str(tic.state), 'priority': str(tic.priority)}
                                     }
                     add_history(request, tic, 7, history_data)
 
