@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.http import parse_http_date_safe, http_date
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
-from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end, tickets_ignorants
+from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end, tickets_ignorants, ticket_priority
 from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, signal_ticket, mail_comment, jabber_comment, signal_comment, mail_file, jabber_file, signal_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
 from yats.request import streamRanges
 import os
@@ -200,7 +200,7 @@ def action(request, mode, ticket):
         excludes = []
         form = TicketsForm(exclude_list=excludes, is_stuff=request.user.is_staff, user=request.user, instance=tic, customer=request.organisation.id, view_only=True)
         close = TicketCloseForm()
-        reassign = TicketReassignForm(initial={'assigned': tic.assigned_id, 'state': tic.state})
+        reassign = TicketReassignForm(initial={'assigned': tic.assigned_id, 'state': tic.state, 'priority': tic.priority})
         flows = list(ticket_flow_edges.objects.select_related('next').filter(now=tic.state).exclude(next__type=2).values_list('next', flat=True))
         flows.append(tic.state_id)
         reassign.fields['state'].queryset = reassign.fields['state'].queryset.filter(id__in=flows)
@@ -287,15 +287,17 @@ def action(request, mode, ticket):
                 if request.POST['assigned'] and int(request.POST['assigned']) > 0:
                     old_assigned_user = tic.assigned
                     old_state = tic.state
+                    old_priority = tic.priority
 
                     tic.assigned_id = request.POST['assigned']
                     tic.state = ticket_flow.objects.get(pk=request.POST['state'])
+                    tic.priority = ticket_priority.objects.get(pk=request.POST['priority'])
                     tic.save(user=request.user)
 
                     newUser = User.objects.get(pk=request.POST['assigned'])
 
                     com = tickets_comments()
-                    com.comment = _('ticket reassigned to %(user)s\nstate now: %(state)s\n\n%(comment)s') % {'user': newUser, 'comment': request.POST.get('reassign_comment', ''), 'state': tic.state}
+                    com.comment = _('ticket reassigned to %(user)s\nstate now: %(state)s\npriority now: %(priority)s\n\n%(comment)s') % {'user': newUser, 'comment': request.POST.get('reassign_comment', ''), 'priority': tic.priority, 'state': tic.state}
                     com.ticket_id = ticket
                     com.action = 7
                     com.save(user=request.user)
@@ -311,8 +313,8 @@ def action(request, mode, ticket):
                     signal_comment(request, com.pk)
 
                     history_data = {
-                                    'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state)},
-                                    'new': {'comment': request.POST.get('reassign_comment', ''), 'assigned': str(User.objects.get(pk=request.POST['assigned'])), 'state': str(tic.state)}
+                                    'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state), 'priority': str(old_priority)},
+                                    'new': {'comment': request.POST.get('reassign_comment', ''), 'assigned': str(User.objects.get(pk=request.POST['assigned'])), 'state': str(tic.state), 'old_priority': str(tic.priority)}
                                     }
                     add_history(request, tic, 7, history_data)
 

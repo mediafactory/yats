@@ -270,7 +270,9 @@ class TicketCloseForm(forms.Form):
 class TicketReassignForm(forms.Form):
     assigned = forms.ModelChoiceField(queryset=User.objects.filter(is_active=True), label=_('assigned'))
     state = forms.ModelChoiceField(queryset=ticket_flow.objects.all(), label=_('next'), empty_label=None)
+    priority = forms.ModelChoiceField(queryset=ticket_priority.objects.all(), label=_('priority'), empty_label=None)
     reassign_comment = forms.CharField(widget=forms.Textarea(), label=_('comment'))
+
 
 ORDER_BY_CHOICES = (
     ('id', _('ticket number')),
