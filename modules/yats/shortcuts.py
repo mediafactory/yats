@@ -583,12 +583,14 @@ def add_history(request, ticket, typ, data):
         old = {
                'comment': '',
                'assigned': data['old']['assigned'],
-               'state': data['old']['state']
+               'state': data['old']['state'],
+               'priority': data['old']['priority'],
                }
         new = {
                'comment': data['new']['comment'],
                'assigned': data['new']['assigned'],
-               'state': data['new']['state']
+               'state': data['new']['state'],
+               'priority': data['new']['priority'],
                }
     elif typ == 3:
         old = {'reference': ''}
