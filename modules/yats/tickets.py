@@ -291,7 +291,8 @@ def action(request, mode, ticket):
 
                     tic.assigned_id = request.POST['assigned']
                     tic.state = ticket_flow.objects.get(pk=request.POST['state'])
-                    tic.priority = ticket_priority.objects.get(pk=request.POST['priority'])
+                    if request.POST.get('priority'):
+                        tic.priority = ticket_priority.objects.get(pk=request.POST.get('priority'))
                     tic.save(user=request.user)
 
                     newUser = User.objects.get(pk=request.POST['assigned'])
