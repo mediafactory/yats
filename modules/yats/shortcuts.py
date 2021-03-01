@@ -540,16 +540,17 @@ def check_references(request, src_com):
     from yats.models import tickets_comments
     refs = re.findall('#([0-9]+)', src_com.comment)
     for ref in refs:
-        com = tickets_comments()
-        com.comment = _('ticket mentioned by #%s' % src_com.ticket_id)
-        com.ticket_id = ref
-        com.action = 3
-        com.save(user=request.user)
+        try:
+            com = tickets_comments()
+            com.comment = _('ticket mentioned by #%s' % src_com.ticket_id)
+            com.ticket_id = ref
+            com.action = 3
+            com.save(user=request.user)
 
-        touch_ticket(request.user, ref)
+            touch_ticket(request.user, ref)
 
-        # mail_comment(request, com.pk)
-        # jabber_comment(request, com.pk)
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('unable to find related ticket #%s') % ref)
 
 def remember_changes(request, form, ticket):
     from yats.models import tickets_history
