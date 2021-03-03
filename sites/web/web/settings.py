@@ -3,6 +3,7 @@ DEBUG = True
 # DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
 XMLRPC_DEBUG = False
 ALLOWED_HOSTS = ['*']
+SECURE_PROXY_SSL_HEADER = ('HTTP_FRONT_END_HTTPS', 'On')
 
 USE_TZ = True
 SITE_ID = 1
@@ -21,6 +22,12 @@ EMAIL_HOST_PASSWORD = ''
 
 JABBER_HOST_USER = ''
 JABBER_HOST_PASSWORD = ''
+JABBER_TEST_RECIPIENT = ''
+
+SIGNAL_BIN = 'sudo /usr/local/bin/signal-cli'  # defaul
+SIGNAL_CONFIG = ''  # default
+SIGNAL_USERNAME = ''
+SIGNAL_TEST_RECIPIENT = ''
 
 # DATABASE_ROUTERS = ['web.routers.ModelRouter']
 DATABASES = {
@@ -158,6 +165,7 @@ INSTALLED_APPS = [
     'djradicale',
     'markdownx',
     'haystack',
+    'background_task',
 ]
 
 LOGGING = {
@@ -203,6 +211,7 @@ LOGGING = {
 TICKET_CLASS = 'web.models.test'
 TICKET_NEW_MAIL_RCPT = ''
 TICKET_NEW_JABBER_RCPT = ''
+TICKET_NEW_SIGNAL_RCPT = ''
 TICKET_NON_PUBLIC_FIELDS = ['billing_needed', 'billing_reason', 'billing_done', 'fixed_in_version', 'solution', 'assigned', 'priority']
 TICKET_SEARCH_FIELDS = ['caption', 'c_user', 'priority', 'type', 'customer', 'component', 'deadline', 'billing_needed', 'billing_done', 'closed', 'assigned', 'state', 'description', 'hasAttachments', 'hasComments']
 TICKET_EDITABLE_FIELDS_AFTER_CLOSE = ['billing_done']

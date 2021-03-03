@@ -65,12 +65,12 @@ class TicketsForm(forms.ModelForm):
     file_addition = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
-        if not 'user' in kwargs:
+        if 'user' not in kwargs:
             raise Exception('missing user')
         self.user = kwargs.pop('user')
         self.view_only = kwargs.pop('view_only', False)
 
-        if not 'customer' in kwargs:
+        if 'customer' not in kwargs:
             raise Exception('missing customer')
         self.customer = kwargs.pop('customer')
 
@@ -79,7 +79,7 @@ class TicketsForm(forms.ModelForm):
         else:
             exclude_list = []
 
-        if not 'is_stuff' in kwargs or not kwargs.pop('is_stuff'):
+        if 'is_stuff' not in kwargs or not kwargs.pop('is_stuff'):
             exclude_list = list(set(exclude_list + settings.TICKET_NON_PUBLIC_FIELDS))
 
             super(TicketsForm, self).__init__(*args, **kwargs)
@@ -100,7 +100,7 @@ class TicketsForm(forms.ModelForm):
                 self.fields[field].widget = BootstrapDateTimeInput()
 
         # remove fields after close
-        if not self.instance.pk is None and self.instance.closed and not self.view_only:
+        if self.instance.pk is not None and self.instance.closed and not self.view_only:
             available_fields = []
             for field in self.fields:
                 available_fields.append(str(field))
@@ -114,7 +114,7 @@ class TicketsForm(forms.ModelForm):
             self.fields['state'].empty_label = None
 
             # only allow possible states
-            if not self.instance.pk is None and not self.view_only:
+            if self.instance.pk is not None and not self.view_only:
                 flows = list(ticket_flow_edges.objects.select_related('next').filter(now=self.instance.state).exclude(next__type=2).values_list('next', flat=True))
                 flows.append(self.instance.state_id)
                 self.fields['state'].queryset = self.fields['state'].queryset.filter(id__in=flows)
@@ -168,11 +168,11 @@ class SearchForm(forms.ModelForm):
     required_css_class = 'do_not_require'
 
     def __init__(self, *args, **kwargs):
-        if not 'user' in kwargs:
+        if 'user' not in kwargs:
             raise Exception('missing user')
         self.user = kwargs.pop('user')
 
-        if not 'customer' in kwargs:
+        if 'customer' not in kwargs:
             raise Exception('missing customer')
         self.customer = kwargs.pop('customer')
 
@@ -181,10 +181,10 @@ class SearchForm(forms.ModelForm):
         else:
             include_list = []
 
-        if not 'is_stuff' in kwargs or not kwargs.pop('is_stuff'):
+        if 'is_stuff' not in kwargs or not kwargs.pop('is_stuff'):
             used_fields = []
             for ele in include_list:
-                if not ele in settings.TICKET_NON_PUBLIC_FIELDS:
+                if ele not in settings.TICKET_NON_PUBLIC_FIELDS:
                     used_fields.append(ele)
             super(SearchForm, self).__init__(*args, **kwargs)
 
@@ -270,7 +270,9 @@ class TicketCloseForm(forms.Form):
 class TicketReassignForm(forms.Form):
     assigned = forms.ModelChoiceField(queryset=User.objects.filter(is_active=True), label=_('assigned'))
     state = forms.ModelChoiceField(queryset=ticket_flow.objects.all(), label=_('next'), empty_label=None)
+    priority = forms.ModelChoiceField(queryset=ticket_priority.objects.all(), label=_('priority'), empty_label=None)
     reassign_comment = forms.CharField(widget=forms.Textarea(), label=_('comment'))
+
 
 ORDER_BY_CHOICES = (
     ('id', _('ticket number')),
@@ -309,7 +311,7 @@ class PasswordForm(forms.Form):
         # check if confirmpassword is equal newpassword
         password = self.cleaned_data['password']
         password_check = self.cleaned_data['password_check']
-        if cmp(password, password_check) != 0:
+        if password and password != password_check:
             raise forms.ValidationError(_(u'passwords did not match!'))
         else:
             return password_check
@@ -318,7 +320,7 @@ class DocsForm(forms.ModelForm):
     required_css_class = 'required'
 
     def __init__(self, *args, **kwargs):
-        if not 'user' in kwargs:
+        if 'user' not in kwargs:
             raise Exception('missing user')
         self.user = kwargs.pop('user')
         self.view_only = kwargs.pop('view_only', False)

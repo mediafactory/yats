@@ -113,7 +113,7 @@ jsPlumb.ready(function() {
                 anchor:"Continuous",
                 connector:[ "StateMachine", { curviness:20 } ],
                 connectorStyle:{ strokeStyle:"#5c96bc", lineWidth:2, outlineColor:"transparent", outlineWidth:4 },
-                maxConnections:5,
+                maxConnections:10,
                 onMaxConnections:function(info, e) {
                     alert("Maximum connections (" + info.maxConnections + ") reached");
                 }
@@ -128,7 +128,7 @@ jsPlumb.ready(function() {
                     anchor:"Continuous",
                     connector:[ "StateMachine", { curviness:20 } ],
                     connectorStyle:{ strokeStyle:"#5c96bc",lineWidth:2, outlineColor:"transparent", outlineWidth:4 },
-                    maxConnections:5,
+                    maxConnections:10,
                     onMaxConnections:function(info, e) {
                         alert("Maximum connections (" + info.maxConnections + ") reached");
                     }

@@ -285,8 +285,16 @@ def kanban(request):
 def xptest(request, test):
     if test == 'xmpp':
         from pyxmpp2.simple import send_message
-        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, 'genssen_intern@miadi.net', 'moin hinnack 1')
-        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, 'genssen_intern@miadi.net', 'moin hinnack 2')
+        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, settings.JABBER_TEST_RECIPIENT, 'moin 1')
+        import time
+        time.sleep(2)
+        send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, settings.JABBER_TEST_RECIPIENT, 'moin, moin 2')
+        return HttpResponse('OK')
+
+    if test == 'signal':
+        from yats.shortcuts import send_signal
+        send_signal('moin 1 - äöüß', [settings.SIGNAL_TEST_RECIPIENT])
+        send_signal('moin, moin 2 - äöüß', [settings.SIGNAL_TEST_RECIPIENT])
         return HttpResponse('OK')
 
     else:

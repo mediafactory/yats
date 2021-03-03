@@ -5,7 +5,7 @@
 <project name="YATS" default="nightly" basedir=".">
 	<description>YATS</description>
 
-	<property name="yatsversion" value="3.0.0" />
+	<property name="yatsversion" value="3.1.1" />
 
 	<tstamp>
 		<format property="TODAY"
@@ -52,25 +52,9 @@
 		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/bootstrap_toolkit">
 			<fileset dir="${basedir}/modules/bootstrap_toolkit" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
 		</copy>
-		<echo message="copy module rpc4django" level="info" />
-		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/rpc4django">
-			<fileset dir="${basedir}/modules/rpc4django" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
-		</copy>
 		<echo message="copy module graph" level="info" />
 		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/graph">
 			<fileset dir="${basedir}/modules/graph" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
-		</copy>
-		<echo message="copy module pyxmpp2" level="info" />
-		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/pyxmpp2">
-			<fileset dir="${basedir}/modules/pyxmpp2" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
-		</copy>
-		<echo message="copy module djradicale" level="info" />
-		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/djradicale">
-			<fileset dir="${basedir}/modules/djradicale" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
-		</copy>
-		<echo message="copy module radicale" level="info" />
-		<copy verbose="false" todir="${basedir}/distribution/nightly/modules/radicale">
-			<fileset dir="${basedir}/modules/radicale" excludes="**/*.DS_Store,**/*.pyc,**/.*,.settings/*" />
 		</copy>
 
 		<echo message="copy sites setup" level="info" />
@@ -82,15 +66,15 @@
 		</copy>
 
 		<!-- <antcall target="i18n" /> -->
-		<antcall target="ci18n" />
+		<!-- <antcall target="ci18n" /> -->
 	</target>
 
-	<target name="debian_app" description="make a debian package out of all" depends="static">
+	<target name="debian_app" description="make a debian package out of all" depends="">
 		<echo message="modules deb" level="info" />
 		<deb todir="${basedir}/distribution/nightly"
 			package="yats-modules"
 			section="web"
-			depends="memcached,python-memcache,python-httplib2,locales-all,python-pyclamd,libjpeg8,libjpeg-dev,libpng-dev"
+			depends=""
 			preinst="debian/scripte/mod_preinst"
 			postinst="debian/scripte/mod_postinst"
 			prerm="debian/scripte/mod_prerm">
@@ -102,16 +86,13 @@
 				<tarfileset dir="${basedir}/distribution/nightly/modules/yats" prefix="usr/share/yats/site-packages/yats" />
 				<tarfileset dir="${basedir}/distribution/nightly/modules/simple_sso" prefix="usr/share/yats/site-packages/simple_sso" />
 				<tarfileset dir="${basedir}/distribution/nightly/modules/bootstrap_toolkit" prefix="usr/share/yats/site-packages/bootstrap_toolkit" />
-				<tarfileset dir="${basedir}/distribution/nightly/modules/rpc4django" prefix="usr/share/yats/site-packages/rpc4django" />
 				<tarfileset dir="${basedir}/distribution/nightly/modules/graph" prefix="usr/share/yats/site-packages/graph" />
-				<tarfileset dir="${basedir}/distribution/nightly/modules/pyxmpp2" prefix="usr/share/yats/site-packages/pyxmpp2" />
-				<tarfileset dir="${basedir}/distribution/nightly/modules/djradicale" prefix="usr/share/yats/site-packages/djradicale" />
-				<tarfileset dir="${basedir}/distribution/nightly/modules/radicale" prefix="usr/share/yats/site-packages/radicale" />
+				<tarfileset file="${basedir}/vagrant/requirements.txt" prefix="usr/share/yats/site-packages" />
 		</deb>
    </target>
 
 	<target name="debian" depends="debian_app" description="make a debian package out of all">
-    </target>
+  </target>
 
 	<target name="i18n" depends="" description="create translations">
 		<echo message="createing i18n po files" level="error" />
@@ -148,10 +129,6 @@
 	<target name="nightly" depends="" description="just build it all the time">
 		<mkdir dir="${basedir}/distribution/nightly/"/>
 		<mkdir dir="${basedir}/sites/static/"/>
-		<sound>
-			<success source="${basedir}/build/SOUND1.WAV" />
-			<fail source="${basedir}/build/SOUND108.WAV" />
-		</sound>
 		<echo message="super cow pwoer" level="info" />
 		<antcall target="copydist" />
 		<antcall target="debian" />

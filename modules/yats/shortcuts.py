@@ -12,6 +12,7 @@ import datetime
 import re
 import os
 import subprocess
+import time
 from pyxmpp2.simple import send_message
 from dateutil import parser
 
@@ -20,7 +21,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-non_previewable_contenttypes = ['access', 'audio', 'octet-stream', 'x-diskcopy', 'application/zip', 'x-msdownload']
+non_previewable_contenttypes = ['access', 'audio', 'octet-stream', 'x-diskcopy', 'application/zip', 'x-msdownload', 'application/x-zip-compressed', 'video/quicktime', 'application/pkcs7-signature', 'application/x-7z-compressed']
 
 def isPreviewable(mime):
     if not mime:
@@ -102,6 +103,29 @@ def get_jabber_recipient_list(request, ticket_id):
     #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by jabber (address missing): %s') % ', '.join(error))
     return int_result, pub_result
 
+def get_signal_recipient_list(request, ticket_id):
+    from yats.models import tickets_participants, UserProfile
+    pub_result = []
+    int_result = []
+    error = []
+    rcpts = tickets_participants.objects.select_related('user').filter(ticket=ticket_id)
+    for rcpt in rcpts:
+        # leave out myself
+        if rcpt.user != request.user:
+            fqpn = UserProfile.objects.get(user=rcpt.user).signal
+            if fqpn:
+                rcpts = fqpn.split(',')
+                for an in rcpts:
+                    if rcpt.user.is_staff:
+                        int_result.append(an)
+                    else:
+                        pub_result.append(an)
+            else:
+                error.append(str(rcpt.user))
+    # if len(error) > 0:
+    #    messages.add_message(request, messages.ERROR, _('the following participants could not be reached by jabber (address missing): %s') % ', '.join(error))
+    return int_result, pub_result
+
 def get_mail_recipient_list(request, ticket_id):
     from yats.models import tickets_participants
     pub_result = []
@@ -145,7 +169,7 @@ def getModelValue(mod_path, cls_name, value):
     mod_path = modulePathToModuleName(mod_path)
     try:
         return str(apps.get_model(mod_path, cls_name).objects.get(pk=value))
-    except:
+    except Exception:
         return u''
 
 def getNameOfModelValue(field, value):
@@ -198,6 +222,11 @@ def send_jabber(msg, rcpt_list):
 
     for rcpt in rcpt_list:
         send_message(settings.JABBER_HOST_USER, settings.JABBER_HOST_PASSWORD, rcpt, msg)
+        time.sleep(2)
+
+def send_signal(msg, rcpt_list, atts=[]):
+    from yats.tasks import do_send_signal
+    do_send_signal(msg, rcpt_list, atts)
 
 def jabber_ticket(request, ticket_id, form, **kwargs):
     int_rcpt, pub_rcpt = list(get_jabber_recipient_list(request, ticket_id))
@@ -221,7 +250,7 @@ def jabber_ticket(request, ticket_id, form, **kwargs):
                 format_chanes(new, True),
                 get_ticket_url(request, ticket_id)
             ), int_rcpt)
-        except:
+        except Exception:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
 
@@ -235,9 +264,49 @@ def jabber_ticket(request, ticket_id, form, **kwargs):
                 format_chanes(new, False),
                 get_ticket_url(request, ticket_id, for_customer=True)
             ), pub_rcpt)
-        except:
+        except Exception:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('jabber not send: %s') % sys.exc_info()[1])
+
+def signal_ticket(request, ticket_id, form, **kwargs):
+    int_rcpt, pub_rcpt = list(get_signal_recipient_list(request, ticket_id))
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+    if not tic.assigned:
+        if 'rcpt' in kwargs and kwargs['rcpt']:
+            rcpts = kwargs['rcpt'].split(',')
+            for rcpt in rcpts:
+                if rcpt not in int_rcpt:
+                    int_rcpt.append(rcpt)
+
+    new, old = field_changes(form)
+
+    if len(int_rcpt) > 0:
+        try:
+            new['author'] = tic.c_user
+            send_signal('%s#%s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                tic.caption,
+                format_chanes(new, True),
+                get_ticket_url(request, ticket_id)
+            ), int_rcpt)
+        except Exception:
+            if not kwargs.get('is_api', False):
+                messages.add_message(request, messages.ERROR, _('signal not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0 and has_public_fields(new):
+        try:
+            new['author'] = tic.u_user
+            send_signal('%s#%s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                tic.caption,
+                format_chanes(new, False),
+                get_ticket_url(request, ticket_id, for_customer=True)
+            ), pub_rcpt)
+        except Exception:
+            if not kwargs.get('is_api', False):
+                messages.add_message(request, messages.ERROR, _('signal not send: %s') % sys.exc_info()[1])
 
 def mail_ticket(request, ticket_id, form, **kwargs):
     int_rcpt, pub_rcpt = list(get_mail_recipient_list(request, ticket_id))
@@ -255,7 +324,7 @@ def mail_ticket(request, ticket_id, form, **kwargs):
         try:
             new['author'] = tic.c_user
             send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, True), get_ticket_url(request, ticket_id)), settings.SERVER_EMAIL, int_rcpt, False)
-        except:
+        except Exception:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
@@ -263,7 +332,7 @@ def mail_ticket(request, ticket_id, form, **kwargs):
         try:
             new['author'] = tic.u_user
             send_mail('%s#%s - %s' % (settings.EMAIL_SUBJECT_PREFIX, tic.id, tic.caption), '%s\n\n%s' % (format_chanes(new, False), get_ticket_url(request, ticket_id, for_customer=True)), settings.SERVER_EMAIL, pub_rcpt, False)
-        except:
+        except Exception:
             if not kwargs.get('is_api', False):
                 messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
@@ -300,6 +369,40 @@ def jabber_comment(request, comment_id):
             ), pub_rcpt)
         except Exception:
             messages.add_message(request, messages.ERROR, _('internal jabber not send: %s') % sys.exc_info()[1])
+
+def signal_comment(request, comment_id):
+    from yats.models import tickets_comments
+    com = tickets_comments.objects.get(pk=comment_id)
+    ticket_id = com.ticket_id
+    int_rcpt, pub_rcpt = get_signal_recipient_list(request, ticket_id)
+
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+
+    if len(int_rcpt) > 0:
+        try:
+            send_signal('%s#%s: %s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new comment'),
+                tic.caption,
+                com.comment,
+                get_ticket_url(request, ticket_id)
+            ), int_rcpt)
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('internal signal not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0:
+        try:
+            send_signal('%s#%s: %s - %s\n\n%s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new comment'),
+                tic.caption,
+                com.comment,
+                get_ticket_url(request, ticket_id, for_customer=True)
+            ), pub_rcpt)
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('internal signal not send: %s') % sys.exc_info()[1])
 
 def mail_comment(request, comment_id):
     from yats.models import tickets_comments
@@ -379,6 +482,46 @@ def mail_file(request, file_id):
         except Exception:
             messages.add_message(request, messages.ERROR, _('mail not send: %s') % sys.exc_info()[1])
 
+def signal_file(request, file_id):
+    from yats.models import tickets_files
+    io = tickets_files.objects.get(pk=file_id)
+    ticket_id = io.ticket_id
+    int_rcpt, pub_rcpt = get_signal_recipient_list(request, ticket_id)
+
+    tic = get_ticket_model().objects.get(pk=ticket_id)
+
+    preview_file = []
+    if os.path.isfile('%s%s.preview' % (settings.FILE_UPLOAD_PATH, file_id)):
+        preview_file.append('%s%s.preview' % (settings.FILE_UPLOAD_PATH, file_id))
+    if len(preview_file) == 0 and 'image' in io.content_type:
+        preview_file.append('%s%s.dat' % (settings.FILE_UPLOAD_PATH, file_id))
+
+    if len(int_rcpt) > 0:
+        body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
+        try:
+            send_signal('%s#%s: %s - %s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new file'),
+                tic.caption,
+                body
+            ), int_rcpt, atts=preview_file)
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('signal not send: %s') % sys.exc_info()[1])
+
+    if len(pub_rcpt) > 0:
+        body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id, for_customer=True))
+        try:
+            send_signal('%s#%s: %s - %s\n\n%s' % (
+                settings.EMAIL_SUBJECT_PREFIX,
+                tic.id,
+                _('new file'),
+                tic.caption,
+                body
+            ), pub_rcpt, atts=preview_file)
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('signal not send: %s') % sys.exc_info()[1])
+
 def clean_search_values(search):
     # clean only old
     if 'valid' in search:
@@ -397,16 +540,17 @@ def check_references(request, src_com):
     from yats.models import tickets_comments
     refs = re.findall('#([0-9]+)', src_com.comment)
     for ref in refs:
-        com = tickets_comments()
-        com.comment = _('ticket mentioned by #%s' % src_com.ticket_id)
-        com.ticket_id = ref
-        com.action = 3
-        com.save(user=request.user)
+        try:
+            com = tickets_comments()
+            com.comment = _('ticket mentioned by #%s' % src_com.ticket_id)
+            com.ticket_id = ref
+            com.action = 3
+            com.save(user=request.user)
 
-        touch_ticket(request.user, ref)
+            touch_ticket(request.user, ref)
 
-        # mail_comment(request, com.pk)
-        # jabber_comment(request, com.pk)
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('unable to find related ticket #%s') % ref)
 
 def remember_changes(request, form, ticket):
     from yats.models import tickets_history
@@ -440,12 +584,14 @@ def add_history(request, ticket, typ, data):
         old = {
                'comment': '',
                'assigned': data['old']['assigned'],
-               'state': data['old']['state']
+               'state': data['old']['state'],
+               'priority': data['old']['priority'],
                }
         new = {
                'comment': data['new']['comment'],
                'assigned': data['new']['assigned'],
-               'state': data['new']['state']
+               'state': data['new']['state'],
+               'priority': data['new']['priority'],
                }
     elif typ == 3:
         old = {'reference': ''}
@@ -487,7 +633,7 @@ def prettyValues(data):
                         if rule['value']:
                             rule['value'] = User.objects.get(pk=rule['value'])
                     else:
-                        rule['value'] = getModelValue(ticket_field.rel.to.__module__, ticket_field.rel.to.__name__, rule['value'])
+                        rule['value'] = getModelValue(ticket_field.remote_field.model.__module__, ticket_field.remote_field.model.__name__, rule['value'])
                 if hasattr(ticket_field, 'verbose_name'):
                     rule['label'] = str(ticket_field.verbose_name)
                 else:
@@ -778,17 +924,18 @@ def convertPDFtoImg(pdf, dest=None):
         import PythonMagick
         img = PythonMagick.Image()
         img.density('100')
-        img.read(pdf)
-        path, ext = os.path.splitext(pdf)
-        img.write('%s.png' % path)
+        img.read('%s[0]' % pdf)
+        path, ext = os.path.splitext(os.path.basename(pdf))
+        img.write('PNG8:/convert/%s.png' % path)
 
         if dest:
-            os.rename('%s.png' % path, dest)
+            os.rename('/convert/%s.png' % path, dest)
         else:
-            return '%s.png' % path
+            return '/convert/%s.png' % path
 
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
+        print('could not convert %s' % pdf)
     return dest
 
 class yatsCalledProcessError(subprocess.CalledProcessError):
@@ -799,8 +946,19 @@ class yatsCalledProcessError(subprocess.CalledProcessError):
     def __str__(self):
         return "Command '%s' returned non-zero exit status %d - error: %s" % (self.cmd, self.returncode, self.output)
 
-def convertOfficeTpPDF(office):
-    command = '/usr/bin/libreoffice --headless --invisible --convert-to pdf --outdir /tmp %s' % (office)
+def convertOfficeTpPDF(office, mimetype=None):
+    if mimetype and 'html' in mimetype.lower():
+        command = 'sudo /usr/bin/libreoffice --headless --invisible --infilter=HTML --convert-to pdf --outdir /convert %s' % (office)
+
+    elif mimetype and 'text' in mimetype.lower():
+        command = 'sudo /usr/bin/libreoffice --headless --invisible --infilter=Text --convert-to pdf --outdir /convert %s' % (office)
+
+    elif mimetype and 'json' in mimetype.lower():
+        command = 'sudo /usr/bin/libreoffice --headless --invisible --infilter=Text --convert-to pdf --outdir /convert %s' % (office)
+
+    else:
+        command = 'sudo /usr/bin/libreoffice --headless --invisible --convert-to pdf --outdir /convert %s' % (office)
+    print(command)
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd='.')
     output, unused_err = process.communicate()
     retcode = process.poll()
@@ -809,4 +967,4 @@ def convertOfficeTpPDF(office):
 
     path, fileName = os.path.split(office)
 
-    return '/tmp/%s.%s' % (fileName.split('.')[0], 'pdf')
+    return '/convert/%s.%s' % (fileName.split('.')[0], 'pdf')
