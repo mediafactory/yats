@@ -54,8 +54,8 @@ KEY FEATURES
 -----
 - CalDAV support - reports are populated as todo lists in external ToDo Tools
 - custom fields (mandatory fields and default values configurable)
-- different view of tickets for customers - fields hideable from customers (even in emails)
-- mails for ticket changes, comments, close, reopen, reassign
+- different view of tickets for customers - fields hideable from customers (even in outgoing notification like email, jabber, signal)
+- mails, jabber (XMPP), signal messenger notifications for ticket changes, comments, close, reopen, reassign
 - searchable fields configurable
 - searches saveable as reports
 - nice visual for complex search supporting AND and OR in groups
@@ -103,6 +103,9 @@ The project is splited into 2 parts:
 
 Customization is done in the web module - e.g. add more ticket fields (models.py in web) besides the settings itself (settings.py and ini file).
 So far the app needs 2 folders (for logging and attachments as defined in the inifile). Make sure the webserver has write access to those folders.
+
+For signal messenger you need the following package installed and configured:
+https://github.com/AsamK/signal-cli
 
 ALTERNATIVE PACKAGES
 -----
