@@ -1005,6 +1005,7 @@ def workflow(request):
 
     return render(request, 'tickets/workflow.html', {'layout': 'horizontal', 'flows': flows, 'edges': edges, 'nodes': nodes, 'width': max_x, 'height': max_y})
 
+@login_required
 def log(request):
     history = tickets_history.objects.filter(c_user=request.user).order_by('-c_date')
 
