@@ -314,6 +314,8 @@ def autocomplete(request):
         args.append(apps.get_model(model))
 
     sqs = SearchQuerySet().models(*set(args))
+    if not request.user.is_staff:
+        sqs = sqs.filter(customer=request.organisation.pk)
 
     q = request.GET.get('q', '').split(' ')
     for word in q:
