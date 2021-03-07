@@ -1,12 +1,16 @@
 {% extends "base.html" %}
 
-{% load bootstrap_toolkit i18n strings tz %}
+{% load bootstrap_toolkit i18n strings tz highlight %}
 
 {% block title %}{% trans "fulltext search" %}{% endblock %}
 
+{% block extra_head %}
+<script src="{{ STATIC_URL }}jquery.tristate.js"></script>
+{% endblock %}
+
 {% block content %}
         <h2>{% trans "search results" %}</h2>
-            <p>{{ page.start_index }} - {{ page.end_index }} {% trans "of" %} {{ page.paginator.count }}</p>
+            <p>{{ page_obj.start_index }} - {{ page_obj.end_index }} {% trans "of" %} {{ paginator.count }}</p>
             <section id="no-more-tables">
                 <table class="table table-striped table-hover">
                   <thead>
@@ -16,7 +20,7 @@
                       <th>{% trans "caption" %}</th>
                   </tr>
                   </thead>
-                  {% for result in page.object_list %}
+                  {% for result in page_obj.object_list %}
                       <tr>
                         <td width="20">{% if result.get_stored_fields.closed != None %}<button type="button" class="btn {% if result.get_stored_fields.closed %}btn-danger{% else %}btn-success{% endif %}" disabled></button>{% endif %}</td>
                         <td width="60">{% if result.get_stored_fields.closed != None %}#{{ result.pk }}{% endif %}</td>
@@ -26,7 +30,68 @@
               </table>
           </section>
 
-          {{ page|pagination:request.get_full_path }}
+          {{ page_obj|pagination:request.get_full_path }}
 
-          <p><small class="text-muted">{% trans "You searched for:" %} {{ request.GET.q }} {% trans "in" %} <input style="margin: 0px;" type="checkbox" name="models" value="yats.docs" checked="" id="id_models_0"> {% trans "Documents" %} <input style="margin: 0px;" type="checkbox" name="models" value="web.test" checked="" id="id_models_1"> {% trans "Tickets" %}</small></p>
+          <p>
+            <small class="text-muted">{% trans "You searched for:" %} {{ request.GET.q }} <br />
+            {% trans "in" %} <input style="margin: 0px;" type="checkbox" name="models" value="yats.docs" id="id_models_0"> {% trans "Documents" %} <input style="margin: 0px;" type="checkbox" name="models" value="web.test" id="id_models_1"> {% trans "Tickets" %} <input style="margin: 0px;" type="checkbox" class="tristate" name="closed" value="" id="id_closed"> {%trans "ticket closed" %}</small>
+          </p>
+
+<script type="text/javascript">
+  $.urlParam = function (name) {
+      var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+                        .exec(window.location.search);
+
+      return (results !== null) ? results[1] || 0 : false;
+  }
+
+  $( document ).ready(function() {
+    if (window.location.search.indexOf('models=yats.docs') > -1) {
+      $('#id_models_0').prop('checked', true);
+    }
+    if (window.location.search.indexOf('models=web.test') > -1) {
+      $('#id_models_1').prop('checked', true);
+    }
+
+    var closed = null;
+    if (window.location.search.indexOf('closed') > -1) {
+      var URLclosed = $.urlParam('closed');
+      if (URLclosed == 'true') {
+        closed = true
+      } else if (URLclosed == 'false') {
+        closed = false;
+      }
+    }
+    $('#id_closed').tristate({
+        checked:            true,
+        unchecked:          null,
+        indeterminate:      false,
+        value:              closed,
+    });
+
+    $("input:checkbox").change(function() {
+      reload();
+    });
+  });
+
+  function reload() {
+    var params = '?q=' + $.urlParam('q');
+    if ($('#id_models_0').prop('checked')) {
+      params += '&models=yats.docs';
+    }
+    if ($('#id_models_1').prop('checked')) {
+      params += '&models=web.test';
+    }
+    if ($('#id_closed').val() == true) {
+      params += '&closed=true';
+    } else if ($('#id_closed').val() == false) {
+      params += '&closed=false';
+    }
+    if ($.urlParam('page') != '') {
+      params += '&page=' + $.urlParam('page');
+    }
+    window.location.href = params;
+  }
+
+</script>
 {% endblock %}

@@ -3,11 +3,13 @@ from django import forms
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.forms.models import construct_instance
+from django.contrib.auth.mixins import LoginRequiredMixin
 from bootstrap_toolkit.widgets import BootstrapDateTimeInput, BootstrapDateInput
 from django.utils.translation import ugettext as _
 from yats.fields import yatsFileField
 from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards, ticket_priority, docs
 from web.models import ticket_component
+from haystack.generic_views import SearchView
 
 import importlib
 
@@ -345,3 +347,23 @@ class DocsForm(forms.ModelForm):
     class Meta:
         model = docs
         exclude = ['c_date', 'c_user', 'u_date', 'u_user', 'd_date', 'd_user', 'active_record']
+
+class yatsSearchView(LoginRequiredMixin, SearchView):
+    required_css_class = 'required'
+
+    def get_queryset(self):
+        queryset = super(yatsSearchView, self).get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(customer=self.request.organisation.pk)
+
+        closed = self.request.GET.get('closed')
+        if closed == 'true':
+            queryset = queryset.filter(closed=True)
+        elif closed == 'false':
+            queryset = queryset.filter(closed=False)
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(yatsSearchView, self).get_context_data(*args, **kwargs)
+        # do something
+        return context
