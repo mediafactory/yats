@@ -314,6 +314,8 @@ def autocomplete(request):
         args.append(apps.get_model(model))
 
     sqs = SearchQuerySet().models(*set(args))
+    # only open tickets in autocomplete
+    sqs = sqs.filter(closed=False)
     if not request.user.is_staff:
         sqs = sqs.filter(customer=request.organisation.pk)
 
