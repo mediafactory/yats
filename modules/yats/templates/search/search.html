@@ -4,6 +4,10 @@
 
 {% block title %}{% trans "fulltext search" %}{% endblock %}
 
+{% block extra_head %}
+<script src="{{ STATIC_URL }}jquery.tristate.js"></script>
+{% endblock %}
+
 {% block content %}
         <h2>{% trans "search results" %}</h2>
             <p>{{ page_obj.start_index }} - {{ page_obj.end_index }} {% trans "of" %} {{ paginator.count }}</p>
@@ -28,7 +32,10 @@
 
           {{ page_obj|pagination:request.get_full_path }}
 
-          <p><small class="text-muted">{% trans "You searched for:" %} {{ request.GET.q }} <br />{% trans "in" %} <input style="margin: 0px;" type="checkbox" name="models" value="yats.docs" id="id_models_0"> {% trans "Documents" %} <input style="margin: 0px;" type="checkbox" name="models" value="web.test" id="id_models_1"> {% trans "Tickets" %}</small></p>
+          <p>
+            <small class="text-muted">{% trans "You searched for:" %} {{ request.GET.q }} <br />
+            {% trans "in" %} <input style="margin: 0px;" type="checkbox" name="models" value="yats.docs" id="id_models_0"> {% trans "Documents" %} <input style="margin: 0px;" type="checkbox" name="models" value="web.test" id="id_models_1"> {% trans "Tickets" %} <input style="margin: 0px;" type="checkbox" class="tristate" name="closed" value="" id="id_closed"> {%trans "ticket closed" %}</small>
+          </p>
 
 <script type="text/javascript">
   $.urlParam = function (name) {
@@ -39,10 +46,29 @@
   }
 
   $( document ).ready(function() {
-    if (window.location.search.indexOf('models=yats.docs') > -1)
+    if (window.location.search.indexOf('models=yats.docs') > -1) {
       $('#id_models_0').prop('checked', true);
-    if (window.location.search.indexOf('models=web.test') > -1)
+    }
+    if (window.location.search.indexOf('models=web.test') > -1) {
       $('#id_models_1').prop('checked', true);
+    }
+
+    var closed = null;
+    if (window.location.search.indexOf('closed') > -1) {
+      var URLclosed = $.urlParam('closed');
+      if (URLclosed == 'true') {
+        closed = true
+      } else if (URLclosed == 'false') {
+        closed = false;
+      }
+    }
+    console.log(closed);
+    $('#id_closed').tristate({
+        checked:            true,
+        unchecked:          null,
+        indeterminate:      false,
+        value:              closed,
+    });
 
     $("input:checkbox").change(function() {
       reload();
@@ -56,6 +82,11 @@
     }
     if ($('#id_models_1').prop('checked')) {
       params += '&models=web.test';
+    }
+    if ($('#id_closed').val() == true) {
+      params += '&closed=true';
+    } else if ($('#id_closed').val() == false) {
+      params += '&closed=false';
     }
     if ($.urlParam('page') != '') {
       params += '&page=' + $.urlParam('page');
