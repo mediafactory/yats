@@ -226,7 +226,8 @@ def action(request, mode, ticket):
         if 'YATSE' in request.GET and 'isUsingYATSE' not in request.session:
             request.session['isUsingYATSE'] = True
 
-        return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed, 'keep_it_simple': keep_it_simple, 'last_action_date': http_date(time.mktime(tic.last_action_date.timetuple()))})
+        flows = ticket_flow_edges.objects.select_related('next').filter(now=tic.state).exclude(next__type=2)
+        return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed, 'keep_it_simple': keep_it_simple, 'last_action_date': http_date(time.mktime(tic.last_action_date.timetuple())), 'flows': flows})
 
     elif mode == 'gallery':
         images = tickets_files.objects.filter(ticket=ticket, active_record=True)
@@ -321,6 +322,40 @@ def action(request, mode, ticket):
 
                 else:
                     messages.add_message(request, messages.ERROR, _('missing assigned user'))
+
+        return HttpResponseRedirect('/tickets/view/%s/' % ticket)
+
+    elif mode == 'state':
+        if not tic.closed:
+            if 'state' in request.GET:
+                if request.GET['state'] and int(request.GET['state']) > 0:
+                    old_state = tic.state
+
+                    tic.state = ticket_flow.objects.get(pk=request.GET['state'])
+                    tic.save(user=request.user)
+
+                    com = tickets_comments()
+                    com.comment = _('ticket state changed to: %(state)s') % {'state': tic.state}
+                    com.ticket_id = ticket
+                    com.action = 11
+                    com.save(user=request.user)
+
+                    check_references(request, com)
+
+                    touch_ticket(request.user, ticket)
+
+                    mail_comment(request, com.pk)
+                    jabber_comment(request, com.pk)
+                    signal_comment(request, com.pk)
+
+                    history_data = {
+                                    'old': {'state': str(old_state)},
+                                    'new': {'state': str(tic.state)}
+                                    }
+                    add_history(request, tic, 11, history_data)
+
+                else:
+                    messages.add_message(request, messages.ERROR, _('missing state'))
 
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 

@@ -565,6 +565,9 @@ def remember_changes(request, form, ticket):
 
 def add_history(request, ticket, typ, data):
     from yats.models import tickets_history
+    if typ == 11:
+        old = {'state': data['old']['state']}
+        new = {'state': data['new']['state']}
     if typ == 10:
         old = {'show_start': str(data[1])}
         new = {'show_start': str(data[0])}
