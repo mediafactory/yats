@@ -45,7 +45,7 @@
     {% for field in form %}{% if field.value != None and field.value != '' %}
         <tr>
         	<td>{% if not field|field_is_public %}<i class="fa fa-lock"></i> {% endif %}{{ field.label }}:</td>
-        	<td>{% if field.id_for_label == 'id_description' %}{{ field|display_value|numberToTicketURL|buildToDoList|safe|linebreaksbr|urlize }}{% else %}{% if field.id_for_label == 'id_deadline' or field.id_for_label == 'id_show_start' %}{{ field|display_value|localtime }}{% else %}{% if field.id_for_label == 'id_state' %}{{ field|display_value|linebreaksbr }}{% if not ticket.closed %} => {% trans "possible next step" %}: {% for flow in flows %}<a href="/tickets/state/{{ ticket.id }}/?state={{ flow.next.pk }}">{{ flow.next.name }}</a>{% endfor %}{% endif %}{% else %}{{ field|display_value|linebreaksbr }}{% endif %}{% endif %}{% endif %}</td>
+        	<td>{% if field.id_for_label == 'id_description' %}{{ field|display_value|numberToTicketURL|buildToDoList|safe|linebreaksbr|urlize }}{% else %}{% if field.id_for_label == 'id_deadline' or field.id_for_label == 'id_show_start' %}{{ field|display_value|localtime }}{% else %}{% if field.id_for_label == 'id_state' %}{{ field|display_value|linebreaksbr }}{% if not ticket.closed %} => {% trans "possible next step" %}: {% for flow in flows %}<a href="/tickets/state/{{ ticket.id }}/?state={{ flow.next.pk }}">{{ flow.next.name }}</a>&nbsp;&nbsp;{% endfor %}{% endif %}{% else %}{{ field|display_value|linebreaksbr }}{% endif %}{% endif %}{% endif %}</td>
         </tr>
     {% endif %}{% endfor %}
         <tr>
@@ -320,7 +320,7 @@
     $(function() {
         new Zooming({
           bgOpacity: 0.8,
-          bgColor: 'rgb(0, 0, 0)',
+          bgColor: '#fff',
           zIndex: 1031 // 1030 is the bootstrap navbar
         }).listen('.img-zoomable')
       });
