@@ -226,6 +226,7 @@ def send_jabber(msg, rcpt_list):
 
 def send_signal(msg, rcpt_list, atts=[]):
     from yats.tasks import do_send_signal
+    msg = msg.replace('[ ]', '☐').replace('[X]', '☑').replace('[x]', '☑')
     do_send_signal(msg, rcpt_list, atts)
 
 def jabber_ticket(request, ticket_id, form, **kwargs):
