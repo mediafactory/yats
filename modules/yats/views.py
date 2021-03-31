@@ -281,6 +281,13 @@ def kanban(request):
 
         flow.seen = seen_elements
 
+        flow.count = 0
+        for ticket in flow.data:
+            flow.count += 1
+            if ticket.pk in flow.seen:
+                if flow.seen[ticket.pk]:
+                    flow.count -= 1
+
     close = TicketCloseForm()
     reassign = TicketReassignForm()
     edges = ticket_flow_edges.objects.all().order_by('now')
