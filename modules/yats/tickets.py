@@ -229,6 +229,14 @@ def action(request, mode, ticket):
         flows = ticket_flow_edges.objects.select_related('next').filter(now=tic.state).exclude(next__type=2)
         return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed, 'keep_it_simple': keep_it_simple, 'last_action_date': http_date(time.mktime(tic.last_action_date.timetuple())), 'flows': flows})
 
+    elif mode == 'json':
+        result = {
+            'id': tic.pk,
+            'assigned': tic.assigned_id,
+            'priority': tic.priority_id,
+        }
+        return JsonResponse(result)
+
     elif mode == 'gallery':
         images = tickets_files.objects.filter(ticket=ticket, active_record=True)
         return render(request, 'tickets/gallery.html', {'layout': 'horizontal', 'ticket': tic, 'images': images})

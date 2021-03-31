@@ -72,6 +72,7 @@
                             }
                           });
 
+                          loadTicketData();
                           $('#reassignDlg').modal('toggle');
                         }
                       }

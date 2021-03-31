@@ -216,6 +216,14 @@
       );
     }
 
+    function loadTicketData() {
+      $.getJSON('/tickets/json/' + ticketid + '/', function( data ) {
+          console.log('settt')
+          $('#id_assigned').val(data.assigned);
+          $('#id_priority').val(data.priority);
+      });
+    }
+
     function reassign() {
       form = $('#reassignDlg').find('form');
 
