@@ -55,7 +55,7 @@
                         $('#closeDlg').modal('toggle');
 
                       } else {
-                        if (event.ctrlKey || event.altKey) {
+                        if (event.ctrlKey || event.altKey || event.metaKey) {
                           $('#processing-modal').modal('toggle');
                           move(ticketid, new_state);
 
