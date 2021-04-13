@@ -509,6 +509,34 @@ def action(request, mode, ticket):
                         from yats.tasks import unlink_file
                         unlink_file(tmp)
 
+                if 'audio' in f.content_type:
+                    try:
+                        import tempfile
+                        with tempfile.NamedTemporaryFile(dir='/tmp', delete=False) as tmpfile:
+                            tmp = tmpfile.name
+                        from pydub import AudioSegment
+                        sound = AudioSegment.from_mp3('%s%s.dat' % (dest, f.id))
+                        sound.export(tmp, format="wav")
+
+                        # https://realpython.com/python-speech-recognition/
+                        import speech_recognition as sr
+                        r = sr.Recognizer()
+                        with sr.AudioFile(tmp) as source:
+                            audio = r.record(source)  # read the entire audio file
+
+                        text = r.recognize_google(audio, language='de-DE')
+                        if text:
+                            com = tickets_comments()
+                            com.comment = text
+                            com.ticket_id = ticket
+                            com.action = 6
+                            com.save(user=request.user)
+                    except Exception:
+                        pass
+
+                    from yats.tasks import unlink_file
+                    unlink_file(tmp)
+
                 mail_file(request, f.pk)
                 jabber_file(request, f.pk)
                 signal_file(request, f.pk)
@@ -657,24 +685,33 @@ def action(request, mode, ticket):
                             except Exception:
                                 pass
 
-                        if 'audio' in f.content_type:
-                            try:
-                                # https://realpython.com/python-speech-recognition/
-                                import speech_recognition as sr
-                                AUDIO_FILE = '%s%s.dat' % (dest, f.id)
-                                r = sr.Recognizer()
-                                with sr.AudioFile(AUDIO_FILE) as source:
-                                    audio = r.record(source)  # read the entire audio file
+                    if 'audio' in f.content_type:
+                        try:
+                            import tempfile
+                            with tempfile.NamedTemporaryFile(dir='/tmp', delete=False) as tmpfile:
+                                tmp = tmpfile.name
+                            from pydub import AudioSegment
+                            sound = AudioSegment.from_mp3('%s%s.dat' % (dest, f.id))
+                            sound.export(tmp, format="wav")
 
-                                text = r.recognize_google(audio, language='de-DE')
-                                if text:
-                                    com = tickets_comments()
-                                    com.comment = text
-                                    com.ticket_id = ticket
-                                    com.action = 6
-                                    com.save(user=request.user)
-                            except Exception:
-                                pass
+                            # https://realpython.com/python-speech-recognition/
+                            import speech_recognition as sr
+                            r = sr.Recognizer()
+                            with sr.AudioFile(tmp) as source:
+                                audio = r.record(source)  # read the entire audio file
+
+                            text = r.recognize_google(audio, language='de-DE')
+                            if text:
+                                com = tickets_comments()
+                                com.comment = text
+                                com.ticket_id = ticket
+                                com.action = 6
+                                com.save(user=request.user)
+                        except Exception:
+                            pass
+
+                        from yats.tasks import unlink_file
+                        unlink_file(tmp)
 
                     return HttpResponse(status=201)
 
