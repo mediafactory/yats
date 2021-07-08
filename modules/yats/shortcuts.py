@@ -496,6 +496,8 @@ def signal_file(request, file_id):
         preview_file.append('%s%s.preview' % (settings.FILE_UPLOAD_PATH, file_id))
     if len(preview_file) == 0 and 'image' in io.content_type:
         preview_file.append('%s%s.dat' % (settings.FILE_UPLOAD_PATH, file_id))
+    if len(preview_file) == 0 and io.content_type == 'audio/mpeg':
+        preview_file.append('%s%s.dat' % (settings.FILE_UPLOAD_PATH, file_id))
 
     if len(int_rcpt) > 0:
         body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
