@@ -16,7 +16,7 @@ import os
 import io
 
 def docs_search(request):
-    documents = docs.objects.all()
+    documents = docs.objects.filter(active_record=True)
 
     paginator = Paginator(documents, 20)
     page = request.GET.get('page')
@@ -78,7 +78,7 @@ def docs_action(request, mode, docid):
 
     elif mode == 'delete':
         doc.delete(user=request.user)
-        return HttpResponseRedirect('/search/?q=%s&models=yats.docs&models=web.test' % request.session.get('last_fulltextsearch', '*'))
+        return HttpResponseRedirect('/docs/search/')
 
     elif mode == 'ticket':
         ticket = get_ticket_model()
