@@ -925,8 +925,12 @@ def table(request, **kwargs):
 
     sort = request.GET.get('sort', 'desc')
     col = request.GET.get('col', 'id')
-
-    tic = tic.order_by('%s%s' % ('-' if sort == 'desc' else '', col))
+    # if only sort by id, add prio order
+    if col == 'id' and sort == 'desc':
+        args = ('-priority', '%s%s' % ('-' if sort == 'desc' else '', col))
+    else:
+        args = ('%s%s' % ('-' if sort == 'desc' else '', col))
+    tic = tic.order_by(*args)
 
     list_caption = kwargs.get('list_caption')
     if 'report' in request.GET:
