@@ -1,4 +1,4 @@
-{% load search %}{{ object.caption|striptags|safe }}
+{% load search %}{{ object.caption|striptags|cut_text_for_xapian|safe }}
 {{ object.description|striptags|cut_text_for_xapian|safe }}
 {{ object.solution|striptags|cut_text_for_xapian|safe }}
 {{ object.reproduction|striptags|cut_text_for_xapian|safe }}
