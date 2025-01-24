@@ -250,8 +250,9 @@
       //alert(this.checked);
       //alert(this.value);
       //console.log(this.nextSibling.data);
+      //console.log(this.nextElementSibling.textContent);
 
-      $.post( "/tickets/todo/{{ ticket.id }}/", { set: this.checked, item: this.value, text: this.nextSibling.data } )
+      $.post( "/tickets/todo/{{ ticket.id }}/", { set: this.checked, item: this.value, text: this.nextSibling.data || this.nextElementSibling.textContent } )
         .done(function( json ) {
           console.log( json );
         })

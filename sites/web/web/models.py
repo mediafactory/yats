@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.functional import lazy
 from django.core.cache import cache
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from yats.models import tickets
 from yats.models import base
 
@@ -48,7 +48,8 @@ def getGibthubTags():
                'User-Agent': 'yats'
                }
     if user:
-        headers['Authorization'] = 'Basic %s' % base64.b64encode('%s:%s' % (user, password))
+        user_credential = '%s:%s' % (user, password)
+        headers['Authorization'] = 'Basic %s' % base64.b64encode(user_credential.encode("utf-8"))
 
     try:
         h = httplib2.Http()
@@ -80,8 +81,8 @@ class test(tickets):
     version = models.CharField(_('version'), max_length=255, choices=lazy(getGibthubTags, tuple)())
     keywords = models.CharField(_('keywords'), max_length=255, blank=True)
     reproduction = models.TextField(_('reproduction'), null=True)
-    billing_needed = models.NullBooleanField(_('billing needed'), default=True)
-    billing_done = models.NullBooleanField(_('billing done'), default=None)
+    billing_needed = models.BooleanField(_('billing needed'), null=True, default=True)
+    billing_done = models.BooleanField(_('billing done'), null=True, default=None)
     billing_reason = models.TextField(_('billing reason'), null=True, blank=True)
     billing_estimated_time = models.FloatField(_('billing estimated time'), null=True, blank=True)
     billing_time_taken = models.FloatField(_('billing tike taken'), null=True, blank=True)

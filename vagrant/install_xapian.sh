@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-# first argument of the script is Xapian version (e.g. 1.2.19)
-VERSION="1.4.5"
+# first argument of the script is Xapian version (e.g. 1.4.19)
+
+VERSION=$1
+
+if [ -z "$VERSION" ]; then
+    echo "usage: $0 version_number" 1>&2
+    exit 1
+fi
 
 # prepare
-sudo apt-get install -y curl zlib1g-dev g++
-
-sudo mkdir $VIRTUAL_ENV/packages && cd $VIRTUAL_ENV/packages
+mkdir -p $VIRTUAL_ENV/packages && cd $VIRTUAL_ENV/packages
 
 CORE=xapian-core-$VERSION
 BINDINGS=xapian-bindings-$VERSION
@@ -25,27 +29,20 @@ echo "Installing Xapian-core..."
 cd $VIRTUAL_ENV/packages/${CORE}
 ./configure --prefix=$VIRTUAL_ENV && make && make install
 
-PYV=`python3 -c "import sys;t='{v[0]}'.format(v=list(sys.version_info[:1]));sys.stdout.write(t)";`
-
-if [ $PYV = "2" ]; then
-    PYTHON_FLAG=--with-python
-else
-    PYTHON_FLAG=--with-python3
-fi
-
-if [ $VERSION = "1.3.3" ]; then
-    XAPIAN_CONFIG=$VIRTUAL_ENV/bin/xapian-config-1.3
-else
-    XAPIAN_CONFIG=
-fi
+PYTHON_FLAG=--with-python3
 
 # The bindings for Python require python-sphinx
 echo "Installing Python-Sphinx..."
-#pip3 install sphinx
+SPHINX2_FIXED_VERSION=1.4.12
+if [ $(printf "${VERSION}\n${SPHINX2_FIXED_VERSION}" | sort -V | head -n1) = "${SPHINX2_FIXED_VERSION}" ]; then
+    pip install sphinx
+else
+    pip install "sphinx<2"
+fi
 
 echo "Installing Xapian-bindings..."
 cd $VIRTUAL_ENV/packages/${BINDINGS}
-./configure --prefix=$VIRTUAL_ENV $PYTHON_FLAG XAPIAN_CONFIG=$XAPIAN_CONFIG && make && make install
+./configure --prefix=$VIRTUAL_ENV $PYTHON_FLAG && make && make install
 
 # clean
 cd $VIRTUAL_ENV
@@ -53,4 +50,4 @@ rm -rf $VIRTUAL_ENV/packages
 
 # test
 echo "Testing Xapian..."
-python3 -c "import xapian"
+python -c "import xapian"

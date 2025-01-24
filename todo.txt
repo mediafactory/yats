@@ -1,3 +1,7 @@
+- Web-Push Notifications
+=> https://github.com/safwanrahman/django-webpush
+- Deadlines per Signal, Jabber, Nail, etc.
+
 - wiki
   => TOC
   => Links zu anderen Docs

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import template
 from django.conf import settings
-from django.utils.translation import ugettext as _
-from django.forms.forms import pretty_name
+from django.utils.translation import gettext as _
+from django.forms.utils import pretty_name
 from yats.diff import generate_patch_html
 from yats.shortcuts import has_public_fields, non_previewable_contenttypes
 from markdownx.utils import markdownify

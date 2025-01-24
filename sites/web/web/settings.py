@@ -30,6 +30,7 @@ SIGNAL_USERNAME = ''
 SIGNAL_TEST_RECIPIENT = ''
 
 # DATABASE_ROUTERS = ['web.routers.ModelRouter']
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -47,7 +48,7 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
         'LOCATION': '127.0.0.1:11211',
     }
 }
@@ -107,7 +108,7 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ')ha6uuz1zqw3$r1-bqk1wv=wh%=*7aheo&6-cm(_z)v+bs%%!*'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 TEMPLATES = [
     {
@@ -223,16 +224,14 @@ GITHUB_USER = None
 GITHUB_PASS = None
 
 LOGIN_URL = '/local_login'
-SSO_PRIVATE_KEY = 'Your Private Key'
-SSO_PUBLIC_KEY = 'Your Public Key'
-SSO_SERVER = 'http://192.168.33.17:8080/server/'
-API_KEY = 'geheim'
 
 KEEP_IT_SIMPLE = True
 KEEP_IT_SIMPLE_DEFAULT_TYPE = 1
 KEEP_IT_SIMPLE_DEFAULT_PRIORITY = 2
 KEEP_IT_SIMPLE_DEFAULT_CUSTOMER = -1  # auto from user
 KEEP_IT_SIMPLE_DEFAULT_COMPONENT = 1
+
+REASSIGN_ALWAYS_TO_INCOMING_QUEUE = True
 
 PROJECT_NAME = 'DEV'
 

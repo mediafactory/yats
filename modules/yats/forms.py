@@ -5,7 +5,7 @@ from django.conf import settings
 from django.forms.models import construct_instance
 from django.contrib.auth.mixins import LoginRequiredMixin
 from bootstrap_toolkit.widgets import BootstrapDateTimeInput, BootstrapDateInput
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from yats.fields import yatsFileField
 from yats.models import ticket_resolution, ticket_flow, ticket_flow_edges, boards, ticket_priority, docs
 from web.models import ticket_component

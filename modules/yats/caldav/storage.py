@@ -16,7 +16,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.http import QueryDict
 from django.conf import settings
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from djradicale.models import DBProperties
 
@@ -41,7 +41,7 @@ class Collection(ical.Collection):
     @property
     def headers(self):
         return (
-            ical.Header('PRODID:-//YATS//NONSGML Radicale Server//EN'),
+            ical.Header('PRODID:-//YATS//NONSGML Radicale Server//DE'),
             ical.Header('VERSION:%s' % self.version))
 
     def delete(self):
@@ -49,8 +49,8 @@ class Collection(ical.Collection):
         tickets_reports.objects.get(pk=repid).delete()
 
     def append(self, name, text):
-        import pydevd
-        pydevd.settrace('192.168.33.1', 5678)
+        #import pydevd
+        #pydevd.settrace('192.168.33.1', True, True)
 
         new_items = self._parse(text, ICAL_TYPES, name)
         timezones = list(filter(
@@ -178,6 +178,9 @@ class Collection(ical.Collection):
     @classmethod
     def children(cls, path):
         """Yield the children of the collection at local ``path``."""
+        #import pydevd
+        #pydevd.settrace('192.168.33.1', True, True)
+
         request = cls._getRequestFromUrl(path)
         children = list(tickets_reports.objects.filter(active_record=True, c_user=request.user).values_list('slug', flat=True))
         children = ['%s/%s.ics' % (request.user.username, itm) for itm in children]
@@ -263,6 +266,8 @@ class Collection(ical.Collection):
 
     @property
     def items(self):
+        #import pydevd
+        #pydevd.settrace('192.168.33.1', True, True)
         itms = {}
         try:
             request = self._getRequestFromUrl(self.path)
