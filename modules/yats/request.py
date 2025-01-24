@@ -7,7 +7,7 @@ import re
 
 range_re = re.compile(r'bytes\s*=\s*(\d+)\s*-\s*(\d*)', re.I)
 
-class RangeFileWrapper(object):
+class RangeFileWrapper:
     def __init__(self, filelike, blksize=8192, offset=0, length=None):
         self.filelike = filelike
         self.filelike.seek(offset, os.SEEK_SET)
@@ -20,6 +20,9 @@ class RangeFileWrapper(object):
 
     def __iter__(self):
         return self
+
+    def __next__(self):
+        return self.next()
 
     def next(self):
         if self.remaining is None:

@@ -226,7 +226,16 @@ def action(request, mode, ticket):
         if 'YATSE' in request.GET and 'isUsingYATSE' not in request.session:
             request.session['isUsingYATSE'] = True
 
-        return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed, 'keep_it_simple': keep_it_simple, 'last_action_date': http_date(time.mktime(tic.last_action_date.timetuple()))})
+        flows = ticket_flow_edges.objects.select_related('next').filter(now=tic.state).exclude(next__type=2)
+        return render(request, 'tickets/view.html', {'layout': 'horizontal', 'ticket': tic, 'form': form, 'close': close, 'reassign': reassign, 'files': files_lines, 'comments': comments, 'participants': participants, 'close_allowed': close_allowed, 'keep_it_simple': keep_it_simple, 'last_action_date': http_date(time.mktime(tic.last_action_date.timetuple())), 'flows': flows})
+
+    elif mode == 'json':
+        result = {
+            'id': tic.pk,
+            'assigned': tic.assigned_id,
+            'priority': tic.priority_id,
+        }
+        return JsonResponse(result)
 
     elif mode == 'gallery':
         images = tickets_files.objects.filter(ticket=ticket, active_record=True)
@@ -321,6 +330,40 @@ def action(request, mode, ticket):
 
                 else:
                     messages.add_message(request, messages.ERROR, _('missing assigned user'))
+
+        return HttpResponseRedirect('/tickets/view/%s/' % ticket)
+
+    elif mode == 'state':
+        if not tic.closed:
+            if 'state' in request.GET:
+                if request.GET['state'] and int(request.GET['state']) > 0:
+                    old_state = tic.state
+
+                    tic.state = ticket_flow.objects.get(pk=request.GET['state'])
+                    tic.save(user=request.user)
+
+                    com = tickets_comments()
+                    com.comment = _('ticket state changed to: %(state)s') % {'state': tic.state}
+                    com.ticket_id = ticket
+                    com.action = 11
+                    com.save(user=request.user)
+
+                    check_references(request, com)
+
+                    touch_ticket(request.user, ticket)
+
+                    mail_comment(request, com.pk)
+                    jabber_comment(request, com.pk)
+                    signal_comment(request, com.pk)
+
+                    history_data = {
+                                    'old': {'state': str(old_state)},
+                                    'new': {'state': str(tic.state)}
+                                    }
+                    add_history(request, tic, 11, history_data)
+
+                else:
+                    messages.add_message(request, messages.ERROR, _('missing state'))
 
         return HttpResponseRedirect('/tickets/view/%s/' % ticket)
 
@@ -465,6 +508,34 @@ def action(request, mode, ticket):
 
                         from yats.tasks import unlink_file
                         unlink_file(tmp)
+
+                if 'audio' in f.content_type:
+                    try:
+                        import tempfile
+                        with tempfile.NamedTemporaryFile(dir='/tmp', delete=False) as tmpfile:
+                            tmp = tmpfile.name
+                        from pydub import AudioSegment
+                        sound = AudioSegment.from_mp3('%s%s.dat' % (dest, f.id))
+                        sound.export(tmp, format="wav")
+
+                        # https://realpython.com/python-speech-recognition/
+                        import speech_recognition as sr
+                        r = sr.Recognizer()
+                        with sr.AudioFile(tmp) as source:
+                            audio = r.record(source)  # read the entire audio file
+
+                        text = r.recognize_google(audio, language='de-DE')
+                        if text:
+                            com = tickets_comments()
+                            com.comment = text
+                            com.ticket_id = ticket
+                            com.action = 6
+                            com.save(user=request.user)
+                    except Exception:
+                        pass
+
+                    from yats.tasks import unlink_file
+                    unlink_file(tmp)
 
                 mail_file(request, f.pk)
                 jabber_file(request, f.pk)
@@ -614,24 +685,33 @@ def action(request, mode, ticket):
                             except Exception:
                                 pass
 
-                        if 'audio' in f.content_type:
-                            try:
-                                # https://realpython.com/python-speech-recognition/
-                                import speech_recognition as sr
-                                AUDIO_FILE = '%s%s.dat' % (dest, f.id)
-                                r = sr.Recognizer()
-                                with sr.AudioFile(AUDIO_FILE) as source:
-                                    audio = r.record(source)  # read the entire audio file
+                    if 'audio' in f.content_type:
+                        try:
+                            import tempfile
+                            with tempfile.NamedTemporaryFile(dir='/tmp', delete=False) as tmpfile:
+                                tmp = tmpfile.name
+                            from pydub import AudioSegment
+                            sound = AudioSegment.from_mp3('%s%s.dat' % (dest, f.id))
+                            sound.export(tmp, format="wav")
 
-                                text = r.recognize_google(audio, language='de-DE')
-                                if text:
-                                    com = tickets_comments()
-                                    com.comment = text
-                                    com.ticket_id = ticket
-                                    com.action = 6
-                                    com.save(user=request.user)
-                            except Exception:
-                                pass
+                            # https://realpython.com/python-speech-recognition/
+                            import speech_recognition as sr
+                            r = sr.Recognizer()
+                            with sr.AudioFile(tmp) as source:
+                                audio = r.record(source)  # read the entire audio file
+
+                            text = r.recognize_google(audio, language='de-DE')
+                            if text:
+                                com = tickets_comments()
+                                com.comment = text
+                                com.ticket_id = ticket
+                                com.action = 6
+                                com.save(user=request.user)
+                        except Exception:
+                            pass
+
+                        from yats.tasks import unlink_file
+                        unlink_file(tmp)
 
                     return HttpResponse(status=201)
 
@@ -845,8 +925,12 @@ def table(request, **kwargs):
 
     sort = request.GET.get('sort', 'desc')
     col = request.GET.get('col', 'id')
-
-    tic = tic.order_by('%s%s' % ('-' if sort == 'desc' else '', col))
+    # if only sort by id, add prio order
+    if col == 'id' and sort == 'desc':
+        args = ('-priority', '%s%s' % ('-' if sort == 'desc' else '', col))
+    else:
+        args = ('%s%s' % ('-' if sort == 'desc' else '', col))
+    tic = tic.order_by(*args)
 
     list_caption = kwargs.get('list_caption')
     if 'report' in request.GET:

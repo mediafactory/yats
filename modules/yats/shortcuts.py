@@ -226,6 +226,7 @@ def send_jabber(msg, rcpt_list):
 
 def send_signal(msg, rcpt_list, atts=[]):
     from yats.tasks import do_send_signal
+    msg = msg.replace('[ ]', '☐').replace('[X]', '☑').replace('[x]', '☑')
     do_send_signal(msg, rcpt_list, atts)
 
 def jabber_ticket(request, ticket_id, form, **kwargs):
@@ -495,6 +496,8 @@ def signal_file(request, file_id):
         preview_file.append('%s%s.preview' % (settings.FILE_UPLOAD_PATH, file_id))
     if len(preview_file) == 0 and 'image' in io.content_type:
         preview_file.append('%s%s.dat' % (settings.FILE_UPLOAD_PATH, file_id))
+    if len(preview_file) == 0 and io.content_type == 'audio/mpeg':
+        preview_file.append('%s%s.dat' % (settings.FILE_UPLOAD_PATH, file_id))
 
     if len(int_rcpt) > 0:
         body = '%s\n%s: %s\n%s: %s\n%s: %s\n\n%s' % (_('new file added'), _('file name'), io.name, _('file size'), io.size, _('content type'), io.content_type, get_ticket_url(request, ticket_id))
@@ -565,6 +568,9 @@ def remember_changes(request, form, ticket):
 
 def add_history(request, ticket, typ, data):
     from yats.models import tickets_history
+    if typ == 11:
+        old = {'state': data['old']['state']}
+        new = {'state': data['new']['state']}
     if typ == 10:
         old = {'show_start': str(data[1])}
         new = {'show_start': str(data[0])}
@@ -585,13 +591,13 @@ def add_history(request, ticket, typ, data):
                'comment': '',
                'assigned': data['old']['assigned'],
                'state': data['old']['state'],
-               'priority': data['old']['priority'],
+               'priority': data['old'].get('priority', ''),
                }
         new = {
                'comment': data['new']['comment'],
                'assigned': data['new']['assigned'],
                'state': data['new']['state'],
-               'priority': data['new']['priority'],
+               'priority': data['new'].get('priority', ''),
                }
     elif typ == 3:
         old = {'reference': ''}

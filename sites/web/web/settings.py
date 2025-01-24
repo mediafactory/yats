@@ -178,7 +178,8 @@ LOGGING = {
         },
         'mail_admins': {
             'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
         },
         'request_handler': {
                 'level': 'DEBUG',
@@ -221,7 +222,7 @@ GITHUB_OWNER = 'mediafactory'
 GITHUB_USER = None
 GITHUB_PASS = None
 
-LOGIN_URL = '/client'
+LOGIN_URL = '/local_login'
 SSO_PRIVATE_KEY = 'Your Private Key'
 SSO_PUBLIC_KEY = 'Your Public Key'
 SSO_SERVER = 'http://192.168.33.17:8080/server/'

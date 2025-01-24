@@ -60,7 +60,10 @@ def login(request):
         user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
         if user:
             auth_login(request, user)
-            return HttpResponseRedirect('/')
+            if 'next' in request.POST:
+                return HttpResponseRedirect(request.POST['next'])
+            else:
+                return HttpResponseRedirect('/')
         else:
             messages.add_message(request, messages.ERROR, _(u'Data invalid'))
     form = AuthenticationForm()
@@ -68,7 +71,11 @@ def login(request):
         sso = True
     else:
         sso = False
-    return render(request, 'login.html', {'form': form, 'sso': sso})
+
+    next = ''
+    if request.GET:
+        next = request.GET['next']
+    return render(request, 'login.html', {'form': form, 'sso': sso, 'next': next})
 
 def logout(request):
     aut_logout(request)
@@ -273,6 +280,13 @@ def kanban(request):
             seen_elements[see[0]] = True
 
         flow.seen = seen_elements
+
+        flow.count = 0
+        for ticket in flow.data:
+            flow.count += 1
+            if ticket.pk in flow.seen:
+                if flow.seen[ticket.pk]:
+                    flow.count -= 1
 
     close = TicketCloseForm()
     reassign = TicketReassignForm()

@@ -31,7 +31,7 @@
 
             {% for column in columns %}<div class="panel panel-primary kanban-col">
                 <div class="panel-heading {% if column.type == 0 %}flow{% endif %}{% if column.type == 1 %}new{% endif %}{% if column.type == 2 %}done{% endif %}">
-                    {{ column.name }}
+                    {{ column.name }} ({{ column.count }})
                 </div>
                 <div class="panel-body">
                     <div id="list{{ column.id }}" class="kanban-centered">
@@ -214,6 +214,13 @@
           $('#closeDlg').modal('toggle');
         }
       );
+    }
+
+    function loadTicketData() {
+      $.getJSON('/tickets/json/' + ticketid + '/', function( data ) {
+          $('#id_assigned').val(data.assigned);
+          $('#id_priority').val(data.priority);
+      });
     }
 
     function reassign() {
