@@ -10,7 +10,8 @@ YATS
 
 - yet another (trouble) ticketing system based on Python Django
 - &copy; media factory, Lübeck, Germany http://www.mediafactory.de
-- requires: Django 2.x.y (Python 3)
+- requires: Django 5.x.y (Python 3)
+- last Django 2.2 version: see last_django22 Tag
 - last Python 2.x version: requires Django 1.11.x (see last_python2 Tag)
 - See also: YATSE (https://github.com/mediafactory/yatse)
 

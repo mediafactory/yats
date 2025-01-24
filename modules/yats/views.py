@@ -5,9 +5,9 @@ from django.http.response import HttpResponseRedirect, HttpResponseNotFound, Htt
 from django import get_version as get_django_version
 from django.shortcuts import render
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.http import urlquote_plus
+from urllib.parse import quote_plus as urlquote_plus
 from django.contrib import messages
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils import timezone
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login as auth_login, logout as aut_logout
@@ -264,6 +264,7 @@ def kanban(request):
 
         if flow.type == 1:
             columns.insert(0, flow)
+            start_state = flow.pk
         else:
             columns.append(flow)
             if flow.type == 2:
@@ -293,7 +294,11 @@ def kanban(request):
     edges = ticket_flow_edges.objects.all().order_by('now')
     add_breadcrumbs(request, 0, 'k')
     cur_language = translation.get_language()
-    return render(request, 'board/kanban.html', {'layout': 'horizontal', 'columns': columns, 'edges': edges, 'finish_state': finish_state, 'close': close, 'reassign': reassign, 'cur_language': cur_language})
+    if hasattr(settings, 'REASSIGN_ALWAYS_TO_INCOMING_QUEUE'):
+        reassign_state = settings.REASSIGN_ALWAYS_TO_INCOMING_QUEUE
+    else:
+        reassign_state = True
+    return render(request, 'board/kanban.html', {'layout': 'horizontal', 'columns': columns, 'edges': edges, 'start_state': start_state, 'finish_state': finish_state, 'close': close, 'reassign': reassign, 'cur_language': cur_language, 'reassign_to_incoming': reassign_state})
 
 @login_required
 def xptest(request, test):

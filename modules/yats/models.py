@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.text import slugify
@@ -218,9 +218,9 @@ class tickets(base):
         self.last_action_date = timezone.now()
         if not self.uuid:
             self.uuid = uuid.uuid4()
+        super(tickets, self).save(*args, **kwargs)
         tickets_participants.objects.filter(ticket=self).update(seen=False)
         tickets_ignorants.objects.filter(ticket=self).delete()
-        super(tickets, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return "/tickets/view/%i/" % self.id

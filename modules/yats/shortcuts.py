@@ -3,7 +3,7 @@ from django.apps import apps
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.db.models import Q
 
 from PIL import Image  # ImageOps
@@ -13,7 +13,6 @@ import re
 import os
 import subprocess
 import time
-from pyxmpp2.simple import send_message
 from dateutil import parser
 
 try:

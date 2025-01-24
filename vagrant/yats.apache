@@ -3,7 +3,7 @@
 
     WSGIScriptAlias / /var/web/yats/web/web/wsgi.py
     WSGIPassAuthorization on
-    WSGIDaemonProcess yats_demo.web python-path=/var/web/yats/web
+    WSGIDaemonProcess yats_demo.web python-path=/var/web/yats/web python-home=/var/web/yats/py_env
     WSGIProcessGroup yats_demo.web
 
     <Directory "/var/web/yats/web/web">
@@ -34,7 +34,7 @@
 
     WSGIScriptAlias / /var/web/yats/web/web/wsgi.py
     WSGIPassAuthorization on
-    WSGIDaemonProcess yats_demo.sec python-path=/var/web/yats/web
+    WSGIDaemonProcess yats_demo.sec python-path=/var/web/yats/web python-home=/var/web/yats/py_env
     WSGIProcessGroup yats_demo.sec
 
     <Directory "/var/web/yats/web/web">

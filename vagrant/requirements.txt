@@ -1,9 +1,9 @@
-django~=2.2.0
+django
 diff-match-patch
 Markdown
 six
 pillow
-pydevd~=1.6.0
+pydevd
 itsdangerous
 webservices[django]
 defusedxml
@@ -13,14 +13,14 @@ vobject
 monotonic
 SpeechRecognition
 django-markdownx
-# django-haystack==2.5.1
-# xapian-haystack
+django-haystack
+xapian-haystack
 pygments
 furl
 rpc4django
-# radicale==1.1.6
 djradicale
-pyxmpp2
-yolk3k
 django-background-tasks
 pydub
+httplib2
+pymemcache
+Wand

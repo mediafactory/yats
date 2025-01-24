@@ -4,27 +4,31 @@ VERSION=$(sed 's/\..*//' /etc/debian_version)
 
 # debian packages
 apt-get update
-#apt-get install -y memcached python-memcache python-httplib2 locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 apache2-mpm-prefork libapache2-mod-wsgi python-dev sqlite3 gettext ant wget ntp clamav clamav-daemon python-pythonmagick libreoffice
-# apache2-mpm-prefork ??
-apt-get install -y memcached locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 sqlite3 gettext ant wget ntp clamav clamav-daemon libreoffice
-apt-get install -y python3 python3-dev python3-memcache python3-httplib2 python3-wand libapache2-mod-wsgi-py3 python3-xapian-haystack python3-pythonmagick ffmpeg
-
-wget https://bootstrap.pypa.io/get-pip.py
-python3 get-pip.py
+apt-get install -y memcached locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 sqlite3 gettext ant wget ntp clamav clamav-daemon libreoffice curl build-essential systemd-timesyncd
+apt-get install -y python3 python3-dev python3-venv python3.11-venv libapache2-mod-wsgi-py3 python3-xapian libxapian-dev python3-xapian-haystack ffmpeg
 
 # python modules
+mkdir -p /var/web/yats/
+cd /var/web/yats/
+python3 -m venv py_env # create your virtual environment
+chmod -R a+rwx py_env
+source py_env/bin/activate # Any package you install will be inside this environment
+
+/vagrant/install_xapian.sh 1.4.22
+
 sites=`python3 -c "import site; print(site.getsitepackages()[0])"`
 ln -fs /vagrant_modules/yats $sites 2>/dev/null
 ln -fs /vagrant_modules/bootstrap_toolkit $sites 2>/dev/null
-#ln -fs /vagrant_modules/rpc4django $sites 2>/dev/null
 ln -fs /vagrant_modules/graph $sites 2>/dev/null
-ln -fs /vagrant_modules/simple_sso $sites 2>/dev/null
-#ln -fs /vagrant_modules/djradicale $sites 2>/dev/null
-#ln -fs /vagrant_modules/pyxmpp2 $sites 2>/dev/null
-#ln -fs /vagrant_modules/radicale $sites 2>/dev/null
 
-pip3 install -r /vagrant/requirements.txt
-#/vagrant/install_xapian.sh
+pip install -r /vagrant/requirements.txt
+
+# patch djradicale
+cp /vagrant_modules/djradicale/urls.py /var/web/yats/py_env/lib/python3.11/site-packages/djradicale/urls.py
+
+# clamav db update
+systemctl stop clamav-freshclam
+freshclam
 
 # clamav config
 ret=`grep -ir "TCPSocket" /etc/clamav/clamd.conf`
@@ -39,10 +43,8 @@ echo "ListenStream=127.0.0.1:3310" >> /etc/systemd/system/clamav-daemon.socket.d
 systemctl --system daemon-reload
 systemctl restart clamav-daemon.socket
 systemctl restart clamav-daemon.service
-freshclam&
 
 # yats web
-mkdir -p /var/web/yats
 mkdir -p /var/web/yats/static
 chown root:vagrant /var/web/yats/static
 chmod go+w /var/web/yats/static
@@ -104,6 +106,8 @@ python3 /vagrant_project/test/api_simple_create.py
 python3 manage.py clear_index --noinput
 python3 manage.py update_index --noinput
 
+deactivate # get out of the isolated environment
+
 # deb upgrade
 apt-get -y upgrade &
 
@@ -114,3 +118,10 @@ ant ci18n
 timedatectl set-ntp true
 
 echo "open http://192.168.33.11 with user: admin password: admin"
+
+cat <<EOF >> /home/vagrant/.bashrc
+if (tty -s); then
+    source /var/web/yats/py_env/bin/activate
+    cd /var/web/yats/
+fi
+EOF

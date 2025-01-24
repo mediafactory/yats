@@ -13,6 +13,10 @@
             });
         });
 
+        $(window).on('resize', function() {
+          kanbanCol.css('max-height', (window.innerHeight - 150) + 'px');
+        });
+
         function draggableInit() {
             var sourceId;
 

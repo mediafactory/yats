@@ -4,7 +4,7 @@ import json
 from math import floor
 
 from django.forms import BaseForm
-from django.forms.forms import BoundField
+from django.forms.boundfield import BoundField
 from django.forms.widgets import TextInput, CheckboxInput, CheckboxSelectMultiple, RadioSelect
 from django.template import Context
 from django.template.loader import get_template, render_to_string
@@ -12,7 +12,7 @@ from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django import forms
 
 

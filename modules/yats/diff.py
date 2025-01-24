@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 # Patch generation methods, only available if the google-diff-match-patch
 # library is installed.
@@ -20,7 +20,7 @@ else:
         old_text = old_version or ""
         new_text = new_version or ""
         # Generate the patch.
-        diffs = dmp.diff_main(force_text(old_text), force_text(new_text))
+        diffs = dmp.diff_main(force_str(old_text), force_str(new_text))
         if cleanup == "semantic":
             dmp.diff_cleanupSemantic(diffs)
         elif cleanup == "efficiency":

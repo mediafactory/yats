@@ -5,7 +5,7 @@ from django.http.response import HttpResponseRedirect, StreamingHttpResponse, Ht
 from django.shortcuts import render
 from django.utils.encoding import smart_str
 from django.contrib import messages
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import get_object_or_404
 from yats.models import docs, docs_files, tickets_comments
