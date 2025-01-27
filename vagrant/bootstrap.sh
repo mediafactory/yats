@@ -4,7 +4,7 @@ VERSION=$(sed 's/\..*//' /etc/debian_version)
 
 # debian packages
 apt-get update
-apt-get install -y memcached locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 sqlite3 gettext ant wget ntp clamav clamav-daemon libreoffice curl build-essential systemd-timesyncd
+apt-get install -y memcached locales-all libjpeg62-turbo libjpeg-dev libpng-dev screen apache2 sqlite3 gettext ant wget ntp clamav clamav-daemon libreoffice curl build-essential systemd-timesyncd  libmagickwand-dev
 apt-get install -y python3 python3-dev python3-venv python3.11-venv libapache2-mod-wsgi-py3 python3-xapian libxapian-dev python3-xapian-haystack ffmpeg
 
 # python modules
