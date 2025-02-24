@@ -8,9 +8,9 @@ from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import get_object_or_404
-from yats.models import docs, docs_files, tickets_comments
+from yats.models import docs, docs_files, tickets_comments, docs_history
 from yats.forms import DocsForm, UploadFileForm
-from yats.shortcuts import resize_image, add_breadcrumbs, get_ticket_model, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
+from yats.shortcuts import resize_image, add_breadcrumbs, get_ticket_model, convertPDFtoImg, convertOfficeTpPDF, isPreviewable, add_doc_history, remember_doc_changes
 import re
 import os
 import io
@@ -71,6 +71,7 @@ def docs_action(request, mode, docid):
             form = DocsForm(request.POST, user=request.user, instance=doc)
             if form.is_valid():
                 doc = form.save()
+                remember_doc_changes(request, form, doc)
                 return HttpResponseRedirect('/docs/view/%s/' % doc.pk)
 
         form = DocsForm(user=request.user, instance=doc)
@@ -78,6 +79,7 @@ def docs_action(request, mode, docid):
 
     elif mode == 'delete':
         doc.delete(user=request.user)
+        add_doc_history(request, doc, 5, '')
         return HttpResponseRedirect('/docs/search/')
 
     elif mode == 'ticket':
@@ -152,7 +154,7 @@ def docs_action(request, mode, docid):
                 f.public = True
                 f.save(user=request.user)
 
-                # add_history(request, tic, 5, request.FILES['file'].name)
+                add_doc_history(request, doc, 5, request.FILES['file'].name)
 
                 dest = get_doc_files_folder()
                 if not os.path.exists(dest):
@@ -190,9 +192,13 @@ def docs_action(request, mode, docid):
         file = docs_files.objects.get(pk=request.GET['fileid'], doc=doc)
         file.delete(user=request.user)
 
-        # add_history(request, tic, 8, file.name)
+        add_doc_history(request, doc, 8, file.name)
 
         return HttpResponseRedirect('/docs/view/%s/#files' % doc.pk)
+    
+    elif mode == 'history':
+        history = docs_history.objects.filter(doc=doc)
+        return render(request, 'docs/history.html', {'layout': 'horizontal', 'doc': doc, 'history': history})
 
 def docs_wiki(request, wiki):
     doc = get_object_or_404(docs, wiki=wiki)

@@ -554,7 +554,18 @@ def check_references(request, src_com):
         except Exception:
             messages.add_message(request, messages.ERROR, _('unable to find related ticket #%s') % ref)
 
-def remember_changes(request, form, ticket):
+def remember_doc_changes(request, form, doc):
+    from yats.models import docs_history
+    new, old = field_changes(form)
+
+    h = docs_history()
+    h.doc = doc
+    h.new = json.dumps(new)
+    h.old = json.dumps(old)
+    h.action = 4
+    h.save(user=request.user)
+
+def remember_ticket_changes(request, form, ticket):
     from yats.models import tickets_history
     new, old = field_changes(form)
 
@@ -565,7 +576,60 @@ def remember_changes(request, form, ticket):
     h.action = 4
     h.save(user=request.user)
 
-def add_history(request, ticket, typ, data):
+def add_doc_history(request, doc, typ, data):
+    from yats.models import docs_history
+    if typ == 11:
+        old = {'state': data['old']['state']}
+        new = {'state': data['new']['state']}
+    if typ == 10:
+        old = {'show_start': str(data[1])}
+        new = {'show_start': str(data[0])}
+    if typ == 9:
+        old = {'todo': data[1]}
+        new = {'todo': data[0]}
+    if typ == 8:
+        old = {'file': data}
+        new = {'file': ''}
+    elif typ == 5:
+        old = {'file': ''}
+        new = {'file': data}
+    elif typ == 6:
+        old = {'comment': ''}
+        new = {'comment': data}
+    elif typ == 7:
+        old = {
+               'comment': '',
+               'assigned': data['old']['assigned'],
+               'state': data['old']['state'],
+               'priority': data['old'].get('priority', ''),
+               }
+        new = {
+               'comment': data['new']['comment'],
+               'assigned': data['new']['assigned'],
+               'state': data['new']['state'],
+               'priority': data['new'].get('priority', ''),
+               }
+    elif typ == 3:
+        old = {'reference': ''}
+        new = {'reference': '#%s' % data}
+    elif typ == 2:
+        old = {'closed': str(True)}
+        new = {'closed': str(False)}
+        if data:
+            old['comment'] = ''
+            new['comment'] = data
+    elif typ == 1:
+        old = {'closed': str(False)}
+        new = {'closed': str(True)}
+
+    h = docs_history()
+    h.doc = doc
+    h.new = json.dumps(new)
+    h.old = json.dumps(old)
+    h.action = typ
+    h.save(user=request.user)
+
+def add_ticket_history(request, ticket, typ, data):
     from yats.models import tickets_history
     if typ == 11:
         old = {'state': data['old']['state']}

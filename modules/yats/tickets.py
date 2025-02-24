@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.http import parse_http_date_safe, http_date
 from yats.forms import TicketsForm, CommentForm, UploadFileForm, SearchForm, TicketCloseForm, TicketReassignForm, AddToBordForm, SimpleTickets, ToDo
 from yats.models import tickets_files, tickets_comments, tickets_reports, ticket_resolution, tickets_participants, tickets_history, ticket_flow_edges, ticket_flow, get_flow_start, get_flow_end, tickets_ignorants, ticket_priority
-from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, signal_ticket, mail_comment, jabber_comment, signal_comment, mail_file, jabber_file, signal_file, clean_search_values, convert_sarch, check_references, remember_changes, add_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
+from yats.shortcuts import resize_image, touch_ticket, mail_ticket, jabber_ticket, signal_ticket, mail_comment, jabber_comment, signal_comment, mail_file, jabber_file, signal_file, clean_search_values, convert_sarch, check_references, remember_ticket_changes, add_ticket_history, prettyValues, add_breadcrumbs, get_ticket_model, build_ticket_search_ext, convertPDFtoImg, convertOfficeTpPDF, isPreviewable
 from yats.request import streamRanges
 import os
 import io
@@ -66,7 +66,7 @@ def new(request):
 
             for ele in form.changed_data:
                 form.initial[ele] = ''
-            remember_changes(request, form, tic)
+            remember_ticket_changes(request, form, tic)
 
             touch_ticket(request.user, tic.pk)
 
@@ -114,7 +114,7 @@ def simple(request):
 
             for ele in form.changed_data:
                 form.initial[ele] = ''
-            remember_changes(request, form, tic)
+            remember_ticket_changes(request, form, tic)
 
             touch_ticket(request.user, tic.pk)
 
@@ -157,7 +157,7 @@ def action(request, mode, ticket):
 
                 touch_ticket(request.user, ticket)
 
-                add_history(request, tic, 6, com.comment)
+                add_ticket_history(request, tic, 6, com.comment)
 
                 mail_comment(request, com.pk)
                 jabber_comment(request, com.pk)
@@ -182,7 +182,7 @@ def action(request, mode, ticket):
 
                         touch_ticket(request.user, ticket)
 
-                        add_history(request, tic, 1, request.POST.get('close_comment', ''))
+                        add_ticket_history(request, tic, 1, request.POST.get('close_comment', ''))
 
                         mail_comment(request, com.pk)
                         jabber_comment(request, com.pk)
@@ -263,7 +263,7 @@ def action(request, mode, ticket):
 
             touch_ticket(request.user, ticket)
 
-            add_history(request, tic, 2, None)
+            add_ticket_history(request, tic, 2, None)
 
             mail_comment(request, com.pk)
             jabber_comment(request, com.pk)
@@ -286,7 +286,7 @@ def action(request, mode, ticket):
                             'old': {'comment': '', 'assigned': oldUser, 'state': str(old_state)},
                             'new': {'comment': _('ticket moved'), 'assigned': oldUser, 'state': str(tic.state)}
                             }
-            add_history(request, tic, 7, history_data)
+            add_ticket_history(request, tic, 7, history_data)
 
         return HttpResponse('OK')
 
@@ -326,7 +326,7 @@ def action(request, mode, ticket):
                                     'old': {'comment': '', 'assigned': str(old_assigned_user), 'state': str(old_state), 'priority': str(old_priority)},
                                     'new': {'comment': request.POST.get('reassign_comment', ''), 'assigned': str(User.objects.get(pk=request.POST['assigned'])), 'state': str(tic.state), 'priority': str(tic.priority)}
                                     }
-                    add_history(request, tic, 7, history_data)
+                    add_ticket_history(request, tic, 7, history_data)
 
                 else:
                     messages.add_message(request, messages.ERROR, _('missing assigned user'))
@@ -360,7 +360,7 @@ def action(request, mode, ticket):
                                     'old': {'state': str(old_state)},
                                     'new': {'state': str(tic.state)}
                                     }
-                    add_history(request, tic, 11, history_data)
+                    add_ticket_history(request, tic, 11, history_data)
 
                 else:
                     messages.add_message(request, messages.ERROR, _('missing state'))
@@ -386,7 +386,7 @@ def action(request, mode, ticket):
                 jabber_ticket(request, tic.pk, form)
                 signal_ticket(request, tic.pk, form)
 
-                remember_changes(request, form, tic)
+                remember_ticket_changes(request, form, tic)
 
                 touch_ticket(request.user, tic.pk)
 
@@ -420,7 +420,7 @@ def action(request, mode, ticket):
                 if cd['assigned']:
                     touch_ticket(cd['assigned'], tic.pk)
 
-                remember_changes(request, form, tic)
+                remember_ticket_changes(request, form, tic)
 
                 touch_ticket(request.user, tic.pk)
 
@@ -489,7 +489,7 @@ def action(request, mode, ticket):
 
                 touch_ticket(request.user, ticket)
 
-                add_history(request, tic, 5, request.FILES['file'].name)
+                add_ticket_history(request, tic, 5, request.FILES['file'].name)
 
                 dest = settings.FILE_UPLOAD_PATH
                 if not os.path.exists(dest):
@@ -659,7 +659,7 @@ def action(request, mode, ticket):
 
                     touch_ticket(request.user, ticket)
 
-                    add_history(request, tic, 5, file_obj.name)
+                    add_ticket_history(request, tic, 5, file_obj.name)
 
                     mail_file(request, f.pk)
                     jabber_file(request, f.pk)
@@ -730,7 +730,7 @@ def action(request, mode, ticket):
 
         touch_ticket(request.user, ticket)
 
-        add_history(request, tic, 8, file.name)
+        add_ticket_history(request, tic, 8, file.name)
 
         return HttpResponseRedirect('/tickets/view/%s/#files' % tic.pk)
 
@@ -747,7 +747,7 @@ def action(request, mode, ticket):
 
             touch_ticket(request.user, ticket)
 
-            add_history(request, tic, 10, (tic.show_start, old))
+            add_ticket_history(request, tic, 10, (tic.show_start, old))
 
             return HttpResponse('OK')
 
@@ -802,7 +802,7 @@ def action(request, mode, ticket):
 
             touch_ticket(request.user, ticket)
 
-            add_history(request, tic, 9, (new, old))
+            add_ticket_history(request, tic, 9, (new, old))
 
             data = {
                 'set': set,

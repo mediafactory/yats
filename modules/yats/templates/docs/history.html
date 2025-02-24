@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit i18n forms strings comments %}
+
+{% block title %}{% trans "document" %} §{{ doc.id }}{% endblock %}
+
+{% block extra_head %}
+    {{ form.media }}
+    <link href="{{ STATIC_URL }}timeline.css" type="text/css" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+{% endblock %}
+
+{% block content %}
+
+    <h2>{% trans "document" %} #{{ doc.id }} </button>&nbsp;&nbsp;<a class="btn btn-small" href="/docs/view/{{doc.id }}/">{% trans "view" %}</a></h2>
+    <p><small class="text-muted">{% trans "created" %}: {{ doc.c_date }} by {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ doc.u_date }} by {{ doc.u_user }}</small></p>
+    <p>&nbsp;</p>
+
+    <h3>{% trans "history" %}</h3>
+    <hr />
+    <ul class="timeline">
+        {% for line in history %}
+        {% diff line %}
+        {% if elements %}
+        <li{% cycle '' ' class="timeline-inverted"' %}>
+          <div class="timeline-badge {{ line.action|comment_color }}"><i class="fa {{ line.action|history_icon }}"></i></div>
+          <div class="timeline-panel">
+            <div class="timeline-heading">
+              <p><i class="icon-user"></i> <small class="text-muted">{{ line.c_user }} <i class="icon-time"></i> {{ line.c_date }}</small></p>
+            </div>
+            <div class="timeline-body">
+              <p>
+              	<table>
+                {% for key, value in elements.items  %}
+                <tr>
+                	<td valign="top">{{ key|prettify }}:</td>
+                    <td>{{ value|safe }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+              </p>
+            </div>
+          </div>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+{% endblock %}

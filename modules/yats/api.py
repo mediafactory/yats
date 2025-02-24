@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 from django.apps import apps
 from django.conf import settings
 from django.http import QueryDict
-from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_changes, mail_ticket, jabber_ticket, signal_ticket, check_references
+from yats.shortcuts import get_ticket_model, modulePathToModuleName, touch_ticket, remember_ticket_changes, mail_ticket, jabber_ticket, signal_ticket, check_references
 from rpc4django import rpcmethod
 from xmlrpc.client import Fault
 import datetime
@@ -272,7 +272,7 @@ def update(id, comment, attributes={}, notify=False, **kwargs):
             touch_ticket(value, ticket.pk)
     ticket.save(user=request.user)
 
-    remember_changes(request, form, ticket)
+    remember_ticket_changes(request, form, ticket)
 
     touch_ticket(request.user, ticket.pk)
 
@@ -327,7 +327,7 @@ def create(attributes={}, notify=True, **kwargs):
 
         for ele in form.changed_data:
             form.initial[ele] = ''
-        remember_changes(request, form, tic)
+        remember_ticket_changes(request, form, tic)
 
         touch_ticket(request.user, tic.pk)
 
@@ -384,7 +384,7 @@ def createSimple(attributes={}, notify=True, **kwargs):
 
         for ele in form.changed_data:
             form.initial[ele] = ''
-        remember_changes(request, form, tic)
+        remember_ticket_changes(request, form, tic)
 
         touch_ticket(request.user, tic.pk)
 

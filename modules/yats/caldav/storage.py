@@ -8,7 +8,7 @@ from datetime import datetime
 from contextlib import contextmanager
 from radicale import ical
 
-from yats.shortcuts import get_ticket_model, build_ticket_search_ext, touch_ticket, remember_changes, mail_ticket, jabber_ticket, check_references, add_history, mail_comment, jabber_comment
+from yats.shortcuts import get_ticket_model, build_ticket_search_ext, touch_ticket, remember_ticket_changes, mail_ticket, jabber_ticket, check_references, add_ticket_history, mail_comment, jabber_comment
 from yats.models import tickets_reports, UserProfile, get_flow_end, tickets_comments, ticket_resolution, get_default_resolution, convertPrio
 from yats.forms import SimpleTickets
 
@@ -93,7 +93,7 @@ class Collection(ical.Collection):
 
                     touch_ticket(request.user, tic.id)
 
-                    add_history(request, tic, 1, close_comment)
+                    add_ticket_history(request, tic, 1, close_comment)
 
                     mail_comment(request, com.pk)
                     jabber_comment(request, com.pk)
@@ -155,7 +155,7 @@ class Collection(ical.Collection):
 
                     for ele in form.changed_data:
                         form.initial[ele] = ''
-                    remember_changes(request, form, tic)
+                    remember_ticket_changes(request, form, tic)
 
                     touch_ticket(request.user, tic.pk)
 
