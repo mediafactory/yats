@@ -93,6 +93,10 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 post_save.connect(create_user_profile, sender=settings.AUTH_USER_MODEL)
 
+class TicketModelManager(models.Manager):
+    def get_queryset(self):
+        return super(TicketModelManager, self).get_queryset().filter(active_record=True)
+    
 class base(models.Model):
     active_record = models.BooleanField(default=True)
 
@@ -136,6 +140,8 @@ class base(models.Model):
             self.d_user_id = kwargs['user_id']
         self.active_record = False
         self.save(**kwargs)
+
+    objects = TicketModelManager()
 
     class Meta():
         abstract = True
