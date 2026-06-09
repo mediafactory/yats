@@ -282,17 +282,11 @@ class tickets_reports(base):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(tickets_reports, self).save(*args, **kwargs)
-
-        from djradicale.models import DBProperties
-        text = {'tag': 'VCALENDAR', 'D:displayname': self.name}
-        props, created = DBProperties.objects.get_or_create(path='%s/%s.ics' % (kwargs['user'].username, self.slug), defaults={'text': json.dumps(text)})
+        # CalDAV collection metadata (tag/displayname) is no longer persisted:
+        # the embedded Radicale 3.x storage (modules/dav) derives it live from
+        # this report's name. See dav.storage.Collection.get_meta.
 
     def delete(self, *args, **kwargs):
-        from djradicale.models import DBProperties
-
-        path = '%s/%s.ics' % (kwargs['user'].username, self.slug)
-        DBProperties.objects.filter(path=path).delete()
-
         super(tickets_reports, self).delete(*args, **kwargs)
 
 class tickets_history(base):

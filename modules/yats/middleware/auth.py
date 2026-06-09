@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.template import loader, RequestContext
+from django.template import loader
 from django.http import HttpResponse
 from django.conf import settings
 from django.contrib.auth import authenticate, login, get_user
@@ -18,7 +18,7 @@ def OrgaAdditionMiddleware(get_response):
                 pass
 
             if not hasattr(request, 'organisation') or not request.organisation:
-                response = HttpResponse(loader.render_to_string('no_orga.html', {'source': 'middleware', 'request_path': request.build_absolute_uri()}, RequestContext(request)))
+                response = HttpResponse(loader.render_to_string('no_orga.html', {'source': 'middleware', 'request_path': request.build_absolute_uri()}, request=request))
                 response.status_code = 200
                 return response
             return get_response(request)
@@ -41,7 +41,10 @@ class BasicAuthMiddleware:
             public_urls = [re.compile(url) for url in settings.PUBLIC_URLS]
         else:
             public_urls = [(re.compile("^%s$" % (self.login_url[1:])))]
-        public_urls.append(re.compile(r'^' + settings.DJRADICALE_CONFIG['server']['base_prefix'].lstrip('/')))
+        caldav_prefix = getattr(settings, 'CALDAV_BASE_PREFIX', None)
+        if caldav_prefix is None:
+            caldav_prefix = getattr(settings, 'DJRADICALE_CONFIG', {}).get('server', {}).get('base_prefix', '/tickets/dav/')
+        public_urls.append(re.compile(r'^' + caldav_prefix.lstrip('/')))
 
         self.public_urls = tuple(public_urls)
 
@@ -86,7 +89,7 @@ class BasicAuthMiddleware:
         #
         from socket import gethostname
 
-        response = HttpResponse(loader.render_to_string('401.html', {'source': 'middleware', 'request_path': request.build_absolute_uri(), 'hostname': gethostname()}, RequestContext(request)))
+        response = HttpResponse(loader.render_to_string('401.html', {'source': 'middleware', 'request_path': request.build_absolute_uri(), 'hostname': gethostname()}, request=request))
         response.status_code = 401
         response['WWW-Authenticate'] = 'Basic realm="%s"' % self.realm
         return response

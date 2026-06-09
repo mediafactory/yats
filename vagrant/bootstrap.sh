@@ -23,9 +23,6 @@ ln -fs /vagrant_modules/graph $sites 2>/dev/null
 
 pip install -r /vagrant/requirements.txt
 
-# patch djradicale
-cp /vagrant_modules/djradicale/urls.py /var/web/yats/py_env/lib/python3.11/site-packages/djradicale/urls.py
-
 # clamav db update
 systemctl stop clamav-freshclam
 freshclam

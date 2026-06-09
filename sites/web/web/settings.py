@@ -163,7 +163,7 @@ INSTALLED_APPS = [
     'bootstrap_toolkit',
     'yats',
     'web',
-    'djradicale',
+    'dav',  # CalDAV: embedded Radicale 3.x (replaces dead djradicale + Radicale 1.x)
     'markdownx',
     'haystack',
     'background_task',
@@ -201,7 +201,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        'djradicale': {
+        'dav': {
             'handlers': ['console'],
             'level': 'DEBUG',
             # 'level': 'ERROR',
@@ -235,44 +235,10 @@ REASSIGN_ALWAYS_TO_INCOMING_QUEUE = True
 
 PROJECT_NAME = 'DEV'
 
-DJRADICALE_CONFIG = {
-    'server': {
-        'base_prefix': '/tickets/dav/',
-        'realm': 'YATS Tickets - Password Required',
-    },
-    'encoding': {
-        'request': 'utf-8',
-        'stock': 'utf-8',
-    },
-    'auth': {
-        'type': 'custom',
-        'custom_handler': 'djradicale.auth.django',
-    },
-    'rights': {
-        'type': 'custom',
-        'custom_handler': 'djradicale.rights.django',
-    },
-    'storage': {
-        'type': 'custom',
-        'custom_handler': 'yats.caldav.storage',
-    },
-    'well-known': {
-        'caldav': '/tickets/dav/%(user)s/calendar.ics',
-    },
-}
-
-DJRADICALE_RIGHTS = {
-    'rw': {
-        'user': '.+',
-        'collection': '^%(login)s/[a-z0-9\.\-_]+\.(vcf|ics)$',
-        'permission': 'rw',
-    },
-    'rw-root': {
-        'user': '.+',
-        'collection': '^%(login)s$',
-        'permission': 'rw',
-    },
-}
+# CalDAV is served by an embedded Radicale 3.x WSGI app (modules/dav/).
+# The mount point; the dav app + urls read this. Auth/rights are enforced by
+# dav.radicale_auth (trusts Django) and dav.radicale_rights (own-principal only).
+CALDAV_BASE_PREFIX = '/tickets/dav/'
 
 # HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_CONNECTIONS = {

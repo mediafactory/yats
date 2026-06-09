@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='test',
             name='billing_done',
-            field=models.NullBooleanField(default=None, verbose_name='billing done'),
+            field=models.BooleanField(default=None, null=True, verbose_name='billing done'),
         ),
         migrations.AlterField(
             model_name='test',
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='test',
             name='billing_needed',
-            field=models.NullBooleanField(default=True, verbose_name='billing needed'),
+            field=models.BooleanField(default=True, null=True, verbose_name='billing needed'),
         ),
         migrations.AlterField(
             model_name='test',

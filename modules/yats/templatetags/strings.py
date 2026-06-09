@@ -64,7 +64,7 @@ def buildToDoList(value):
         checked = ' checked' if state[0].strip() else ''
         return '<input type="checkbox" value="%s" %s/>' % (local.counter, checked)
 
-    return re.sub('\[([ Xx])\]', render_item, value)
+    return re.sub(r'\[([ Xx])\]', render_item, value)
 
 class Diffs(template.Node):
     def __init__(self, line):
