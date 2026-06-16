@@ -1,0 +1,28 @@
+[Unit]
+Description=YATS gunicorn (%i)
+After=network-online.target memcached.service
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=yats
+Group=yats
+WorkingDirectory=/opt/yats/sites/web
+Environment=DJANGO_SETTINGS_MODULE=web.settings
+Environment=YATS_CONFIG=/etc/yats/%i.ini
+Environment=PYTHONPATH=/opt/yats/modules:/opt/yats/sites/web
+# GUNICORN_BIND=<private-ip>:<port> (per web), written by bootstrap.sh
+EnvironmentFile=/etc/yats/%i.env
+ExecStart=/opt/yats/.venv/bin/gunicorn \
+    --name yats-%i \
+    --workers 3 \
+    --timeout 120 \
+    --bind ${GUNICORN_BIND} \
+    web.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=5
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target

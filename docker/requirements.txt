@@ -1,5 +1,5 @@
-# ⚠ Shared deps MUST be kept in lockstep with docker/requirements.txt
-#   (docker/ only adds gunicorn + load_dotenv at the end).
+# ⚠ Shared deps MUST be kept in lockstep with vagrant/requirements.txt
+#   (this file only adds gunicorn + load_dotenv at the end).
 # Pinned for Django 5.2 LTS / Python 3.12 (migration June 2026).
 Django>=5.2,<5.3
 diff-match-patch
@@ -30,3 +30,5 @@ pydub
 httplib2
 pymemcache>=4.0
 Wand>=0.7.1
+gunicorn
+load_dotenv

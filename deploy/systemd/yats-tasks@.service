@@ -1,0 +1,19 @@
+[Unit]
+Description=YATS background task worker (%i) — mail / jabber / signal delivery
+After=network-online.target yats-web@%i.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=yats
+Group=yats
+WorkingDirectory=/opt/yats/sites/web
+Environment=DJANGO_SETTINGS_MODULE=web.settings
+Environment=YATS_CONFIG=/etc/yats/%i.ini
+Environment=PYTHONPATH=/opt/yats/modules:/opt/yats/sites/web
+ExecStart=/opt/yats/.venv/bin/python /opt/yats/sites/web/manage.py process_tasks
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

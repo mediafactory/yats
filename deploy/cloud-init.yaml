@@ -1,0 +1,100 @@
+#cloud-config
+# Hetzner Cloud server "mf-yats-1" (mediafactory project) — base provisioning for
+# the YATS app server that takes over mf / bagarino / schiwago.
+#
+# Before launch, fill the two placeholders below: SSH key and MF_ROUTER_IP.
+# Attach the server to the Hetzner Private Network at create time (so it can
+# reach the PostgreSQL cluster and be reached by mf-router).
+
+hostname: mf-yats-1
+fqdn: mf-yats-1.mediafactory.de
+prefer_fqdn_over_hostname: true
+manage_etc_hosts: true
+timezone: Europe/Berlin
+locale: de_DE.UTF-8
+
+package_update: true
+package_upgrade: true
+
+apt:
+  sources:
+    backports:
+      source: "deb http://deb.debian.org/debian bookworm-backports main"
+
+users:
+  - name: admin
+    groups: [sudo]
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - "ssh-ed25519 AAAA...REPLACE_WITH_YOUR_PUBLIC_KEY... admin@mediafactory"
+
+packages:
+  - git
+  - curl
+  - rsync
+  - ufw
+  - python3
+  - python3-venv
+  - python3-dev
+  - build-essential
+  - libpq-dev
+  - postgresql-client
+  - memcached
+  - clamav
+  - clamav-daemon
+  - python3-xapian
+  - python3-xapian-haystack
+  - libxapian-dev
+  - imagemagick
+  - libmagickwand-dev
+  - ffmpeg
+  - libreoffice
+  - gettext
+
+write_files:
+  # Placeholder for the mf-router IP that may reach the gunicorn ports.
+  - path: /etc/yats-deploy.env
+    permissions: "0600"
+    content: |
+      # IP of mf-router (OpenResty) — only host allowed to reach gunicorn 8001-8003.
+      MF_ROUTER_IP=REPLACE_WITH_MF_ROUTER_PRIVATE_IP
+
+runcmd:
+  # Java 21 for signal-cli (from bookworm-backports)
+  - apt-get update
+  - apt-get -y -t bookworm-backports install openjdk-21-jre-headless
+
+  # ClamAV: TCP socket for pyclamd, then refresh DB + enable
+  - sed -i '/^TCPSocket/d;/^TCPAddr/d' /etc/clamav/clamd.conf
+  - printf 'TCPSocket 3310\nTCPAddr 127.0.0.1\n' >> /etc/clamav/clamd.conf
+  - systemctl stop clamav-freshclam || true
+  - freshclam || true
+  - systemctl enable --now clamav-freshclam clamav-daemon || true
+  - systemctl enable --now memcached
+
+  # ImageMagick: allow reading PDFs (needed for attachment previews via Wand)
+  - "test -f /etc/ImageMagick-6/policy.xml && sed -i 's/.*rights=\"none\" pattern=\"PDF\".*/  <policy domain=\"coder\" rights=\"read|write\" pattern=\"PDF\" \\/>/' /etc/ImageMagick-6/policy.xml || true"
+
+  # Firewall: deny inbound except SSH (anywhere) and gunicorn 8001-8003 (mf-router only)
+  - . /etc/yats-deploy.env
+  - ufw --force reset
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw allow 22/tcp
+  - ufw allow from ${MF_ROUTER_IP} to any port 8001:8003 proto tcp
+  - ufw --force enable
+
+  # Detect the Hetzner private IP (RFC1918, non-public) for gunicorn bind
+  - PRIV=$(ip -4 -o addr show scope global | awk '{print $4}' | cut -d/ -f1 | grep -E '^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)' | head -1)
+  - test -n "$PRIV" || (echo "no private IP found — attach the private network" >&2; exit 1)
+
+  # Install the application
+  - git clone --branch develop https://github.com/mediafactory/yats.git /opt/yats
+  - PRIVATE_IP="$PRIV" bash /opt/yats/deploy/bootstrap.sh
+
+final_message: >
+  mf-yats-1 ready. Next: fill /etc/yats/<site>.ini (DB cluster creds + signal
+  number), register signal numbers (deploy/signal/register.md), then run the
+  cutover (deploy/MIGRATION.md). Bind IP for mf-router upstreams: the detected
+  private IP, ports 8001 (mf) / 8002 (bagarino) / 8003 (schiwago).

@@ -16,6 +16,7 @@
 # Environments
 .env
 .venv
+.venv-verify
 env/
 venv/
 ENV/
@@ -23,3 +24,5 @@ env.bak/
 venv.bak/
 
 .vscode/
+# local Django 5.2 migration verification venv
+.venv-verify/

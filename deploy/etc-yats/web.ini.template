@@ -1,0 +1,65 @@
+# Per-web YATS configuration — read by sites/web/web/settings.py via $YATS_CONFIG.
+# bootstrap.sh substitutes @PLACEHOLDERS@ and installs this as /etc/yats/<site>.ini.
+# One file per web (mf / bagarino / schiwago). Keep secrets readable only by the
+# 'yats' user (chmod 640, owner yats:yats).
+
+[debug]
+DEBUG: false
+TESTSYTEM: false
+
+[site]
+PROJECT_NAME: @PROJECT_NAME@
+DOMAIN: @DOMAIN@
+# generate once, e.g.: python3 -c "import secrets;print(secrets.token_urlsafe(50))"
+SECRET_KEY: @SECRET_KEY@
+# distinct prefix per web -> no key collisions in the shared memcached
+CACHE_KEY_PREFIX: @SITE@
+
+[database]
+# Existing PostgreSQL cluster (same connection as the old system).
+DATABASE_ENGINE: django.db.backends.postgresql
+DATABASE_NAME: @DB_NAME@
+DATABASE_USER: @DB_USER@
+DATABASE_PASSWORD: @DB_PASSWORD@
+DATABASE_HOST: @DB_HOST@
+DATABASE_PORT: @DB_PORT@
+ATOMIC_REQUESTS: true
+
+[cache]
+LOCATION: 127.0.0.1:11211
+
+[folder]
+FILE_UPLOAD_PATH: /var/web/@SITE@/files/
+STATIC_ROOT: /var/web/@SITE@/static/
+LOGGING_PATH: /var/web/@SITE@/logs/django_request.log
+INDEX_PATH: /var/web/@SITE@/index/xapian_index
+TEMP_ROOT: /tmp/
+FILE_UPLOAD_VIRUS_SCAN: true
+
+[mail]
+EMAIL_HOST: localhost
+EMAIL_PORT: 25
+SERVER_EMAIL: @SERVER_EMAIL@
+EMAIL_SUBJECT_PREFIX: @PROJECT_NAME@
+
+[signal]
+SIGNAL_BIN: sudo /usr/local/bin/signal-cli
+SIGNAL_CONFIG: /var/lib/signal-cli/@SITE@
+SIGNAL_USERNAME: @SIGNAL_NUMBER@
+SIGNAL_TEST_RECIPIENT:
+
+[jabber]
+JABBER_HOST_USER:
+JABBER_HOST_PASSWORD:
+JABBER_TEST_RECIPIENT:
+
+[notify]
+TICKET_NEW_MAIL_RCPT:
+TICKET_NEW_JABBER_RCPT:
+TICKET_NEW_SIGNAL_RCPT:
+
+[github]
+GITHUB_OWNER: mediafactory
+GITHUB_REPO: yats
+GITHUB_USER:
+GITHUB_PASS:

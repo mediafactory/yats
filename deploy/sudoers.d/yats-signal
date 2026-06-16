@@ -1,0 +1,4 @@
+# Allow the 'yats' service user to run signal-cli as root without a password.
+# YATS calls 'sudo /usr/local/bin/signal-cli ...' (see modules/yats/tasks.py).
+# Install as /etc/sudoers.d/yats-signal (mode 0440, owner root:root).
+yats ALL=(root) NOPASSWD: /usr/local/bin/signal-cli

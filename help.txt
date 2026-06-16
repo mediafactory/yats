@@ -1,2 +1,6 @@
 import pydevd
 pydevd.settrace('192.168.33.1', 5678)
+
+
+Docker Help:
+docker login -u my_docker_user_name

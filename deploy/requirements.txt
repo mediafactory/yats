@@ -1,0 +1,11 @@
+# Production deps for the Hetzner server (mf-yats-1).
+# Reuses the shared app dependency set and adds the WSGI server + the
+# PostgreSQL driver for the existing DB cluster.
+#
+# NOTE: the venv is created with --system-site-packages so the apt package
+# python3-xapian / python3-xapian-haystack (native Xapian bindings) is importable.
+-r ../vagrant/requirements.txt
+
+gunicorn
+psycopg[binary]
+whitenoise

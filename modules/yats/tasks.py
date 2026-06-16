@@ -23,11 +23,12 @@ def do_send_signal(msg, rcpt_list, atts=[]):
             command = '%s -a' % command
             for att in atts:
                 command = '%s %s' % (command, att)
-        subprocess.run([command, '2>> /tmp/signal_err'], shell=True, stdin=None, stdout=None, stderr=None, env={'LANG': 'de_DE.UTF-8'}, close_fds=True)
+        command = '%s 2>> /tmp/signal_err' % command
+        subprocess.run(command, shell=True, stdin=None, stdout=None, stderr=None, env={'LANG': 'de_DE.UTF-8'}, close_fds=True)
 
 
 @background()
 def unlink_file(filename):
     if os.path.isfile(filename):
-        print 'unlink %s' % filename
+        print('unlink %s' % filename)
         os.unlink(filename)
