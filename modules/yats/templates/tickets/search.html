@@ -11,20 +11,16 @@
 {% block content %}
 
     <h2>{% trans "search for tickets" %}</h2>
-    <p style="margin-top: -15px;"><small class="text-muted"><a href="/tickets/search/extended/">{% trans "switch to extended search" %}</a></small></p>
+    <p class="-mt-2"><small class="text-gray-500"><a href="/tickets/search/extended/">{% trans "switch to extended search" %}</a></small></p>
 
     <p>&nbsp;</p>
 
-    <form class="form-{{ layout }}" action="/tickets/search/" method="post">
+    <form action="/tickets/search/" method="post" class="max-w-3xl">
         {% csrf_token %}
         {{ form|as_bootstrap:layout }}
-        {% if layout == "horizontal" %}
-            <p class="form-actions">
-                <input type="submit" value="{% trans "search" %}" class="btn btn-primary">
-            </p>
-        {% else %}
+        <div class="mt-4">
             <input type="submit" value="{% trans "search" %}" class="btn btn-primary">
-        {% endif %}
+        </div>
     </form>
 
 {% endblock %}

@@ -7,18 +7,16 @@
 {% block extra_head %}
     {{ form.media }}
     <link href="{{ STATIC_URL }}timeline.css" type="text/css" rel="stylesheet" media="all">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
-    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 {% endblock %}
 
 {% block content %}
 
     <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/view/{{ ticket.id }}/">{% trans "view" %}</a>&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/{% if keep_it_simple %}simple{% else %}edit{% endif %}/{{ ticket.id }}/">{% trans "edit" %}</a>{% endif %}</h2>
-    <p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} by {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}</small></p>
+    <p><small class="text-gray-500">{% trans "created" %}: {{ ticket.c_date }} by {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}</small></p>
     <p>&nbsp;</p>
 
     <h3>{% trans "history" %}</h3>
-    <hr />
+    <hr class="my-4" />
     <ul class="timeline">
         {% for line in history %}
         {% diff line %}
@@ -27,7 +25,7 @@
           <div class="timeline-badge {{ line.action|comment_color }}"><i class="fa {{ line.action|history_icon }}"></i></div>
           <div class="timeline-panel">
             <div class="timeline-heading">
-              <p><i class="icon-user"></i> <small class="text-muted">{{ line.c_user }} <i class="icon-time"></i> {{ line.c_date }}</small></p>
+              <p><i class="fa fa-user"></i> <small class="text-gray-500">{{ line.c_user }} <i class="fa fa-clock-o"></i> {{ line.c_date }}</small></p>
             </div>
             <div class="timeline-body">
               <p>

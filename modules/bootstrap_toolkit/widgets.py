@@ -1,25 +1,6 @@
 from django import forms
-from django.conf import settings
-from django.utils import translation
 from django.utils.safestring import mark_safe
 from django.utils.html import conditional_escape
-from django.contrib.staticfiles import finders
-
-
-default_date_format = getattr(settings, 'DATE_INPUT_FORMATS', None)
-if default_date_format:
-    default_date_format = str(default_date_format[0])
-
-
-def javascript_date_format(python_date_format):
-    js_date_format = python_date_format.replace(r'%Y', 'yyyy')
-    js_date_format = js_date_format.replace(r'%m', 'mm')
-    js_date_format = js_date_format.replace(r'%d', 'dd')
-    if '%' in js_date_format:
-        js_date_format = ''
-    if not js_date_format:
-        js_date_format = 'yyyy-mm-dd'
-    return js_date_format
 
 
 def add_to_css_class(classes, new_class):
@@ -44,30 +25,6 @@ def create_prepend_append(**kwargs):
     bootstrap['append'] = kwargs.pop('append', None)
     bootstrap['prepend'] = kwargs.pop('prepend', None)
     return bootstrap, kwargs
-
-
-def get_language():
-    lang = translation.get_language()
-    if '-' in lang:
-        lang = '%s-%s' % (lang.split('-')[0].lower(), lang.split('-')[1].upper())
-    return lang
-
-
-def get_locale_js_url_date(lang):
-    url = 'datepicker/js/locales/bootstrap-datepicker.%s.js' % lang
-    if finders.find(url):
-        return settings.STATIC_URL + url
-    if '-' in lang:
-        return get_locale_js_url_date(lang.split('-')[0].lower())
-    return ''
-
-def get_locale_js_url_datetime(lang):
-    url = 'datetimepicker/js/locales/bootstrap-datetimepicker.%s.js' % lang
-    if finders.find(url):
-        return settings.STATIC_URL + url
-    if '-' in lang:
-        return get_locale_js_url_datetime(lang.split('-')[0].lower())
-    return ''
 
 
 class BootstrapUneditableInput(forms.TextInput):
@@ -97,87 +54,20 @@ class BootstrapPasswordInput(forms.PasswordInput):
 
 
 class BootstrapDateInput(forms.DateInput):
+    """Native HTML5 date picker (replaces the old bootstrap-datepicker)."""
 
-    bootstrap = {
-        'append': mark_safe('<i class="icon-calendar"></i>'),
-        'prepend': None,
-    }
+    bootstrap = {'append': None, 'prepend': None}
+    input_type = 'date'  # native <input type=date> needs ISO format on the wire
 
-    @property
-    def media(self):
-        js = (
-            settings.STATIC_URL + 'datepicker/js/bootstrap-datepicker.js',
-        )
-        lang = get_language()
-        if lang != 'en':
-            locale_js_url = get_locale_js_url_date(lang)
-            if locale_js_url:
-                js = js + (
-                    locale_js_url,
-                )
-        js = js + (
-            settings.STATIC_URL + 'bootstrap_toolkit/js/init_datepicker.js',
-        )
-        css = {
-            'screen': (
-                settings.STATIC_URL + 'datepicker/css/datepicker.css',
-            )
-        }
-        return forms.Media(css=css, js=js)
+    def __init__(self, attrs=None, format=None):
+        super().__init__(attrs=attrs, format='%Y-%m-%d')
 
-    def render(self, name, value, attrs=None, renderer=None):
-        date_input_attrs = {}
-        if attrs:
-            date_input_attrs.update(attrs)
-        date_format = self.format
-        if not date_format:
-            date_format = default_date_format
-        date_input_attrs.update({
-            'data-date-format': javascript_date_format(date_format),
-            'data-date-language': get_language(),
-            'data-bootstrap-widget': 'datepicker',
-        })
-        return super(BootstrapDateInput, self).render(name, value, attrs=date_input_attrs)
 
 class BootstrapDateTimeInput(forms.DateTimeInput):
-    bootstrap = {
-        'append': None,
-        'prepend': None,
-    }
+    """Native HTML5 datetime picker (replaces the old bootstrap-datetimepicker)."""
 
-    @property
-    def media(self):
-        js = (
-            settings.STATIC_URL + 'datetimepicker/js/bootstrap-datetimepicker.js',
-        )
-        lang = get_language()
-        if lang != 'en':
-            locale_js_url = get_locale_js_url_datetime(lang)
-            if locale_js_url:
-                js = js + (
-                    locale_js_url,
-                )
-        js = js + (
-            settings.STATIC_URL + 'bootstrap_toolkit/js/init_datetimepicker.js',
-        )
-        css = {
-            'screen': (
-                settings.STATIC_URL + 'datetimepicker/css/bootstrap-datetimepicker.css',
-            )
-        }
-        return forms.Media(css=css, js=js)
+    bootstrap = {'append': None, 'prepend': None}
+    input_type = 'datetime-local'
 
-    def render(self, name, value, attrs=None, renderer=None):
-        date_input_attrs = {'readonly': '', 'size': 16}
-        if attrs:
-            date_input_attrs.update(attrs)
-        date_format = self.format
-        if not date_format:
-            date_format = default_date_format
-        date_input_attrs.update({
-            'data-date-format': javascript_date_format(date_format),
-            'data-date-language': get_language(),
-            'data-bootstrap-widget': 'datetimepicker',
-        })
-        self.format = '%d.%m.%Y %H:%M'
-        return super(BootstrapDateTimeInput, self).render(name, value, attrs=date_input_attrs)
+    def __init__(self, attrs=None, format=None):
+        super().__init__(attrs=attrs, format='%Y-%m-%dT%H:%M')

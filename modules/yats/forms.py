@@ -97,9 +97,13 @@ class TicketsForm(forms.ModelForm):
         for field in self.fields:
             if type(self.fields[field]) is forms.fields.DateField:
                 self.fields[field].widget = BootstrapDateInput()
+                # accept the ISO value submitted by <input type=date>
+                self.fields[field].input_formats = ['%Y-%m-%d']
 
             if type(self.fields[field]) is forms.fields.DateTimeField:
                 self.fields[field].widget = BootstrapDateTimeInput()
+                # accept the value submitted by <input type=datetime-local>
+                self.fields[field].input_formats = ['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S']
 
         # remove fields after close
         if self.instance.pk is not None and self.instance.closed and not self.view_only:
@@ -161,8 +165,8 @@ class SimpleTickets(forms.Form):
     description = forms.CharField(widget=forms.Textarea(), required=False, label=_('description'))
     assigned = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label=_('assigned'))
     priority = forms.ModelChoiceField(queryset=ticket_priority.objects.all(), required=False, initial=get_simple_priority, label=_('priority'), empty_label=None)
-    deadline = forms.DateTimeField(widget=BootstrapDateTimeInput(format='dd.mm.yyyy hh:ii'), required=False, label=_('deadline'))
-    show_start = forms.DateTimeField(widget=BootstrapDateTimeInput(format='dd.mm.yyyy hh:ii'), required=False, label=_('show from'))
+    deadline = forms.DateTimeField(widget=BootstrapDateTimeInput(), required=False, label=_('deadline'), input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'])
+    show_start = forms.DateTimeField(widget=BootstrapDateTimeInput(), required=False, label=_('show from'), input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'])
     component = forms.ModelChoiceField(queryset=ticket_component.objects.all(), required=False, label=_('component'))
 
 
@@ -206,9 +210,11 @@ class SearchForm(forms.ModelForm):
         for field in self.fields:
             if type(self.fields[field]) is forms.fields.DateField:
                 self.fields[field].widget = BootstrapDateInput()
+                self.fields[field].input_formats = ['%Y-%m-%d']
 
             if type(self.fields[field]) is forms.fields.DateTimeField:
                 self.fields[field].widget = BootstrapDateTimeInput()
+                self.fields[field].input_formats = ['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S']
 
             if type(self.fields[field]) is forms.fields.BooleanField:
                 self.fields[field] = forms.NullBooleanField()

@@ -5,10 +5,9 @@
 {% block title %}{% trans "ticket workflow" %}{% endblock %}
 
 {% block extra_head %}
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="{{ STATIC_URL }}workflow.css">
 <link rel="stylesheet" href="{{ STATIC_URL }}jsplumb.css">
-<script src="{{ STATIC_URL }}jquery.jsPlumb-1.6.2-min.js"></script>
+<script src="{{ STATIC_URL }}jsplumb.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -23,12 +22,15 @@
 
 <script type="text/javascript">
 jsPlumb.ready(function() {
-    var width = $( "#statemachine-demo" ).width();
-    var height = $( "#statemachine-demo" ).height();
+    var demo = document.getElementById("statemachine-demo");
+    var width = demo.offsetWidth;
+    var height = demo.offsetHeight;
 
     {% for node, point in nodes.items %}
-    $( "#{{ node }}" ).css('left', width / {{ width|stringformat:"f" }} * {{ point.0|stringformat:"f" }});
-    $( "#{{ node }}" ).css('top', height / {{ height|stringformat:"f" }} * {{ point.1|stringformat:"f" }});{% endfor %}
+    (function(){ var n = document.getElementById("{{ node }}"); if (n) {
+        n.style.left = (width / {{ width|stringformat:"f" }} * {{ point.0|stringformat:"f" }}) + 'px';
+        n.style.top  = (height / {{ height|stringformat:"f" }} * {{ point.1|stringformat:"f" }}) + 'px';
+    }})();{% endfor %}
 
     // setup some defaults for jsPlumb.
     var instance = jsPlumb.getInstance({
@@ -62,12 +64,7 @@ jsPlumb.ready(function() {
     	{% if not request.user.is_staff %}return false;{% endif %}
         result = confirm("{% trans "Are you sure you want to disconnect these nodes?" %}");
         if (result) {
-			$.ajax({
-			  type: "POST",
-			  url: '.',
-			  data: 'method=del&now=' + conn.sourceId + '&next=' + conn.targetId,
-			  success: function(data, textStatus, jqXHR) {}
-			});
+			YATS.post('.', {method: 'del', now: conn.sourceId, next: conn.targetId});
         	return true;
         } else {
             return false;
@@ -76,12 +73,7 @@ jsPlumb.ready(function() {
 
     instance.bind("beforeDrop", function (info) {
         {% if not request.user.is_staff %}return false;{% endif %}
-        $.ajax({
-          type: "POST",
-          url: '.',
-          data: 'method=add&now=' + info.sourceId + '&next=' + info.targetId,
-          success: function(data, textStatus, jqXHR) {}
-        });
+        YATS.post('.', {method: 'add', now: info.sourceId, next: info.targetId});
     	return true;
     });
 

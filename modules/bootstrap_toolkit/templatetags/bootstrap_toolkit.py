@@ -56,6 +56,49 @@ def as_querybuilder_fieldtype(field):
     else:
         return u'\'%s\'' % field.field.__class__
 
+@register.filter(is_safe=True)
+def querybuilder_filters(form):
+    """
+    Structured filter metadata for the Alpine query builder, as a JSON string.
+    Each entry: {id, label, type, operators, input, values}. Operators map 1:1
+    to the names the backend (yats/shortcuts.py createQuery) understands.
+    """
+    STRING_OPS = ['equal', 'not_equal', 'is_null', 'is_not_null', 'begins_with',
+                  'not_begins_with', 'contains', 'not_contains', 'ends_with',
+                  'not_ends_with', 'is_empty', 'is_not_empty']
+    NUM_OPS = ['equal', 'not_equal', 'less', 'less_or_equal', 'greater',
+               'greater_or_equal', 'between', 'not_between', 'is_null', 'is_not_null']
+    DT_OPS = ['equal', 'not_equal', 'less', 'less_or_equal', 'greater',
+              'greater_or_equal', 'between', 'not_between', 'is_null', 'is_not_null']
+    SELECT_OPS = ['equal', 'not_equal', 'is_null', 'is_not_null']
+
+    filters = []
+    for field in form:
+        f = field.field
+        meta = {'id': field.name, 'label': str(field.label), 'input': 'text'}
+        if type(f) in (forms.fields.BooleanField, forms.fields.NullBooleanField):
+            meta.update(type='boolean', input='radio',
+                        operators=['equal'],
+                        values=[{'value': 'true', 'label': _('yes')},
+                                {'value': 'false', 'label': _('no')}])
+        elif type(f) is forms.fields.DateField:
+            meta.update(type='date', input='date', operators=DT_OPS)
+        elif type(f) is forms.fields.DateTimeField:
+            meta.update(type='datetime', input='datetime', operators=DT_OPS)
+        elif type(f) is forms.fields.IntegerField:
+            meta.update(type='integer', input='number', operators=NUM_OPS)
+        elif type(f) is forms.fields.FloatField:
+            meta.update(type='double', input='number', operators=NUM_OPS)
+        elif type(f) is forms.models.ModelChoiceField:
+            values = [{'value': str(cid), 'label': str(name)}
+                      for cid, name in f.choices if cid]
+            meta.update(type='string', input='select', operators=SELECT_OPS, values=values)
+        else:
+            meta.update(type='string', input='text', operators=STRING_OPS)
+        filters.append(meta)
+    return mark_safe(json.dumps(filters))
+
+
 @register.filter
 def as_querybuilder(form, request):
     last_search = request.session.get('last_search')

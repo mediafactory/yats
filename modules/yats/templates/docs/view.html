@@ -6,17 +6,16 @@
 
 {% block extra_head %}
 <link href="{{ STATIC_URL }}pygments.css" type="text/css" rel="stylesheet" media="all">
-<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
-<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+<script src="{{ STATIC_URL }}js/image-tooltip.js"></script>
 {% endblock %}
 
 {% block content %}
 <h3>{% trans "document" %} §{{ doc.id }} <a class="btn btn-small" href="/docs/history/{{ doc.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/docs/edit/{{ doc.id }}/">{% trans "edit" %}</a>&nbsp;<a class="btn btn-small" href="/docs/upload/{{ doc.id }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small btn-primary" href="/docs/ticket/{{ doc.id }}/">{% trans "create ticket" %}</a>&nbsp;<a class="btn btn-small btn-danger" href="javascript: del()">{% trans "delete" %}</a></h3>
 <h2>{{ doc.caption }}</h2>
-<p>{{ doc.text|markdown2html|buildToDoList|numberToTicketURL|safe }}</p>
+<div class="prose max-w-none mb-6">{{ doc.text|markdown2html|buildToDoList|numberToTicketURL|safe }}</div>
 
 {% if files %}
-<hr />
+<hr class="my-4" />
 <section id="no-more-tables">
     <table class="table table-striped table-hover">
         <thead>
@@ -31,7 +30,7 @@
         </thead>
           {% for line in files %}
             <tr>
-                <td data-title="{% trans "action" %}"><a href="javascript: delFile({{ line.id }});"><i class="icon-trash"></i></td>
+                <td data-title="{% trans "action" %}"><a href="javascript: delFile({{ line.id }});" class="text-red-600"><i class="fa fa-trash"></i></a></td>
                 <td data-title="{% trans "date" %}">{{ line.c_date|date:"SHORT_DATE_FORMAT" }}</td>
                 <td data-title="{% trans "name" %}"{% if line.id|hasPreviewFile:"doc" or line.content_type|hasPreview %} dataimg="/docs/download/{{ doc.id }}/?file={{ line.id }}&preview=yes"{% endif %}><a href="/docs/download/{{ doc.id }}/?file={{ line.id }}">{{ line.name }}</a>
                 {% if "audio" in line.content_type %}<br /><br /><audio controls="controls" preload="none">
@@ -49,20 +48,6 @@
 {% endif %}
 
 <script>
-jQuery(document).tooltip({
-        position: {
-            collision: "fit"
-        },
-        track: true,
-        items : "[dataimg]",
-        content : function() {
-            var element = jQuery(this);
-            if (element.is("[dataimg]")) {
-                return '<img src="'+ element.attr("dataimg") +'" width="300" />';
-            }
-        }
-    });
-
   function del() {
     if ( confirm('{% trans "Do you really want to delete this document?" %}') ) {
       window.location.href = '/docs/delete/{{doc.id }}/';
@@ -74,8 +59,12 @@ jQuery(document).tooltip({
             window.location.href = '/docs/delfile/{{doc.id }}/?fileid=' + fileid;
   }
 
-  $(":checkbox").on("click", function(){
-    alert('{% trans "change of TDODs in documents not supported" %}');
-  } );
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('input[type=checkbox]').forEach(function (cb) {
+      cb.addEventListener('click', function () {
+        alert('{% trans "change of TDODs in documents not supported" %}');
+      });
+    });
+  });
 </script>
 {% endblock %}

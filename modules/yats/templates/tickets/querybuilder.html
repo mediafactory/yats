@@ -6,50 +6,42 @@
 
 {% block extra_head %}
    {{ form.media }}
-    <script src="//cdn.jsdelivr.net/npm/jquery-extendext@0.1.2/jQuery.extendext.min.js"></script>
-    <link href="{{ STATIC_URL }}querybuilder/css/query-builder.default.css" type="text/css" rel="stylesheet" media="all">
-    <script src="{{ STATIC_URL }}querybuilder/js/query-builder.standalone.js"></script>
-    <script src="{{ STATIC_URL }}querybuilder/i18n/query-builder.{{ LANGUAGE_CODE }}.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
-    <style>
-      select {width: auto;}
-      input {width: auto;}
-    </style>
+   <script src="{{ STATIC_URL }}js/querybuilder.js"></script>
 {% endblock %}
 
 {% block content %}
 
     <h2>{% trans "search for tickets" %}</h2>
-    <p style="margin-top: -15px;"><small class="text-muted"><a href="/tickets/search/simple/">{% trans "switch to simple search" %}</a></small></p>
+    <p class="-mt-2"><small class="text-gray-500"><a href="/tickets/search/simple/">{% trans "switch to simple search" %}</a></small></p>
 
     <p>&nbsp;</p>
 
-    <div class="container">
+    <div>
+        {{ form|as_querybuilder:request }}
 
-    {{ form|as_querybuilder:request }}
-
-      <p class="form-actions">
-        <button class="btn btn-primary parse-json" id="btn-get">{% trans "search" %}</button>
-        <button class="btn btn-warning reset" id="btn-reset">{% trans "reset" %}</button>
-      </p>
+        <div class="mt-4 flex gap-2">
+            <button type="button" class="btn btn-primary" id="btn-get">{% trans "search" %}</button>
+            <button type="button" class="btn btn-warning" id="btn-reset">{% trans "reset" %}</button>
+        </div>
     </div>
 
-    <form method="post" name="data">
-      <input type="hidden" id="query" name="query" />
+    <form method="post" name="data" id="qb-form">
+        {% csrf_token %}
+        <input type="hidden" id="query" name="query" />
     </form>
 
     <script>
-      $('#btn-get').on('click', function() {
-      var result = $('#builder').queryBuilder('getRules');
-
-      if (!$.isEmptyObject(result)) {
-        $('#query').val(JSON.stringify(result));
-        document.data.submit();
-      }
-    });
-
-    $('#btn-reset').on('click', function() {
-      $('#builder').queryBuilder('reset');
-    });
+      document.getElementById('btn-get').addEventListener('click', function () {
+        var qb = window.yatsQueryBuilder;
+        if (!qb) return;
+        var result = qb.getRules();
+        if (result && result.rules && result.rules.length) {
+          document.getElementById('query').value = JSON.stringify(result);
+          document.getElementById('qb-form').submit();
+        }
+      });
+      document.getElementById('btn-reset').addEventListener('click', function () {
+        if (window.yatsQueryBuilder) window.yatsQueryBuilder.reset();
+      });
     </script>
 {% endblock %}
