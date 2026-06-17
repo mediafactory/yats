@@ -33,3 +33,8 @@ venv.bak/
 
 # filled per-web YATS configs contain DB credentials — never commit (template is tracked)
 deploy/etc-yats/*.ini
+
+# local test environment (start.sh): keep test.ini/test_settings.py/requirements.txt,
+# ignore the generated venv + SQLite/static/log data
+/testenv/.venv/
+/testenv/data/

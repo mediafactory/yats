@@ -1,0 +1,30 @@
+# Test-environment Python deps (local, SQLite, no native search/AV libs).
+# Mirrors vagrant/requirements.txt but drops packages that need native
+# system libraries the local box may not have:
+#   - xapian-haystack : needs the native Xapian bindings; the test env uses
+#                       Haystack's simple backend instead (see test_settings.py)
+#   - Wand            : needs ImageMagick; only used for image previews
+#   - pyclamd         : needs a ClamAV daemon; virus scan is optional at runtime
+# Everything else matches the pinned app dependency set.
+Django>=5.2,<5.3
+diff-match-patch
+Markdown
+six
+pillow
+itsdangerous
+defusedxml>=0.7.1
+dnspython>=2.6
+vobject>=0.9.9
+monotonic
+django-markdownx>=4.0.11,<5
+django-haystack>=3.3,<4
+pygments
+furl
+rpc4django
+radicale>=3.1
+icalendar>=5.0
+requests
+django-background-tasks>=1.2.8
+httplib2
+pymemcache>=4.0
+whitenoise
