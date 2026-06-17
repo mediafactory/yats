@@ -53,21 +53,6 @@ KEY FEATURES
 
 INSTALLATION
 -----
-no pypi package yet!
-
-needs:
-see requirements.txt
-AND
-all modules from modules folder
-
-should need:  
-pyclamd (add TCPSocket 3310 and TCPAddr 127.0.0.1 to its config and restart)  
-memcache
-
-There is a debian package which includes parts of all, but is very special designed for our usecase as we make no use of pip.
-
-settings.py reads part of its config data from an inifile (see top of settings.py).
-
 The project is splited into 2 parts:
 - the app (yats)
 - the web, using the app (web)
