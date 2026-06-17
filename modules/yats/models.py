@@ -63,6 +63,7 @@ class UserProfile(models.Model):
     signal = models.CharField(max_length=255, null=True, blank=True)
     day_since_closed_tickets = models.SmallIntegerField(default=5)
     impersonate_alias = models.CharField(max_length=255, null=True, blank=True)
+    dashboard_config = models.TextField(null=True, blank=True)  # JSON: per-user dashboard widget list (order + visibility)
 
     def save(self, *args, **kwargs):
         if not self.pk:

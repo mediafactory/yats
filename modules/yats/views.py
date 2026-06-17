@@ -43,10 +43,65 @@ def root(request, form=None):
             else:
                 messages.add_message(request, messages.ERROR, _(u'Password invalid'))
 
-        return table(request)
+        return dashboard(request)
 
     else:
         return HttpResponseRedirect('/local_login/')
+
+
+@login_required
+def dashboard(request):
+    from yats import dashboard as dash
+
+    stored = None
+    try:
+        profile = UserProfile.objects.get(user=request.user)
+        if profile.dashboard_config:
+            stored = json.loads(profile.dashboard_config)
+    except (UserProfile.DoesNotExist, ValueError):
+        pass
+    config = dash.normalize_config(stored)
+
+    # build data only for visible widgets
+    builders = {
+        'metrics': dash.widget_metrics,
+        'my_open': dash.widget_my_open,
+        'due': dash.widget_due,
+        'chart_state': dash.widget_chart_state,
+        'chart_priority': dash.widget_chart_priority,
+        'chart_assigned': dash.widget_chart_assigned,
+    }
+    widgets = []
+    chart_data = {}
+    for entry in config:
+        wid = entry['id']
+        data = builders[wid](request) if entry['visible'] and wid in builders else None
+        if wid.startswith('chart_') and data is not None:
+            chart_data[wid] = data
+        widgets.append({'id': wid, 'visible': entry['visible'], 'data': data})
+
+    return render(request, 'home.html', {
+        'widgets': widgets,
+        'config_json': json.dumps(config),
+        'chart_data_json': json.dumps(chart_data),
+    })
+
+
+@login_required
+def dashboard_config_save(request):
+    if request.method != 'POST':
+        return HttpResponseNotFound()
+
+    from yats import dashboard as dash
+    try:
+        config = dash.normalize_config(json.loads(request.body.decode('utf-8')))
+    except (ValueError, UnicodeDecodeError):
+        return HttpResponse(status=400)
+
+    profile, _created = UserProfile.objects.get_or_create(user=request.user)
+    profile.dashboard_config = json.dumps(config)
+    profile.save()
+    return JsonResponse({'ok': True})
 
 def login(request):
     if request.user.is_authenticated:

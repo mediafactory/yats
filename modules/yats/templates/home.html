@@ -1,14 +1,164 @@
 {% extends "base.html" %}
 
-{% load bootstrap_toolkit i18n %}
+{% load i18n %}
+
+{% block title %}{% trans "dashboard" %}{% endblock %}
 
 {% block extra_head %}
-    {{ form.media }}
+    <script src="{{ STATIC_URL }}chart.umd.min.js"></script>
+    <script src="{{ STATIC_URL }}js/dashboard.js"></script>
 {% endblock %}
 
 {% block content %}
+<div x-data="dashboard({{ config_json }}, {{ chart_data_json }})">
 
-    <h2>{% trans "dashboard" %}</h2>
-    
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">{% trans "dashboard" %}</h2>
+        <button type="button" class="btn btn-default btn-small" @click="$store.ui.openModal('dashCfgDlg')">
+            <i class="fa fa-cog"></i> {% trans "configure" %}
+        </button>
+    </div>
 
+    {# widgets are rendered server-side in default order; Alpine reorders / hides them client-side #}
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+         @dragover.prevent
+         x-ref="grid">
+
+        {% for widget in widgets %}
+        <div class="dash-widget"
+             data-widget="{{ widget.id }}"
+             draggable="true"
+             x-show="isVisible('{{ widget.id }}')"
+             :style="orderStyle('{{ widget.id }}')"
+             @dragstart="onDragStart($event, '{{ widget.id }}')"
+             @drop="onDrop($event, '{{ widget.id }}')"
+             @dragover.prevent>
+
+            {% if widget.id == 'metrics' and widget.data %}
+            <div class="grid grid-cols-2 gap-3">
+                <div class="card"><div class="card-body text-center">
+                    <div class="text-3xl font-bold text-brand">{{ widget.data.open_total }}</div>
+                    <div class="text-sm text-gray-500">{% trans "open total" %}</div>
+                </div></div>
+                <div class="card"><div class="card-body text-center">
+                    <div class="text-3xl font-bold">{{ widget.data.my_open }}</div>
+                    <div class="text-sm text-gray-500">{% trans "assigned to me" %}</div>
+                </div></div>
+                <div class="card"><div class="card-body text-center">
+                    <div class="text-3xl font-bold">{{ widget.data.unassigned }}</div>
+                    <div class="text-sm text-gray-500">{% trans "unassigned" %}</div>
+                </div></div>
+                <div class="card"><div class="card-body text-center">
+                    <div class="text-3xl font-bold text-green-600">{{ widget.data.closed_this_week }}</div>
+                    <div class="text-sm text-gray-500">{% trans "closed this week" %}</div>
+                </div></div>
+            </div>
+
+            {% elif widget.id == 'my_open' %}
+            <div class="card">
+                <div class="card-header flex items-center gap-2"><i class="fa fa-user"></i> {% trans "my open tickets" %}</div>
+                <div class="card-body p-0">
+                    {% if widget.data %}
+                    <table class="table table-striped table-hover mb-0">
+                        <tbody>
+                        {% for t in widget.data %}
+                            <tr>
+                                <td class="w-1">{% if t.priority.color %}<span class="inline-block w-2 h-2 rounded-full align-middle" style="background-color:{{ t.priority.color }}"></span>{% endif %}</td>
+                                <td><a href="/tickets/view/{{ t.id }}/" class="text-brand hover:underline">#{{ t.id }}</a></td>
+                                <td class="truncate max-w-xs">{{ t.caption }}</td>
+                                <td class="text-right text-sm text-gray-500">{{ t.state.name }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="text-gray-400 italic p-3">{% trans "nothing assigned to you" %}</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% elif widget.id == 'due' %}
+            <div class="card">
+                <div class="card-header flex items-center gap-2"><i class="fa fa-clock-o"></i> {% trans "due / overdue" %}</div>
+                <div class="card-body p-0">
+                    {% if widget.data %}
+                    <table class="table table-striped table-hover mb-0">
+                        <tbody>
+                        {% for t in widget.data %}
+                            <tr>
+                                <td><a href="/tickets/view/{{ t.id }}/" class="text-brand hover:underline">#{{ t.id }}</a></td>
+                                <td class="truncate max-w-xs">{{ t.caption }}</td>
+                                <td class="text-right text-sm whitespace-nowrap{% if t.is_late == 2 %} text-red-600 font-semibold{% elif t.is_late == 1 %} text-orange-500{% else %} text-gray-500{% endif %}">{{ t.deadline|date:"Y-m-d" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="text-gray-400 italic p-3">{% trans "no upcoming deadlines" %}</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="p-3 text-gray-400 italic">{% trans "deadlines are not tracked in this installation" %}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% elif widget.id == 'chart_state' %}
+            <div class="card">
+                <div class="card-header">{% trans "open by state" %}</div>
+                <div class="card-body"><canvas data-chart="chart_state" data-chart-type="doughnut" height="220"></canvas></div>
+            </div>
+
+            {% elif widget.id == 'chart_priority' %}
+            <div class="card">
+                <div class="card-header">{% trans "open by priority" %}</div>
+                <div class="card-body"><canvas data-chart="chart_priority" data-chart-type="doughnut" height="220"></canvas></div>
+            </div>
+
+            {% elif widget.id == 'chart_assigned' %}
+            <div class="card">
+                <div class="card-header">{% trans "open by assignee" %}</div>
+                <div class="card-body"><canvas data-chart="chart_assigned" data-chart-type="bar" height="220"></canvas></div>
+            </div>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ---- configure modal ---- #}
+    <div x-show="$store.ui.modal === 'dashCfgDlg'" style="display:none">
+        <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+        <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+            <div class="modal-header">
+                <h3 class="text-lg font-medium">{% trans "configure dashboard" %}</h3>
+                <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="modal-body space-y-2">
+                <p class="text-sm text-gray-500">{% trans "Toggle widgets on or off. Drag widgets on the dashboard to reorder them." %}</p>
+                <template x-for="w in config" :key="w.id">
+                    <label class="flex items-center gap-2 py-1">
+                        <input type="checkbox" x-model="w.visible">
+                        <span x-text="labels[w.id] || w.id"></span>
+                    </label>
+                </template>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "cancel" %}</button>
+                <button type="button" class="btn btn-primary" @click="save()">{% trans "save" %}</button>
+            </div>
+        </div>
+    </div>
+
+    {# i18n labels for the config modal, read by the Alpine component #}
+    <script type="application/json" id="dash-labels">
+    {
+        "metrics": "{% trans 'key figures' %}",
+        "my_open": "{% trans 'my open tickets' %}",
+        "due": "{% trans 'due / overdue' %}",
+        "chart_state": "{% trans 'open by state' %}",
+        "chart_priority": "{% trans 'open by priority' %}",
+        "chart_assigned": "{% trans 'open by assignee' %}"
+    }
+    </script>
+
+</div>
 {% endblock %}
