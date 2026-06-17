@@ -2,6 +2,9 @@
 // YATS Tailwind config — compiled via the standalone CLI (no Node runtime needed).
 // See assets/README.md for the build commands.
 module.exports = {
+  // Toggle dark mode by adding/removing the `dark` class on <html>
+  // (driven by the Alpine ui store, persisted in localStorage).
+  darkMode: 'class',
   content: [
     './modules/**/templates/**/*.html',
     './modules/**/static/**/*.js',

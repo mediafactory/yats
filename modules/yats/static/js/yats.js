@@ -39,6 +39,23 @@
   const YATS = { getCookie, csrftoken, request, post };
   window.YATS = YATS;
 
+  // ---- Theme (light/dark) ----
+  // Applied as early as possible (this script is in <head>, before <body>
+  // paints) so there's no flash of the wrong theme. Default: OS preference,
+  // overridable and persisted in localStorage.
+  function preferredTheme() {
+    var saved = localStorage.getItem('yats.theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark' : 'light';
+  }
+  function applyTheme(theme) {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }
+  applyTheme(preferredTheme());
+  YATS.preferredTheme = preferredTheme;
+  YATS.applyTheme = applyTheme;
+
   // ---- Alpine global store (sidebar + modal state) ----
   // Registered before Alpine initialises so x-data/$store work everywhere.
   document.addEventListener('alpine:init', () => {
@@ -57,6 +74,13 @@
       closeModal() { this.modal = null; },
       // upload progress (0-100), bound by the ticket-view Dropzone
       uploadProgress: 0,
+      // theme
+      theme: YATS.preferredTheme(),
+      toggleTheme() {
+        this.theme = this.theme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('yats.theme', this.theme);
+        YATS.applyTheme(this.theme);
+      },
     };
     window.Alpine.store('ui', store);
   });

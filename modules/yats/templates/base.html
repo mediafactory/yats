@@ -54,7 +54,7 @@
     {% endblock %}
 </head>
 
-<body class="h-full bg-gray-100 text-gray-800"
+<body class="h-full bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
       x-data
       :class="$store.ui.sidebarOpen ? 'overflow-hidden md:overflow-auto' : ''">
 
@@ -194,11 +194,11 @@
 
     {% if request.user.is_authenticated %}
     {# top header #}
-    <header class="sticky top-0 z-20 flex items-center gap-3 h-14 px-4 bg-white border-b border-gray-200 shadow-sm">
-        <button type="button" @click="$store.ui.toggleSidebar()" class="md:hidden text-gray-600 hover:text-gray-900">
+    <header class="sticky top-0 z-20 flex items-center gap-3 h-14 px-4 bg-white border-b border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+        <button type="button" @click="$store.ui.toggleSidebar()" class="md:hidden text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
             <i class="fa fa-bars text-lg"></i>
         </button>
-        <button type="button" @click="$store.ui.toggleCollapsed()" class="hidden md:inline text-gray-500 hover:text-gray-800" title="{% trans 'collapse sidebar' %}">
+        <button type="button" @click="$store.ui.toggleCollapsed()" class="hidden md:inline text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white" title="{% trans 'collapse sidebar' %}">
             <i class="fa fa-bars"></i>
         </button>
 
@@ -219,7 +219,7 @@
 
             {# suggestions dropdown #}
             <div x-show="open" x-transition style="display:none"
-                 class="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-96 overflow-y-auto z-30 text-sm">
+                 class="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-96 overflow-y-auto z-30 text-sm dark:bg-gray-800 dark:border-gray-700">
                 <template x-if="suggestions.length">
                     <div class="px-3 py-2 border-b border-gray-100">
                         <template x-for="s in suggestions" :key="s.caption">
@@ -233,7 +233,7 @@
                     <div class="py-1">
                         <div class="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400">{% trans "tickets" %}</div>
                         <template x-for="t in tickets" :key="'t'+t.id">
-                            <a :href="'/tickets/view/'+t.id+'/'" class="block px-3 py-1.5 hover:bg-gray-50">
+                            <a :href="'/tickets/view/'+t.id+'/'" class="block px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <i class="fa fa-bug text-gray-400"></i>
                                 <span :class="t.closed && 'line-through text-gray-400'">#<span x-text="t.id"></span> <span x-text="t.caption"></span></span>
                             </a>
@@ -244,7 +244,7 @@
                     <div class="py-1 border-t border-gray-100">
                         <div class="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400">{% trans "documents" %}</div>
                         <template x-for="d in docs" :key="'d'+d.id">
-                            <a :href="'/docs/view/'+d.id+'/'" class="block px-3 py-1.5 hover:bg-gray-50">
+                            <a :href="'/docs/view/'+d.id+'/'" class="block px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <i class="fa fa-wikipedia-w text-gray-400"></i> <span x-text="d.caption"></span>
                             </a>
                         </template>
@@ -252,11 +252,18 @@
                 </template>
             </div>
         </div>
+
+        {# theme toggle (light/dark) #}
+        <button type="button" @click="$store.ui.toggleTheme()"
+                class="ml-auto text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
+                :title="$store.ui.theme === 'dark' ? '{% trans 'switch to light mode' %}' : '{% trans 'switch to dark mode' %}'">
+            <i class="fa" :class="$store.ui.theme === 'dark' ? 'fa-sun-o' : 'fa-moon-o'"></i>
+        </button>
     </header>
 
     {# breadcrumbs #}
     {% if request.session.breadcrumbs %}
-    <div class="px-4 py-2 bg-white/60 border-b border-gray-200">
+    <div class="px-4 py-2 bg-white/60 border-b border-gray-200 dark:bg-gray-800/60 dark:border-gray-700">
         <nav class="breadcrumb">
             {% for bread in request.session.breadcrumbs %}
                 {% if bread.1 == '#' %}<a href="/tickets/view/{{ bread.0 }}/" class="hover:text-brand">{% if bread.2 %}<i class="fa fa-bug"></i> #{{ bread.0 }} {{ bread.2|truncatechars:19 }}{% else %}@{{ bread.0 }}{% endif %}</a>{% endif %}
@@ -282,7 +289,7 @@
 
     {% if request.user.is_authenticated %}
     {% block footer %}
-    <footer class="px-4 md:px-6 py-4 border-t border-gray-200 text-sm text-gray-500 bg-white">
+    <footer class="px-4 md:px-6 py-4 border-t border-gray-200 text-sm text-gray-500 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">
         <div class="flex flex-col sm:flex-row sm:justify-between gap-2">
             <div>
                 {{ SETTINGS.CUSTOMER }}<br>
