@@ -12,7 +12,7 @@
 
     <h2>{% trans "reports" %}</h2>
     <p>
-        <small id="cop" class="text-muted" data-clipboard-text="{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}/tickets/dav/{{ request.user }}/">
+        <small id="cop" class="text-gray-500 cursor-pointer" data-clipboard-text="{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}/tickets/dav/{{ request.user }}/">
             {% trans "alle reports are populated via CalDAV. click here to copy URL:" %}
             <a href="#">
                 <i class="fa fa-copy fa-lg"></i>
@@ -32,52 +32,53 @@
             </thead>
               {% for line in lines %}
                 <tr>
-                    <td data-title="{% trans "report" %}"><a href="javascript: doDelReport({{ line.id }})"><i class="icon-trash"></i></a>&nbsp;&nbsp;<a href="?report={{ line.id }}">{{ line.name }}</a></td>
+                    <td data-title="{% trans "report" %}"><a href="javascript: doDelReport({{ line.id }})" class="text-red-600"><i class="fa fa-trash"></i></a>&nbsp;&nbsp;<a href="?report={{ line.id }}">{{ line.name }}</a></td>
                 </tr>
             {% endfor %}
         </table>
 
-        {{ lines|pagination }} 
+        {{ lines|pagination }}
     </section>
     {% endif %}
     {% if lines.paginator.count == 0 %}
     {% trans "no reports found!" %}
     {% endif %}
 
-<div id="delDlg" class="modal hide fade">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h3>{% trans "delete report" %}</h3>
-  </div>
-  <div class="modal-body">
-    <p>{% trans "Do you really want to delete this report?" %}</p>
-  </div>
-  <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-    <a href="javascript: doDelReportDone()" class="btn btn-danger">{% trans "delete" %}</a>
-  </div>
+{# delete confirmation modal (Alpine) #}
+<div x-data x-show="$store.ui.modal === 'delReportDlg'" style="display:none">
+    <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+    <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+        <div class="modal-header">
+            <h3 class="text-lg font-medium">{% trans "delete report" %}</h3>
+            <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <p>{% trans "Do you really want to delete this report?" %}</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "cancel" %}</button>
+            <a href="javascript: doDelReportDone()" class="btn btn-danger">{% trans "delete" %}</a>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
     var clipboard = new ClipboardJS('#cop');
     clipboard.on('success', function(e) {
-        // alert(e.text + " copied!")
         e.clearSelection();
     });
-
     clipboard.on('error', function(e) {
-        alert("error! copy to clipboard did not work")
+        alert("error! copy to clipboard did not work");
     });
 
     var report;
-	function doDelReport(repid) {
-		report = repid;
-		$('#delDlg').modal();
-	}
-
-	function doDelReportDone() {
-		$('#delDlg').modal('hide');
-		window.location.href = '?delReport=' + report;
-	}
+    function doDelReport(repid) {
+        report = repid;
+        window.Alpine.store('ui').openModal('delReportDlg');
+    }
+    function doDelReportDone() {
+        window.Alpine.store('ui').closeModal();
+        window.location.href = '?delReport=' + report;
+    }
 </script>
 {% endblock %}

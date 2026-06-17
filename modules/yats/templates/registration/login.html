@@ -6,27 +6,27 @@
 
 {% block content %}
 
-<div>
-    <h1>{% trans "Local login" %}</h1><span id="trust_root"></span>
-    {% if sso %}<p style="margin-top: -15px;"><small class="text-muted"><a href="/client/">{% trans "single sign on" %}</a></small></p>{% endif %}
+<div class="mb-4">
+    <h1 class="text-xl font-semibold">{% trans "Local login" %}</h1><span id="trust_root"></span>
+    {% if sso %}<p class="mt-1"><small class="text-gray-500"><a href="/client/" class="text-brand hover:underline">{% trans "single sign on" %}</a></small></p>{% endif %}
 </div>
 {% if form.errors %}
-<div class="alert alert-error">{% trans "Your user and password didn't match. Please try again." %}</div>
-{% else %}
-<br />
+<div class="alert alert-error mb-4">{% trans "Your user and password didn't match. Please try again." %}</div>
 {% endif %}
 
-<form action="{% url 'login' %}" method="post" id="login-form">
+<form action="{% url 'login' %}" method="post" id="login-form" class="space-y-4">
   <div>
-    <label for="id_username">{% trans "User" %}:</label> <input type="text" name="username" id="id_username" />
+    <label class="form-label" for="id_username">{% trans "User" %}:</label>
+    <input class="form-control" type="text" name="username" id="id_username" />
   </div>
   <div>
-    <label for="id_password">{% trans "Password" %}:</label> <input type="password" name="password" id="id_password" />
+    <label class="form-label" for="id_password">{% trans "Password" %}:</label>
+    <input class="form-control" type="password" name="password" id="id_password" />
     <input type="hidden" name="this_is_the_login_form" value="1" />
     <input type="hidden" name="post_data" value="{{ post_data }}" />
   </div>
   <div>
-    <p class="form-actions"><input type="submit" value="{% trans "Login" %}" class="btn btn-success" /></p>
+    <input type="submit" value="{% trans "Login" %}" class="btn btn-success btn-block" />
   </div>
   <input type="hidden" name="next" value="{{ next }}" />
   {% csrf_token %}

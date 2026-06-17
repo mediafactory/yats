@@ -4,10 +4,6 @@
 
 {% block title %}{% trans "fulltext search" %}{% endblock %}
 
-{% block extra_head %}
-<script src="{{ STATIC_URL }}jquery.tristate.js"></script>
-{% endblock %}
-
 {% block content %}
         <h2>{% trans "search results" %}</h2>
             <p>{{ page_obj.start_index }} - {{ page_obj.end_index }} {% trans "of" %} {{ paginator.count }}</p>
@@ -22,7 +18,7 @@
                   </thead>
                   {% for result in page_obj.object_list %}
                       <tr>
-                        <td width="20">{% if result.get_stored_fields.closed != None %}<button type="button" class="btn {% if result.get_stored_fields.closed %}btn-danger{% else %}btn-success{% endif %}" disabled></button>{% endif %}</td>
+                        <td width="20">{% if result.get_stored_fields.closed != None %}<button type="button" class="btn btn-small {% if result.get_stored_fields.closed %}btn-danger{% else %}btn-success{% endif %}" disabled></button>{% endif %}</td>
                         <td width="60">{% if result.get_stored_fields.closed != None %}#{{ result.pk }}{% endif %}</td>
                         <td>{% if result.get_stored_fields.closed != None %}<i class="fa fa-bug" aria-hidden="true"></i> <a href="/tickets/view/{{ result.pk }}/">{{ result.get_stored_fields.caption }}</a>{% else %}<i class="fa fa-wikipedia-w" aria-hidden="true"></i> <a href="/docs/view/{{ result.pk }}/">{{ result.get_stored_fields.caption }}</a>{% endif %}</td>
                       </tr>
@@ -32,66 +28,49 @@
 
           {{ page_obj|pagination:request.get_full_path }}
 
-          <p>
-            <small class="text-muted">{% trans "You searched for:" %} {{ request.GET.q }} <br />
-            {% trans "in" %} <input style="margin: 0px;" type="checkbox" name="models" value="yats.docs" id="id_models_0"> {% trans "Documents" %} <input style="margin: 0px;" type="checkbox" name="models" value="web.test" id="id_models_1"> {% trans "Tickets" %} <input style="margin: 0px;" type="checkbox" class="tristate" name="closed" value="" id="id_closed"> {%trans "ticket closed" %}</small>
-          </p>
+          {# search-scope controls — reload on change. closed is tri-state: ''=both, 'true'=only closed, 'false'=only open #}
+          <div class="mt-4 text-sm text-gray-500" x-data="searchScope()">
+            <p>{% trans "You searched for:" %} {{ request.GET.q }}</p>
+            <div class="flex flex-wrap items-center gap-4 mt-1">
+              <label class="inline-flex items-center gap-1.5">
+                <input type="checkbox" x-model="docs" @change="reload()"> {% trans "Documents" %}
+              </label>
+              <label class="inline-flex items-center gap-1.5">
+                <input type="checkbox" x-model="tickets" @change="reload()"> {% trans "Tickets" %}
+              </label>
+              <button type="button" @click="cycleClosed(); reload()" class="inline-flex items-center gap-1.5">
+                <span class="inline-flex h-4 w-4 items-center justify-center border border-gray-400 rounded-sm"
+                      :class="closed === 'true' ? 'bg-brand text-white' : (closed === 'false' ? 'bg-gray-300' : 'bg-white')">
+                    <span x-show="closed === 'true'">&check;</span>
+                    <span x-show="closed === 'false'">&minus;</span>
+                </span>
+                {% trans "ticket closed" %}
+              </button>
+            </div>
+          </div>
 
 <script type="text/javascript">
-  $.urlParam = function (name) {
-      var results = new RegExp('[\?&]' + name + '=([^&#]*)')
-                        .exec(window.location.search);
-
-      return (results !== null) ? results[1] || 0 : false;
-  }
-
-  $( document ).ready(function() {
-    if (window.location.search.indexOf('models=yats.docs') > -1) {
-      $('#id_models_0').prop('checked', true);
-    }
-    if (window.location.search.indexOf('models=web.test') > -1) {
-      $('#id_models_1').prop('checked', true);
-    }
-
-    var closed = null;
-    if (window.location.search.indexOf('closed') > -1) {
-      var URLclosed = $.urlParam('closed');
-      if (URLclosed == 'true') {
-        closed = true
-      } else if (URLclosed == 'false') {
-        closed = false;
-      }
-    }
-    $('#id_closed').tristate({
-        checked:            true,
-        unchecked:          null,
-        indeterminate:      false,
-        value:              closed,
-    });
-
-    $("input:checkbox").change(function() {
-      reload();
-    });
-  });
-
-  function reload() {
-    var params = '?q=' + $.urlParam('q');
-    if ($('#id_models_0').prop('checked')) {
-      params += '&models=yats.docs';
-    }
-    if ($('#id_models_1').prop('checked')) {
-      params += '&models=web.test';
-    }
-    if ($('#id_closed').val() == true) {
-      params += '&closed=true';
-    } else if ($('#id_closed').val() == false) {
-      params += '&closed=false';
-    }
-    if ($.urlParam('page') != '') {
-      params += '&page=' + $.urlParam('page');
-    }
-    window.location.href = params;
-  }
-
+document.addEventListener('alpine:init', () => {
+  window.Alpine.data('searchScope', () => ({
+    docs: location.search.indexOf('models=yats.docs') > -1,
+    tickets: location.search.indexOf('models=web.test') > -1,
+    // '' (both/indeterminate) | 'true' (closed) | 'false' (open)
+    closed: (new URLSearchParams(location.search).get('closed')) || '',
+    cycleClosed() {
+      this.closed = this.closed === '' ? 'true' : (this.closed === 'true' ? 'false' : '');
+    },
+    reload() {
+      const cur = new URLSearchParams(location.search);
+      const params = new URLSearchParams();
+      params.set('q', cur.get('q') || '');
+      if (this.docs) params.append('models', 'yats.docs');
+      if (this.tickets) params.append('models', 'web.test');
+      if (this.closed === 'true') params.set('closed', 'true');
+      else if (this.closed === 'false') params.set('closed', 'false');
+      if (cur.get('page')) params.set('page', cur.get('page'));
+      location.href = '?' + params.toString();
+    },
+  }));
+});
 </script>
 {% endblock %}

@@ -56,13 +56,13 @@
     </div>
 
     <script>
-      $(function() {
+      document.addEventListener('DOMContentLoaded', function() {
         new Zooming({
           bgOpacity: 0.8,
           bgColor: 'rgb(0, 0, 0)',
           customSize: '100%',
-          zIndex: 1031 // 1030 is the bootstrap navbar
-        }).listen('.img-zoomable')
+          zIndex: 60
+        }).listen('.img-zoomable');
       });
     </script>
 

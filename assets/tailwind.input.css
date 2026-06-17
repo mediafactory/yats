@@ -21,6 +21,14 @@
   input[type=checkbox]:not(.no-base), input[type=radio]:not(.no-base) {
     @apply h-4 w-4 align-middle text-brand border-gray-300 focus:ring-brand;
   }
+
+  /* Tailwind's preflight strips heading/link styles; the app's pages rely on
+     default-styled <h1>/<h2>/<a>. Restore sensible defaults app-wide. */
+  h1 { @apply text-2xl font-semibold mb-3; }
+  h2 { @apply text-xl font-semibold mb-3; }
+  h3 { @apply text-lg font-semibold mb-2; }
+  h4 { @apply text-base font-semibold mb-2; }
+  a:not(.btn):not(.sidebar-item) { @apply text-brand hover:underline; }
 }
 
 /*
