@@ -13,12 +13,32 @@
 # Settings: testenv/test_settings.py (LocMem cache + Haystack simple backend,
 #           so neither memcached nor native Xapian are required).
 #
+# Flags:
+#   --reset       drop the SQLite DB + uploaded files + search index and reload
+#                 demo data from scratch (venv and Tailwind binary are kept)
+#   --no-server   do the setup (venv/build/migrate/fixtures) but don't run the
+#                 dev server (useful for CI / scripted checks)
+#   -h|--help     show this help
+#
 # Env overrides: HOST (default 127.0.0.1), PORT (default 8000),
 #                PYTHON (python interpreter to build the venv with).
 set -euo pipefail
 
 cd "$(dirname "$0")"
 REPO="$(pwd)"
+
+RESET=0
+RUN_SERVER=1
+for arg in "$@"; do
+    case "$arg" in
+        --reset) RESET=1 ;;
+        --no-server) RUN_SERVER=0 ;;
+        -h|--help)
+            sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'
+            exit 0 ;;
+        *) echo "unknown option: $arg (try --help)" >&2; exit 2 ;;
+    esac
+done
 
 HOST="${HOST:-127.0.0.1}"
 PORT="${PORT:-8000}"
@@ -44,6 +64,12 @@ choose_python() {
     done
     echo "python3"
 }
+
+if [[ "$RESET" == "1" ]]; then
+    log "reset: wiping DB, files, index and fixture marker"
+    rm -rf "${DATA}/db" "${DATA}/files" "${DATA}/index" "${DATA}/tmp" \
+           "${DATA}/.fixtures_loaded"
+fi
 
 log "directories"
 mkdir -p "${DATA}/db" "${DATA}/logs" "${DATA}/files" "${DATA}/tmp" "${DATA}/static" "${DATA}/index"
@@ -94,6 +120,11 @@ fi
 
 log "collectstatic"
 "$PY_BIN" "$MANAGE" collectstatic --noinput >/dev/null
+
+if [[ "$RUN_SERVER" == "0" ]]; then
+    log "setup complete (--no-server)"
+    exit 0
+fi
 
 log "runserver http://${HOST}:${PORT}/"
 echo "login at http://${HOST}:${PORT}/local_login/  (user: admin)"
