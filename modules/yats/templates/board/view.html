@@ -11,27 +11,27 @@
 
 {% block content %}
 
-    <h2><a href="javascript: delBoard();"><i class="fa fa-trash-o"></i></a> {{ board.name }} {% trans "board" %}</h2>
+    <h2><a href="javascript: delBoard();" class="text-red-600"><i class="fa fa-trash-o"></i></a> {{ board.name }} {% trans "board" %}</h2>
 
     <p>{% trans "add new columns by adding a search result to this board" %}</p>
 
     <div class="container-fluid">
-        <div id="sortableKanbanBoards" class="row">
+        <div id="sortableKanbanBoards" class="flex flex-wrap gap-4">
 
-            {% for column in columns %}<div class="panel panel-primary kanban-col">
-                <div class="panel-heading">
-                    <a href="javascript: delColumn('{{ column.column }}')"><i class="icon-trash icon-white"></i></a>&nbsp;&nbsp;{{ column.column }}
+            {% for column in columns %}<div class="card kanban-col">
+                <div class="card-header bg-brand text-white flex items-center gap-2">
+                    <a href="javascript: delColumn('{{ column.column }}')" class="text-white"><i class="fa fa-trash"></i></a>&nbsp;{{ column.column }}
                 </div>
-                <div class="panel-body">
+                <div class="panel-body card-body">
                     <div id="{{ column.column }}" class="kanban-centered">
-                        {% for ticket in column.query %}{% lookup_seen column.seen ticket %}{% if seen != 2 %}<article class="kanban-entry grab" id="item{{ ticket.pk }}">
+                        {% for ticket in column.query %}{% lookup_seen column.seen ticket %}{% if seen != 2 %}<article class="kanban-entry grab" id="item{{ ticket.pk }}">
                             <div class="kanban-entry-inner">
                                 <div class="kanban-label"{% if ticket.priority.color %} style="background-color:{{ ticket.priority.color }};"{% endif %}>
                                     <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> {{ ticket.caption }}</h2>
-                                    {% if ticket.deadline and not ticket.closed %}<small class="text-muted"{% if ticket.is_late == 2 %} style="color: red;"{% endif %}{% if ticket.is_late == 1 %} style="color: orange;"{% endif %}><i class="icon-time"></i> {{ ticket.deadline }}</small>{% endif %}
-                                    {% if ticket.hasAttachments %}<i class="icon-file"></i>{% endif %}{% if ticket.hasComments %}<i class="fa fa-comments" aria-hidden="true"></i>{% endif %}{% if ticket.assigned %}<small class="text-muted"><i class="icon-user"></i> {{ ticket.assigned }}</small>{% endif %}
-                                    {% if request.user.is_staff and ticket.customer and ticket.billing_estimated_time and ticket.customer.hourly_rate %}<small class="text-muted"><b>€</b> {{ ticket.customer.hourly_rate|multiply:ticket.billing_estimated_time|floatformat:"0" }}</small>{% endif %}
-                                    {% if seen == 1 %}<a href="javascript: seen({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% else %}<a href="javascript: ignore({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% endif %}
+                                    {% if ticket.deadline and not ticket.closed %}<small class="text-gray-500"{% if ticket.is_late == 2 %} style="color: red;"{% endif %}{% if ticket.is_late == 1 %} style="color: orange;"{% endif %}><i class="fa fa-clock-o"></i> {{ ticket.deadline }}</small>{% endif %}
+                                    {% if ticket.hasAttachments %}<i class="fa fa-file-o"></i>{% endif %}{% if ticket.hasComments %}<i class="fa fa-comments" aria-hidden="true"></i>{% endif %}{% if ticket.assigned %}<small class="text-gray-500"><i class="fa fa-user"></i> {{ ticket.assigned }}</small>{% endif %}
+                                    {% if request.user.is_staff and ticket.customer and ticket.billing_estimated_time and ticket.customer.hourly_rate %}<small class="text-gray-500"><b>€</b> {{ ticket.customer.hourly_rate|multiply:ticket.billing_estimated_time|floatformat:"0" }}</small>{% endif %}
+                                    {% if seen == 1 %}<a href="javascript: seen({{ ticket.pk }});" class="float-right"><i class="fa fa-eye"></i></a>{% else %}<a href="javascript: ignore({{ ticket.pk }});" class="float-right"><i class="fa fa-eye"></i></a>{% endif %}
                                 </div>
                             </div>
                         </article>
@@ -41,21 +41,6 @@
                 </div>
             </div>{% endfor %}
 
-        </div>
-    </div>
-
-
-    <!-- Static Modal -->
-    <div class="modal modal-static fade" id="processing-modal" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <div class="text-center">
-                        <i class="fa fa-refresh fa-5x fa-spin"></i>
-                        <h4>Processing...</h4>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -72,16 +57,16 @@
 
       function seen(ticket) {
         if (confirm('{% trans "Do you really want to remove this ticket from this board until the next change of that ticket?" %}') ) {
-          $.get("/tickets/notify/" + ticket + "/", function(data, status) {
-              $('#item' + ticket).remove();
+          YATS.request("/tickets/notify/" + ticket + "/").then(function () {
+              var el = document.getElementById('item' + ticket); if (el) el.remove();
           });
         }
       }
 
       function ignore(ticket) {
         if (confirm('{% trans "Do you really want to remove this ticket from this board until the next change of that ticket?" %}') ) {
-          $.get("/tickets/ignore/" + ticket + "/", function(data, status) {
-              $('#item' + ticket).remove();
+          YATS.request("/tickets/ignore/" + ticket + "/").then(function () {
+              var el = document.getElementById('item' + ticket); if (el) el.remove();
           });
         }
       }
@@ -89,21 +74,16 @@
 {% endblock %}
 
 {% block footer %}
-<div class="container-fluid">
-  <hr />
-
-  <div class="row-fluid">
-
-    <div class="span6">
-      {{ SETTINGS.CUSTOMER }}<br />
-      {{ SETTINGS.TEL }}<br />
-      {{ SETTINGS.MAIL }}<br />
+<footer class="px-4 md:px-6 py-4 border-t border-gray-200 text-sm text-gray-500 bg-white">
+    <div class="flex flex-col sm:flex-row sm:justify-between gap-2">
+        <div>
+            {{ SETTINGS.CUSTOMER }}<br />
+            {{ SETTINGS.TEL }}<br />
+            {{ SETTINGS.MAIL }}
+        </div>
+        <div class="sm:text-right">
+            &copy; 2014 - {% now "Y" %} <a href="http://www.mediafactory.de" class="text-brand hover:underline">media factory</a>
+        </div>
     </div>
-      <div class="span6">
-          <p class="text-right">
-              &copy; 2014 - {% now "Y" %} <a href="http://www.mediafactory.de">media factory</a>
-          </p>
-      </div>
-  </div>
-</div>
+</footer>
 {% endblock %}

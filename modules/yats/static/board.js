@@ -1,97 +1,100 @@
-        $(function () {
-            var kanbanCol = $('.panel-body');
-            kanbanCol.css('max-height', (window.innerHeight - 150) + 'px');
+/*
+ * Kanban / board drag-and-drop and layout (vanilla, replaces the jQuery version).
+ * Shared by board/view.html and board/kanban.html.
+ * Globals supplied by the page: edges, finish_state, all_states, ticketid,
+ * list_items, plus the helper functions move()/loadTicketData() (kanban only).
+ */
+(function () {
+  function sizeColumns() {
+    var cols = document.querySelectorAll('.panel-body');
+    cols.forEach(function (c) { c.style.maxHeight = (window.innerHeight - 150) + 'px'; });
+    var container = document.querySelector('.container-fluid');
+    if (container) container.style.minWidth = (cols.length * 350) + 'px';
+  }
 
-            var kanbanColCount = parseInt(kanbanCol.length);
-            $('.container-fluid').css('min-width', (kanbanColCount * 350) + 'px');
+  document.addEventListener('DOMContentLoaded', function () {
+    sizeColumns();
+    draggableInit();
+  });
+  window.addEventListener('resize', sizeColumns);
 
-            draggableInit();
+  function draggableInit() {
+    var sourceId;
 
-            $('.panel-heading').click(function() {
-                //var $panelBody = $(this).parent().children('.panel-body');
-                //$panelBody.slideToggle();
-            });
-        });
+    document.querySelectorAll('[draggable=true]').forEach(function (el) {
+      el.addEventListener('dragstart', function (event) {
+        sourceId = el.parentNode.getAttribute('id');
+        var node = event.target;
+        while (node.nodeName !== 'ARTICLE') { node = node.parentNode; }
+        event.dataTransfer.setData('text/plain', node.getAttribute('id'));
+      });
+    });
 
-        $(window).on('resize', function() {
-          kanbanCol.css('max-height', (window.innerHeight - 150) + 'px');
-        });
+    document.querySelectorAll('.panel-body').forEach(function (body) {
+      body.addEventListener('dragover', function (event) { event.preventDefault(); });
 
-        function draggableInit() {
-            var sourceId;
+      body.addEventListener('drop', function (event) {
+        event.preventDefault();
+        // the inner .kanban-centered div carries the list id; tickets get
+        // prepended back into it on close/reassign/move.
+        var listDiv = body.querySelector('[id^="list"]') || body.firstElementChild;
+        var targetId = listDiv ? listDiv.getAttribute('id') : null;
+        if (!targetId) return;
 
-            $('[draggable=true]').bind('dragstart', function (event) {
-                sourceId = $(this).parent().attr('id');
-                node = event.target
-                while (node.nodeName != 'ARTICLE') {
-                  node = node.parentNode
+        var elementId = event.dataTransfer.getData('text/plain');
+        var availListIDs = window.edges[sourceId.replace('list', '')];
+        var newListID = parseInt(targetId.replace('list', ''));
+
+        if (availListIDs && availListIDs.indexOf(newListID) > -1) {
+          if (sourceId && sourceId !== targetId) {
+            window.ticketid = parseInt(elementId.replace('item', ''));
+            var new_state = parseInt(targetId.replace('list', ''));
+            window.list_items = listDiv;
+
+            if (new_state === window.finish_state) {
+              if (window.Alpine) window.Alpine.store('ui').openModal('closeDlg');
+            } else if (event.ctrlKey || event.altKey || event.metaKey) {
+              if (window.Alpine) window.Alpine.store('ui').openModal('processing-modal');
+              window.move(window.ticketid, new_state);
+            } else {
+              var sel = document.getElementById('id_state');
+              if (sel) {
+                if (!window.all_states) {
+                  window.all_states = Array.prototype.map.call(sel.options, function (o) {
+                    return { value: o.value, text: o.text };
+                  });
                 }
-                event.originalEvent.dataTransfer.setData("text/plain", node.getAttribute('id'));
-            });
-
-            $('.panel-body').bind('dragover', function (event) {
-                event.preventDefault();
-            });
-
-            $('.panel-body').bind('drop', function (event) {
-                var children = $(this).children();
-                var targetId = children.attr('id');
-
-                /*
-                console.log(targetId)
-                console.log(sourceId.replace('list', ''))
-                console.log(edges[sourceId.replace('list', '')])
-                */
-
-                var elementId = event.originalEvent.dataTransfer.getData("text/plain");
-                availListIDs = edges[sourceId.replace('list', '')];
-                newListID = parseInt(targetId.replace('list', ''));
-                oldListID = parseInt(sourceId.replace('list', ''));
-                if ( availListIDs.indexOf(newListID) > -1 ) {
-                  if (sourceId && sourceId != targetId) {
-                      ticketid = parseInt(elementId.replace('item', ''));
-                      new_state = parseInt(targetId.replace('list', ''));
-                      //console.log('ticketid: ', ticketid);
-                      //console.log('new state: ', new_state);
-                      list_items = children;
-
-                      if (new_state == finish_state) {
-                        $('#closeDlg').modal('toggle');
-
-                      } else {
-                        if (event.ctrlKey || event.altKey || event.metaKey) {
-                          $('#processing-modal').modal('toggle');
-                          move(ticketid, new_state);
-
-                        } else {
-                          if ( ! all_states ) {
-                            all_states = $('#id_state > option').clone();
-                          }
-
-                          $('#id_state').empty();
-                          $('#id_state').append(all_states);
-                          $("#id_state > option").each(function() {
-                            if ( parseInt(this.value) != newListID ) {
-                              this.remove()
-                            }
-                          });
-
-                          loadTicketData();
-                          $('#reassignDlg').modal('toggle');
-                        }
-                      }
+                sel.innerHTML = '';
+                window.all_states.forEach(function (o) {
+                  if (parseInt(o.value) === newListID) {
+                    var opt = document.createElement('option');
+                    opt.value = o.value; opt.text = o.text;
+                    sel.appendChild(opt);
                   }
-                } else {
-                  showalert('State not allowed for ticket #' + elementId.replace('item', ''), 'alert-error')
-                }
-
-                event.preventDefault();
-            });
+                });
+              }
+              if (window.loadTicketData) window.loadTicketData();
+              if (window.Alpine) window.Alpine.store('ui').openModal('reassignDlg');
+            }
+          }
+        } else {
+          showalert('State not allowed for ticket #' + elementId.replace('item', ''), 'alert-error');
         }
+      });
+    });
+  }
 
-        function showalert(message, alerttype) {
-            $('#alert_placeholder').append('<div id="alertdiv" class="alert ' +  alerttype + '"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>');
-            setTimeout(function() { // this will automatically close the alert and remove this if the users doesnt close it in 5 secs
-                $("#alertdiv").remove();
-            }, 5000);
-        }
+  function showalert(message, alerttype) {
+    var ph = document.getElementById('alert_placeholder');
+    if (!ph) { alert(message); return; }
+    var div = document.createElement('div');
+    div.id = 'alertdiv';
+    div.className = 'alert ' + alerttype + ' mb-2';
+    div.innerHTML = '<span>' + message + '</span>';
+    ph.appendChild(div);
+    setTimeout(function () { if (div.parentNode) div.parentNode.removeChild(div); }, 5000);
+  }
+
+  window.draggableInit = draggableInit;
+  window.showalert = showalert;
+})();

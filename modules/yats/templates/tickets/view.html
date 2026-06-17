@@ -7,45 +7,30 @@
 {% block extra_head %}
     {{ form.media }}
     <link href="{{ STATIC_URL }}timeline.css" type="text/css" rel="stylesheet" media="all">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
-    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
     <link href="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css" type="text/css" rel="stylesheet" media="all">
     <script src="//cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js"></script>
     <script src="https://unpkg.com/zooming/build/zooming.min.js"></script>
+    <script src="{{ STATIC_URL }}js/image-tooltip.js"></script>
 
     <style>
-        .timeline-panel {
-            padding: 10px 20px 10px 20px !important;
-        }
-        .timeline-heading {
-            font-weight: 510;
-            display: flex;
-            justify-content: space-between;
-        }
-        .timeline-footer {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
-        .comment-edit-form{
-            margin: 0;
-        }
-        .fa {
-            margin-right: 5px;
-        }
+        .timeline-panel { padding: 10px 20px 10px 20px !important; }
+        .timeline-heading { font-weight: 510; display: flex; justify-content: space-between; }
+        .timeline-footer { display: flex; justify-content: space-between; margin-top: 10px; }
+        .comment-edit-form { margin: 0; }
+        .fa { margin-right: 5px; }
     </style>
 {% endblock %}
 
 {% block content %}
 
-    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/history/{{ ticket.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/tickets/{% if keep_it_simple %}simple{% else %}edit{% endif %}/{{ ticket.id }}/">{% trans "edit" %}</a>&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/upload/{{ ticket.id }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small" href="#add_comment">{% trans "add comment" %}</a>&nbsp;&nbsp;{% endif %}{% if ticket.closed %}<a class="btn btn-small" href="/tickets/reopen/{{ ticket.id }}/">{% trans "reopen" %}</a>{% else %}<a role="button" data-toggle="modal" class="btn btn-small btn-warning" href="#reassignDlg">{% trans "reassign" %}</a>&nbsp;&nbsp;{% if close_allowed %}<a role="button" data-toggle="modal" class="btn btn-small btn-danger" href="#closeDlg">{% trans "close" %}</a>{% endif %}{% endif %}</h2>
+    <h2>{% trans "ticket" %} #{{ ticket.id }} <button type="button" class="btn {% if ticket.closed %}btn-danger{% else %}btn-success{% endif %}" disabled>{% if ticket.closed %}{% trans "closed" %}: {{ ticket.resolution }}{% else %}{% trans "open" %}{% endif %}</button>&nbsp;&nbsp;<a class="btn btn-small" href="/tickets/history/{{ ticket.id }}/">{% trans "history" %}</a>&nbsp;<a class="btn btn-small" href="/tickets/{% if keep_it_simple %}simple{% else %}edit{% endif %}/{{ ticket.id }}/">{% trans "edit" %}</a>&nbsp;{% if not ticket.closed %}<a class="btn btn-small" href="/tickets/upload/{{ ticket.id }}/">{% trans "add file" %}</a>&nbsp;<a class="btn btn-small" href="#add_comment">{% trans "add comment" %}</a>&nbsp;&nbsp;{% endif %}{% if ticket.closed %}<a class="btn btn-small" href="/tickets/reopen/{{ ticket.id }}/">{% trans "reopen" %}</a>{% else %}<button type="button" class="btn btn-small btn-warning" @click="$store.ui.openModal('reassignDlg')">{% trans "reassign" %}</button>&nbsp;&nbsp;{% if close_allowed %}<button type="button" class="btn btn-small btn-danger" @click="$store.ui.openModal('closeDlg')">{% trans "close" %}</button>{% endif %}{% endif %}</h2>
     <p>&nbsp;</p>
 
     <table class="table table-striped table-hover">
     {% for field in form %}{% if field.value != None and field.value != '' %}
         <tr>
         	<td>{% if not field|field_is_public %}<i class="fa fa-lock"></i> {% endif %}{{ field.label }}:</td>
-        	<td>{% if field.id_for_label == 'id_description' %}{{ field|display_value|numberToTicketURL|buildToDoList|safe|linebreaksbr|urlize }}{% else %}{% if field.id_for_label == 'id_deadline' or field.id_for_label == 'id_show_start' %}{{ field|display_value|localtime }}{% else %}{% if field.id_for_label == 'id_state' %}{{ field|display_value|linebreaksbr }}{% if not ticket.closed %} => {% trans "possible next step" %}: {% for flow in flows %}<a href="/tickets/state/{{ ticket.id }}/?state={{ flow.next.pk }}">{{ flow.next.name }}</a>&nbsp;&nbsp;{% endfor %}{% endif %}{% else %}{{ field|display_value|linebreaksbr }}{% endif %}{% endif %}{% endif %}</td>
+        	<td>{% if field.id_for_label == 'id_description' %}{{ field|display_value|numberToTicketURL|buildToDoList|safe|linebreaksbr|urlize }}{% else %}{% if field.id_for_label == 'id_deadline' or field.id_for_label == 'id_show_start' %}{{ field|display_value|localtime }}{% else %}{% if field.id_for_label == 'id_state' %}{{ field|display_value|linebreaksbr }}{% if not ticket.closed %} => {% trans "possible next step" %}: {% for flow in flows %}<a href="/tickets/state/{{ ticket.id }}/?state={{ flow.next.pk }}">{{ flow.next.name }}</a>&nbsp;&nbsp;{% endfor %}{% endif %}{% else %}{{ field|display_value|linebreaksbr }}{% endif %}{% endif %}{% endif %}</td>
         </tr>
     {% endif %}{% endfor %}
         <tr>
@@ -55,8 +40,8 @@
     </table>
 
     <h3 id="files">{% trans "files" %} {% if files %}<a href="/tickets/gallery/{{ ticket.id }}/"><i class="fa fa-eye"></i></a>{% endif %}</h3>
-    <div id="clickable">{% trans "drop your files here..."%} <br /></div>
-    <hr />
+    <div id="clickable" class="border-2 border-dashed border-gray-300 rounded p-6 text-center text-gray-500 cursor-pointer">{% trans "drop your files here..."%} <br /></div>
+    <hr class="my-4" />
     {% if files %}
     <section id="no-more-tables">
         <table class="table table-striped table-hover">
@@ -73,7 +58,7 @@
             </thead>
               {% for line in files %}
                 <tr>
-                    <td data-title="{% trans "action" %}"><a href="javascript: delFile({{ line.id }});"><i class="icon-trash"></i></td>
+                    <td data-title="{% trans "action" %}"><a href="javascript: delFile({{ line.id }});" class="text-red-600"><i class="fa fa-trash"></i></a></td>
                     <td data-title="{% trans "date" %}">{{ line.c_date|date:"SHORT_DATE_FORMAT" }}</td>
                     <td data-title="{% trans "name" %}"{% if line.id|hasPreviewFile:"ticket" or line.content_type|hasPreview %} dataimg="/tickets/download/{{ ticket.id }}/?file={{ line.id }}&preview=yes"{% endif %}><a href="/tickets/download/{{ ticket.id }}/?file={{ line.id }}">{{ line.name }}</a>
                     {% if "audio" in line.content_type %}<br /><br /><audio controls="controls" preload="none">
@@ -88,7 +73,7 @@
                         src="{% if "image" in line.content_type %}/tickets/download/{{ ticket.id }}/?file={{ line.id }}{% else %}/tickets/download/{{ ticket.id }}/?file={{ line.id }}&preview=yes{% endif %}"
                         class="responsive-image img-zoomable"
                         alt="{{ line.name }}"
-                      / width=30px height=30px>
+                        width="30" height="30">
                       {% endif %}
                     </td>
                 </tr>
@@ -102,7 +87,7 @@
     {% endif %}
 
     <h3>{% trans "comments" %}</h3>
-    <hr />
+    <hr class="my-4" />
     {% if comments %}
     <ul class="timeline">
         {% for line in comments %}
@@ -117,7 +102,7 @@
 
                {% if request.user == line.c_user %}
                 <div style="margin-right: 1em;">
-                    <small class="muted"><a href="#myModal-{{ line.id }}" data-toggle="modal"><i class="fa fa-pencil"></i></a></small>
+                    <small class="text-gray-500"><button type="button" @click="$store.ui.openModal('comment-{{ line.id }}')"><i class="fa fa-pencil"></i></button></small>
                 </div>
                 {% endif %}
             </div>
@@ -128,12 +113,12 @@
 
             <div class="timeline-footer">
                 <div>
-                  <small class="muted"><i class="fa fa-clock-o"></i> {{ line.c_date|date:"j. M y, H:i" }}</small>
+                  <small class="text-gray-500"><i class="fa fa-clock-o"></i> {{ line.c_date|date:"j. M y, H:i" }}</small>
                 </div>
 
                 {% if line.edited %}
                 <div>
-                    <small class="muted edited" data-toggle="tooltip" title="{{ line.edited_date|date:'j. M y, H:i' }}">edited</small>
+                    <small class="text-gray-500 edited" title="{{ line.edited_date|date:'j. M y, H:i' }}">edited</small>
                 </div>
                 {% endif %}
             </div>
@@ -141,21 +126,23 @@
         </li>
 
         {% if request.user == line.c_user %}
-        <div id="myModal-{{ line.id }}" class="modal hide fade">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3>{% trans "Edit Comment" %}</h3>
-            </div>
-
-            <div class="modal-body">
-                <form id="form-{{ line.id }}" class="comment-edit-form" action="/tickets/update_comment/{{ ticket.id }}/?comment_id={{ line.id }}" method="POST">
-                    <textarea name="comment_body" id="comment_body" cols="30" rows="10" style="width: 95%">{{ line.comment|force_escape|safe }}</textarea>
-                </form>
-            </div>
-
-            <div class="modal-footer">
-                <a href="#" class="btn" data-dismiss="modal">{% trans "Close" %}</a>
-                <input class="btn btn-primary" type="submit" value="{% trans "Save" %}" form="form-{{ line.id }}" style="width: auto;">
+        <div x-data x-show="$store.ui.modal === 'comment-{{ line.id }}'" style="display:none">
+            <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+            <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+                <div class="modal-header">
+                    <h3 class="text-lg font-medium">{% trans "Edit Comment" %}</h3>
+                    <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-{{ line.id }}" class="comment-edit-form" action="/tickets/update_comment/{{ ticket.id }}/?comment_id={{ line.id }}" method="POST">
+                        {% csrf_token %}
+                        <textarea name="comment_body" id="comment_body" rows="10" class="form-control">{{ line.comment|force_escape|safe }}</textarea>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "Close" %}</button>
+                    <input class="btn btn-primary" type="submit" value="{% trans "Save" %}" form="form-{{ line.id }}">
+                </div>
             </div>
         </div>
         {% endif %}
@@ -163,138 +150,117 @@
         {% endfor %}
     </ul>
     {% endif %}
-    <p name="add_comment">{% trans "leave new comment" %}</p>
-    <form class="form-{{ layout }}" action="" method="post">
+    <p name="add_comment" id="add_comment">{% trans "leave new comment" %}</p>
+    <form action="" method="post" class="max-w-3xl">
         {% csrf_token %}
-    	<textarea cols="40" id="id_comment" name="comment" rows="10" class="span12"></textarea>
-    	<br /><br />
-        <input type="submit" value="{% trans "add" %}" class="btn btn-primary pull-right">
+    	<textarea id="id_comment" name="comment" rows="10" class="form-control"></textarea>
+    	<div class="mt-3 flex justify-end">
+            <input type="submit" value="{% trans "add" %}" class="btn btn-primary">
+        </div>
     </form>
 
 {% if not ticket.closed %}
-    <div id="closeDlg" class="modal hide fade">
-
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>{% trans "close ticket" %}</h3>
+    <div x-data x-show="$store.ui.modal === 'closeDlg'" style="display:none">
+        <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+        <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+            <div class="modal-header">
+                <h3 class="text-lg font-medium">{% trans "close ticket" %}</h3>
+                <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+            </div>
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{ close|as_bootstrap:layout }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "cancel" %}</button>
+                    <input type="submit" value="{% trans "close" %}" class="btn btn-danger">
+                </div>
+            </form>
         </div>
-
-        <form class="form-{{ layout }}" action="" method="post">
-        <div class="modal-body">
-	        {% csrf_token %}
-	        {{ close|as_bootstrap:layout }}
-        </div>
-
-        <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-            <input type="submit" value="{% trans "close" %}" class="btn btn-danger">
-        </div>
-        </form>
     </div>
 
-    <div id="reassignDlg" class="modal hide fade">
-
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>{% trans "reassign ticket" %}</h3>
+    <div x-data x-show="$store.ui.modal === 'reassignDlg'" style="display:none">
+        <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+        <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+            <div class="modal-header">
+                <h3 class="text-lg font-medium">{% trans "reassign ticket" %}</h3>
+                <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+            </div>
+            <form action="/tickets/reassign/{{ticket.id }}/" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{ reassign|as_bootstrap:layout }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "cancel" %}</button>
+                    <input type="submit" value="{% trans "reassign" %}" class="btn btn-warning">
+                </div>
+            </form>
         </div>
-
-        <form class="form-{{ layout }}" action="/tickets/reassign/{{ticket.id }}/" method="post">
-        <div class="modal-body">
-            {% csrf_token %}
-            {{ reassign|as_bootstrap:layout }}
-        </div>
-
-        <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-            <input type="submit" value="{% trans "reassign" %}" class="btn btn-warning">
-        </div>
-        </form>
     </div>
 
-    <div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
-        <div class="modal-header">
-          <h1>{% trans "uploading files" %}</h1>
-        </div>
-        <div class="modal-body">
-          <div class="progress progress-striped active">
-            <div id="upload-progress" class="bar" style="width: 0%;"></div>
-          </div>
+    {# upload progress (driven by Dropzone via the global uploadProgress store value) #}
+    <div x-data x-show="$store.ui.modal === 'pleaseWaitDialog'" style="display:none">
+        <div class="modal-backdrop"></div>
+        <div class="modal-panel">
+            <div class="modal-header"><h1 class="text-xl font-semibold">{% trans "uploading files" %}</h1></div>
+            <div class="modal-body">
+                <div class="w-full bg-gray-200 rounded h-4 overflow-hidden">
+                    <div class="bg-brand h-4 transition-all" :style="`width: ${$store.ui.uploadProgress}%`"></div>
+                </div>
+            </div>
         </div>
     </div>
 {% endif %}
-<p><small class="text-muted">{% trans "created" %}: {{ ticket.c_date }} {% trans "by" %} {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}<br /> {% trans "last action" %}: {{ ticket.last_action_date }}</small></p>
+<p><small class="text-gray-500">{% trans "created" %}: {{ ticket.c_date }} {% trans "by" %} {{ ticket.c_user }}<br /> {% trans "last modified" %}: {{ ticket.u_date }} by {{ ticket.u_user }}<br /> {% trans "last action" %}: {{ ticket.last_action_date }}</small></p>
 
-<form id="dataLink" method="get" action="/tickets/view/{{ ticket.id }}/?#files"></form>
+<form id="dataLink" method="get" action="/tickets/view/{{ ticket.id }}/?#files"></form>
 
 <script type="text/javascript">
     var wnd = null;
     var timer = null;
-    jQuery(document).tooltip({
-        position: {
-            collision: "fit"
-        },
-        track: true,
-        items : "[dataimg]",
-        content : function() {
-            var element = jQuery(this);
-            if (element.is("[dataimg]")) {
-                return '<img src="'+ element.attr("dataimg") +'" width="300" />';
-            }
-        }
-    });
 
-    $(".edited").tooltip()
-
-    $(":checkbox").on("click", function(){
-      //alert(this.checked);
-      //alert(this.value);
-      //console.log(this.nextSibling.data);
-      //console.log(this.nextElementSibling.textContent);
-
-      $.post( "/tickets/todo/{{ ticket.id }}/", { set: this.checked, item: this.value, text: this.nextSibling.data || this.nextElementSibling.textContent } )
-        .done(function( json ) {
-          console.log( json );
-        })
-        .fail(function( jqxhr, textStatus, error ) {
-          var err = textStatus + ", " + error;
-          console.log( "Request Failed: " + err );
+    // ToDo checkboxes inside description/comments -> persist via fetch
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('input[type=checkbox]').forEach(function (cb) {
+        cb.addEventListener('click', function () {
+          var text = (cb.nextSibling && cb.nextSibling.data) ||
+                     (cb.nextElementSibling && cb.nextElementSibling.textContent) || '';
+          YATS.post("/tickets/todo/{{ ticket.id }}/", { set: cb.checked, item: cb.value, text: text })
+            .then(function (r) { return r.json(); })
+            .then(function (j) { console.log(j); })
+            .catch(function (e) { console.log("Request Failed: " + e); });
+        });
       });
 
-    } );
-
-    function onRowDblClick(rowid) {
-        //window.location.href = '/files/download/{{ model }}/' + rowid + '/';
-        alert('dbl click')
-    }
+      new Zooming({ bgOpacity: 0.8, bgColor: '#fff', zIndex: 60 }).listen('.img-zoomable');
+    });
 
     function delFile(fileid) {
         if (confirm('{% trans "Do you really want to delete this file?" %}') )
-              window.location.href = '/tickets/delfile/{{ ticket.id }}/?fileid=' + fileid;
+              window.location.href = '/tickets/delfile/{{ ticket.id }}/?fileid=' + fileid;
     }
 
-    var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
-      url: "/tickets/upload/{{ ticket.id }}/?Ajax=1", // Set the url
-      previewsContainer: false, // Define the container to display the previews
-      clickable: "#clickable", // Define the element that should be used as click trigger to select files.
+    var myDropzone = new Dropzone(document.body, {
+      url: "/tickets/upload/{{ ticket.id }}/?Ajax=1",
+      previewsContainer: false,
+      clickable: "#clickable",
       complete: function (file) {
-          //console.log(this.getUploadingFiles().length, this.getQueuedFiles().length)
           if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
-            $('#dataLink').submit();
-            window.location.href = '/tickets/view/{{ ticket.id }}/?#files';
+            window.location.href = '/tickets/view/{{ ticket.id }}/?#files';
           }
       },
       totaluploadprogress: function (progress) {
-          //console.log(progress);
           var roundProg = Math.floor(progress);
-          $('#upload-progress').css({ width: roundProg + '%' });
-          if ( ! wnd )
-            $('#pleaseWaitDialog').modal();
+          if (window.Alpine) {
+            window.Alpine.store('ui').uploadProgress = roundProg;
+            if (!wnd) window.Alpine.store('ui').openModal('pleaseWaitDialog');
+          }
       },
-      init : function() {
-        this.on("drop", function(event) {
-          if (timer)
-            window.clearTimeout(timer);
+      init: function () {
+        this.on("drop", function (event) {
+          if (timer) window.clearTimeout(timer);
         });
       }
     });
@@ -302,41 +268,26 @@
     timer = window.setTimeout(checkForUpdats, 1000 * 30);
 
     function checkForUpdats() {
-      if (timer)
-        window.clearTimeout(timer);
-      $.ajax({
-        type: "HEAD",
-        url: "/tickets/last_modified/{{ ticket.id }}/",
-        beforeSend : function( xhr ) {
-          xhr.setRequestHeader("If-Modified-Since", "{{ last_action_date }}");
-        },
-        statusCode: {
-          200: function (response) {
-             window.location.href = '/tickets/view/{{ ticket.id }}/';
-          }
+      if (timer) window.clearTimeout(timer);
+      YATS.request("/tickets/last_modified/{{ ticket.id }}/", {
+        method: "HEAD",
+        headers: { "If-Modified-Since": "{{ last_action_date }}" }
+      }).then(function (resp) {
+        if (resp.status === 200) {
+          window.location.href = '/tickets/view/{{ ticket.id }}/';
         }
       });
       timer = window.setTimeout(checkForUpdats, 1000 * 30);
     }
-    $(function() {
-        new Zooming({
-          bgOpacity: 0.8,
-          bgColor: '#fff',
-          zIndex: 1031 // 1030 is the bootstrap navbar
-        }).listen('.img-zoomable')
-      });
 
-    document.onpaste = function(event){
+    document.onpaste = function (event) {
       var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-      for (index in items) {
+      for (var index in items) {
         var item = items[index];
         if (item.kind === 'file') {
-          // adds the file to your dropzone instance
-          myDropzone.addFile(item.getAsFile())
+          myDropzone.addFile(item.getAsFile());
         }
       }
-    }
-
-
+    };
 </script>
 {% endblock %}

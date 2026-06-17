@@ -55,6 +55,8 @@
       modal: null,
       openModal(id) { this.modal = id; this.sidebarOpen = false; },
       closeModal() { this.modal = null; },
+      // upload progress (0-100), bound by the ticket-view Dropzone
+      uploadProgress: 0,
     };
     window.Alpine.store('ui', store);
   });

@@ -5,8 +5,6 @@
 {% block title %}{% trans "kanban" %}{% endblock %}
 
 {% block extra_head %}
-<script src="{{ STATIC_URL }}board.js"></script>
-<script src="{{ STATIC_URL }}BootstrapMenu.min.js"></script>
 <link rel="stylesheet" href="{{ STATIC_URL }}board.css">
 <style>
   .new { background-color: #51a351; }
@@ -21,28 +19,28 @@
 {% endblock %}
 
 {% block content %}
-    <p style="font-size: 12px">{% trans "Drag and drop tickets from one state to the next one accoring to the workflow. Use CTRL or ALT for moving only (no reassign)" %}</p>
+    <p class="text-xs mb-3">{% trans "Drag and drop tickets from one state to the next one accoring to the workflow. Use CTRL or ALT for moving only (no reassign)" %}</p>
 
     <div class="container-fluid">
-        <div class="row">
+        <div>
           <div id="alert_placeholder"></div>
         </div>
-        <div id="sortableKanbanBoards" class="row">
+        <div id="sortableKanbanBoards" class="flex flex-wrap gap-4">
 
-            {% for column in columns %}<div class="panel panel-primary kanban-col">
-                <div class="panel-heading {% if column.type == 0 %}flow{% endif %}{% if column.type == 1 %}new{% endif %}{% if column.type == 2 %}done{% endif %}">
+            {% for column in columns %}<div class="card kanban-col">
+                <div class="card-header text-white {% if column.type == 0 %}flow{% endif %}{% if column.type == 1 %}new{% endif %}{% if column.type == 2 %}done{% endif %}">
                     {{ column.name }} ({{ column.count }})
                 </div>
-                <div class="panel-body">
+                <div class="panel-body card-body">
                     <div id="list{{ column.id }}" class="kanban-centered">
-                        {% for ticket in column.data %}{% lookup_seen column.seen ticket %}{% if seen != 2 %}<article class="kanban-entry grab" id="item{{ ticket.pk }}" draggable="true">
+                        {% for ticket in column.data %}{% lookup_seen column.seen ticket %}{% if seen != 2 %}<article class="kanban-entry grab" id="item{{ ticket.pk }}" draggable="true">
                             <div class="kanban-entry-inner">
                                 <div class="kanban-label"{% if ticket.priority.color %} style="background-color:{{ ticket.priority.color }};"{% endif %}>
                                     <h2><a href="/tickets/view/{{ ticket.pk }}/">#{{ ticket.pk }}</a> {{ ticket.caption }}</h2>
-                                    {% if ticket.deadline and not ticket.closed %}<small class="text-muted"{% if ticket.is_late == 2 %} style="color: red;"{% endif %}{% if ticket.is_late == 1 %} style="color: orange;"{% endif %}><i class="icon-time"></i> {{ ticket.deadline }}</small>{% endif %}
-                                    {% if ticket.hasAttachments %}<i class="icon-file"></i>{% endif %}{% if ticket.hasComments %}<i class="fa fa-comments" aria-hidden="true"></i>{% endif %}{% if ticket.assigned %}<small class="text-muted"><i class="icon-user"></i> {{ ticket.assigned }}</small>{% endif %}
-                                    {% if request.user.is_staff and ticket.customer and ticket.billing_estimated_time and ticket.customer.hourly_rate %}<small class="text-muted"><b>€</b> {{ ticket.customer.hourly_rate|multiply:ticket.billing_estimated_time|floatformat:"0" }}</small>{% endif %}
-                                    {% if finish_state != column.pk %}<i id="i{{ ticket.pk }}" style="cursor: pointer;" class="fa fa-clock-o pull-right" aria-hidden="true"></i>{% endif %}{% if seen == 1 %}<a href="javascript: seen({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% else %}<a href="javascript: ignore({{ ticket.pk }});"><i class="icon-eye-open pull-right"></i></a>{% endif %}
+                                    {% if ticket.deadline and not ticket.closed %}<small class="text-gray-500"{% if ticket.is_late == 2 %} style="color: red;"{% endif %}{% if ticket.is_late == 1 %} style="color: orange;"{% endif %}><i class="fa fa-clock-o"></i> {{ ticket.deadline }}</small>{% endif %}
+                                    {% if ticket.hasAttachments %}<i class="fa fa-file-o"></i>{% endif %}{% if ticket.hasComments %}<i class="fa fa-comments" aria-hidden="true"></i>{% endif %}{% if ticket.assigned %}<small class="text-gray-500"><i class="fa fa-user"></i> {{ ticket.assigned }}</small>{% endif %}
+                                    {% if request.user.is_staff and ticket.customer and ticket.billing_estimated_time and ticket.customer.hourly_rate %}<small class="text-gray-500"><b>€</b> {{ ticket.customer.hourly_rate|multiply:ticket.billing_estimated_time|floatformat:"0" }}</small>{% endif %}
+                                    {% if finish_state != column.pk %}<i id="i{{ ticket.pk }}" style="cursor: pointer;" class="fa fa-clock-o float-right" aria-hidden="true"></i>{% endif %}{% if seen == 1 %}<a href="javascript: seen({{ ticket.pk }});" class="float-right"><i class="fa fa-eye"></i></a>{% else %}<a href="javascript: ignore({{ ticket.pk }});" class="float-right"><i class="fa fa-eye"></i></a>{% endif %}
                                 </div>
                             </div>
                         </article>
@@ -55,62 +53,59 @@
         </div>
     </div>
 
-
-    <!-- Static Modal -->
-    <div class="modal modal-static fade" id="processing-modal" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <div class="text-center">
-                        <i class="fa fa-refresh fa-5x fa-spin"></i>
-                        <h4>Processing...</h4>
-                    </div>
-                </div>
+    {# processing spinner #}
+    <div x-data x-show="$store.ui.modal === 'processing-modal'" style="display:none">
+        <div class="modal-backdrop"></div>
+        <div class="modal-panel max-w-sm">
+            <div class="modal-body text-center py-8">
+                <i class="fa fa-refresh fa-5x fa-spin text-brand"></i>
+                <h4 class="mt-4">Processing...</h4>
             </div>
         </div>
     </div>
 
-    <div id="closeDlg" class="modal hide fade">
-
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>{% trans "close ticket" %}</h3>
+    <div x-data x-show="$store.ui.modal === 'closeDlg'" style="display:none">
+        <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+        <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+            <div class="modal-header">
+                <h3 class="text-lg font-medium">{% trans "close ticket" %}</h3>
+                <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+            </div>
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{ close|as_bootstrap:layout }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "cancel" %}</button>
+                    <a href="javascript: close();" class="btn btn-danger">{% trans "close" %}</a>
+                </div>
+            </form>
         </div>
-
-        <form class="form-{{ layout }}" action="" method="post">
-        <div class="modal-body">
-	        {% csrf_token %}
-	        {{ close|as_bootstrap:layout }}
-        </div>
-
-        <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-            <a href="javascript: close();" class="btn btn-danger">{% trans "close" %}</a>
-        </div>
-        </form>
     </div>
 
-    <div id="reassignDlg" class="modal hide fade">
-
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>{% trans "reassign ticket" %}</h3>
+    <div x-data x-show="$store.ui.modal === 'reassignDlg'" style="display:none">
+        <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+        <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+            <div class="modal-header">
+                <h3 class="text-lg font-medium">{% trans "reassign ticket" %}</h3>
+                <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+            </div>
+            <form action="/tickets/reassign/0/" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{ reassign|as_bootstrap:layout }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "cancel" %}</button>
+                    <a href="javascript: reassign();" class="btn btn-warning">{% trans "reassign" %}</a>
+                </div>
+            </form>
         </div>
-
-        <form class="form-{{ layout }}" action="/tickets/reassign/0/" method="post">
-        <div class="modal-body">
-            {% csrf_token %}
-            {{ reassign|as_bootstrap:layout }}
-        </div>
-
-        <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-            <a href="javascript: reassign();" class="btn btn-warning">{% trans "reassign" %}</a>
-        </div>
-        </form>
     </div>
 
-
+    <script src="{{ STATIC_URL }}js/kanban.js"></script>
+    <script src="{{ STATIC_URL }}board.js"></script>
     <script>
     var finish_state = {{ finish_state }};
     var ticketid;
@@ -122,166 +117,31 @@
       {% endif %}"{{ edge.now.id }}": [{% else %},{% endifchanged %}{{ edge.next.id }}{% if forloop.last %}]{% endif %}{% endfor %}
     }
 
-    new BootstrapMenu('.fa-clock-o', {
-      menuEvent: 'click',
-      menuSource: 'element',
-      menuPosition: 'belowLeft',
-      fetchElementData: function($rowElem) {
-        return $($rowElem).attr('id');
-      },
-      actions: [
-        {
-          name: '1 {% trans "day" %}',
-          onClick: function(id) {
-            sleep(id, '1');
-          }
-        },
-        {
-          name: '2 {% trans "day" %}',
-          onClick: function(id) {
-            sleep(id, '2');
-          }
-        },
-        {
-          name: '3 {% trans "day" %}',
-          onClick: function(id) {
-            sleep(id, '3');
-          }
-        },
-        {
-          name: '4 {% trans "day" %}',
-          onClick: function(id) {
-            sleep(id, '4');
-          }
-        },
-        {
-          name: '5 {% trans "day" %}',
-          onClick: function(id) {
-            sleep(id, '5');
-          }
-        },
-        {
-          name: '6 {% trans "day" %}',
-          onClick: function(id) {
-            sleep(id, '6');
-          }
-        },
-        {
-          name: '1 {% trans "week" %}',
-          onClick: function(id) {
-            sleep(id, '7');
-          }
-        },
-        {
-          name: '2 {% trans "week" %}',
-          onClick: function(id) {
-            sleep(id, '14');
-          }
-        },
-        {
-          name: '3 {% trans "week" %}',
-          onClick: function(id) {
-            sleep(id, '21');
-          }
-        },
-        {
-          name: '{% trans "1 month" %}',
-          onClick: function(id) {
-            sleep(id, '30');
-          }
-        }
-      ]
-    })
+    window.kanbanLabels = {
+      day: '{% trans "day" %}',
+      week: '{% trans "week" %}',
+      month: '{% trans "1 month" %}',
+      fillRequired: '{% trans "Please fill out the required fields!" %}',
+      confirmRemove: '{% trans "Do you really want to remove this ticket from this board until the next change of that ticket?" %}'
+    };
 
-    function sleep(ticketid, interval) {
-      ticket = ticketid.substr(1);
-      $.get("/tickets/sleep/" + ticket + "/?interval=" + interval, function(data, status) {
-          $('#item' + ticket).remove();
-      });
-    }
-
-    function close() {
-      form = $('#closeDlg').find('form');
-
-      if ( ! $('#id_resolution').val() || ! $('#id_close_comment').val() ) {
-        alert('{% trans "Please fill out the required fields!" %}');
-        return;
-      }
-
-      $.post('/tickets/view/' + ticketid + '/', form.serialize(),  function(data) {
-          var element = document.getElementById('item' + ticketid);
-          list_items.prepend(element);
-          $('#closeDlg').modal('toggle');
-        }
-      );
-    }
-
-    function loadTicketData() {
-      $.getJSON('/tickets/json/' + ticketid + '/', function( data ) {
-          $('#id_assigned').val(data.assigned);
-          $('#id_priority').val(data.priority);
-      });
-    }
-
-    function reassign() {
-      form = $('#reassignDlg').find('form');
-
-      if ( ! $('#id_assigned').val() || ! $('#id_reassign_comment').val() ) {
-        alert('{% trans "Please fill out the required fields!" %}');
-        return;
-      }
-
-      $.post('/tickets/reassign/' + ticketid + '/', form.serialize(),  function(data) {
-          var element = document.getElementById('item' + ticketid);
-          list_items.prepend(element);
-          $('#reassignDlg').modal('toggle');
-        }
-      );
-    }
-
-    function move(ticketid, state) {
-      $.post('/tickets/move/' + ticketid + '/', 'simple=1&state=' + state,  function(data) {
-        var element = document.getElementById('item' + ticketid);
-        list_items.prepend(element);
-
-        $('#processing-modal').modal('toggle');
-        }
-      );
-    }
-
-    function seen(ticket) {
-      if (confirm('{% trans "Do you really want to remove this ticket from this board until the next change of that ticket?" %}') ) {
-        $.get("/tickets/notify/" + ticket + "/", function(data, status) {
-            $('#item' + ticket).remove();
-        });
-      }
-    }
-
-    function ignore(ticket) {
-      if (confirm('{% trans "Do you really want to remove this ticket from this board until the next change of that ticket?" %}') ) {
-        $.get("/tickets/ignore/" + ticket + "/", function(data, status) {
-            $('#item' + ticket).remove();
-        });
-      }
-    }
-
+    document.addEventListener('DOMContentLoaded', function () {
+      window.kanbanInit(window.kanbanLabels);
+    });
     </script>
 {% endblock %}
 
 {% block footer %}
-<div class="container-fluid">
-  <hr />
-  <div class="row-fluid">
-    <div class="span6">
-      {{ SETTINGS.CUSTOMER }}<br />
-      {{ SETTINGS.TEL }}<br />
-      {{ SETTINGS.MAIL }}<br />
+<footer class="px-4 md:px-6 py-4 border-t border-gray-200 text-sm text-gray-500 bg-white">
+    <div class="flex flex-col sm:flex-row sm:justify-between gap-2">
+        <div>
+            {{ SETTINGS.CUSTOMER }}<br />
+            {{ SETTINGS.TEL }}<br />
+            {{ SETTINGS.MAIL }}
+        </div>
+        <div class="sm:text-right">
+            &copy; 2014 - {% now "Y" %} <a href="http://www.mediafactory.de" class="text-brand hover:underline">media factory</a>
+        </div>
     </div>
-      <div class="span6">
-          <p class="text-right">
-              &copy; 2014 - {% now "Y" %} <a href="http://www.mediafactory.de">media factory</a>
-          </p>
-      </div>
-  </div>
-</div>
+</footer>
 {% endblock %}

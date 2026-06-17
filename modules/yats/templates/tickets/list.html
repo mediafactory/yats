@@ -6,8 +6,8 @@
 
 {% block content %}
 
-    <h2>{% if is_search %}{% trans "search results for tickets" %}&nbsp;<a class="btn btn-small" href="/tickets/search/?new=1">{% trans "new search" %}</a>&nbsp;<a role="button" data-toggle="modal" class="btn btn-small" href="#saveDlg">{% trans "save search" %}</a>{% if boards|length > 0 %}&nbsp;<a role="button" data-toggle="modal" class="btn btn-small" href="#saveToBoardDlg">{% trans "save to board" %}</a>{% endif %}{% else %}{% trans "tickets" %}{% endif %}</h2>
-    {% if list_caption %}<p><small class="text-muted">{% trans "report" %}: {{ list_caption }}</small></p>{% endif %}
+    <h2>{% if is_search %}{% trans "search results for tickets" %}&nbsp;<a class="btn btn-small" href="/tickets/search/?new=1">{% trans "new search" %}</a>&nbsp;<button type="button" class="btn btn-small" @click="$store.ui.openModal('saveDlg')">{% trans "save search" %}</button>{% if boards|length > 0 %}&nbsp;<button type="button" class="btn btn-small" @click="$store.ui.openModal('saveToBoardDlg')">{% trans "save to board" %}</button>{% endif %}{% else %}{% trans "tickets" %}{% endif %}</h2>
+    {% if list_caption %}<p><small class="text-gray-500">{% trans "report" %}: {{ list_caption }}</small></p>{% endif %}
     <p>&nbsp;</p>
 
     {% if lines %}
@@ -28,8 +28,8 @@
             </thead>
             {% for line in lines %}
               <tr style="{% if line.closed %}text-decoration: line-through;{% endif %}{% if line.priority.color != "transparent" %}color: {{ line.priority.color }}{% endif %}">
-              	  <td data-title="{% trans "state" %}">{% if line.priority.color != "transparent" %}<button type="button" class="btn" style="{% if line.priority.color != "transparent" %}background-color: {{ line.priority.color }};{% endif %}opacity: 100;height: 35px;"  disabled />{% else %}&nbsp;{% endif %}</td>
-                  <td>{% if line.deadline %}<i class="icon-time"></i>{% endif %}{% if line.hasAttachments %}<i class="icon-file"></i>{% endif %}{% if line.hasComments %}<i class="fa fa-comments" aria-hidden="true"></i>{% endif %}</td>
+              	  <td data-title="{% trans "state" %}">{% if line.priority.color != "transparent" %}<span class="inline-block h-6 w-6 rounded" style="background-color: {{ line.priority.color }};"></span>{% else %}&nbsp;{% endif %}</td>
+                  <td>{% if line.deadline %}<i class="fa fa-clock-o"></i>{% endif %}{% if line.hasAttachments %}<i class="fa fa-file-o"></i>{% endif %}{% if line.hasComments %}<i class="fa fa-comments" aria-hidden="true"></i>{% endif %}</td>
                   <td data-title="{% trans "ticket#" %}"><a href="/tickets/view/{{ line.id }}/">#{{ line.id }}</a></td>
                   <td data-title="{% trans "created" %}">{{ line.c_date|localtime|date:"d.m.y H:i" }}</td>
                   <td data-title="{% trans "type" %}">{{ line.type|default:"&nbsp;" }}</td>
@@ -46,52 +46,48 @@
     {% if lines.paginator.count == 0 %}
     {% trans "no tickets found!" %}
     {% endif %}
-    <p><small class="text-muted">{% trans "You searched for:" %} {{ pretty_query }}</small></p>
+    <p><small class="text-gray-500">{% trans "You searched for:" %} {{ pretty_query }}</small></p>
 
     {% if is_search %}
-    <div id="saveDlg" class="modal hide fade">
-
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>{% trans "save as report" %}</h3>
+    <div x-data x-show="$store.ui.modal === 'saveDlg'" style="display:none">
+        <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+        <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+            <div class="modal-header">
+                <h3 class="text-lg font-medium">{% trans "save as report" %}</h3>
+                <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+            </div>
+            <form action="/tickets/search/" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <label class="form-label" for="id_reportname">{% trans "report name" %}</label>
+                    <input class="form-control" id="id_reportname" name="reportname" type="text" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "cancel" %}</button>
+                    <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+                </div>
+            </form>
         </div>
-
-        <form class="form-{{ layout }}" action="/tickets/search/" method="post">
-        <div class="modal-body">
-				<div class="control-group">
-					<label class="control-label" for="id_reportname">{% trans "report name" %}</label>
-					<div class="controls">
-						<div class="input-append reportname">
-    						<input id="id_reportname" name="reportname" type="text" />
-						</div>
-					</div>
-				</div>
-		</div>
-
-        <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-            <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
-        </div>
-        </form>
     </div>
 
-    <div id="saveToBoardDlg" class="modal hide fade">
-
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>{% trans "save to board" %}</h3>
+    <div x-data x-show="$store.ui.modal === 'saveToBoardDlg'" style="display:none">
+        <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+        <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+            <div class="modal-header">
+                <h3 class="text-lg font-medium">{% trans "save to board" %}</h3>
+                <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+            </div>
+            <form action="/board/change_board/" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{ board_form|as_bootstrap:"vertical" }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "cancel" %}</button>
+                    <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
+                </div>
+            </form>
         </div>
-
-        <form class="form-horizontal" action="/board/change_board/" method="post">
-        <div class="modal-body">
-            {{ board_form|as_bootstrap:"horizontal" }}
-        </div>
-
-        <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-            <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
-        </div>
-        </form>
     </div>
     {% endif %}
 
