@@ -26,3 +26,6 @@ venv.bak/
 .vscode/
 # local Django 5.2 migration verification venv
 .venv-verify/
+
+# filled per-web YATS configs contain DB credentials — never commit (template is tracked)
+deploy/etc-yats/*.ini

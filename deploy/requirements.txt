@@ -9,3 +9,5 @@
 gunicorn
 psycopg[binary]
 whitenoise
+# Python 3.13 (Debian 13/trixie) removed the stdlib 'audioop' that pydub needs.
+audioop-lts; python_version >= "3.13"

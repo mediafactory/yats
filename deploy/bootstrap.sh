@@ -31,13 +31,18 @@ getent group "$YATS_USER" >/dev/null || groupadd --system "$YATS_USER"
 id "$YATS_USER" >/dev/null 2>&1 || \
     useradd --system --gid "$YATS_USER" --home-dir "$APP_DIR" --shell /usr/sbin/nologin "$YATS_USER"
 
-log "repository ($BRANCH)"
-if [[ -d "${APP_DIR}/.git" ]]; then
-    git -C "$APP_DIR" fetch --prune origin
-    git -C "$APP_DIR" checkout "$BRANCH"
-    git -C "$APP_DIR" pull --ff-only origin "$BRANCH"
+if [[ "${SKIP_GIT:-0}" == "1" ]]; then
+    log "repository: SKIP_GIT=1 — using code already present in ${APP_DIR}"
+    [[ -d "$APP_DIR" ]] || { echo "SKIP_GIT set but ${APP_DIR} is missing" >&2; exit 1; }
 else
-    git clone --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
+    log "repository ($BRANCH)"
+    if [[ -d "${APP_DIR}/.git" ]]; then
+        git -C "$APP_DIR" fetch --prune origin
+        git -C "$APP_DIR" checkout "$BRANCH"
+        git -C "$APP_DIR" pull --ff-only origin "$BRANCH"
+    else
+        git clone --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
+    fi
 fi
 chown -R "$YATS_USER:$YATS_USER" "$APP_DIR"
 
@@ -86,6 +91,7 @@ repl = {
     '@PROJECT_NAME@': site,
     '@SECRET_KEY@': secret,
     '@SERVER_EMAIL@': 'tickets@mediafactory.de',
+    '@ADMINS@': '',
     # DB cluster creds — fill before the cutover (see MIGRATION.md):
     '@DB_NAME@': 'CHANGEME', '@DB_USER@': 'CHANGEME', '@DB_PASSWORD@': 'CHANGEME',
     '@DB_HOST@': 'CHANGEME', '@DB_PORT@': '5432',
@@ -115,7 +121,11 @@ run_manage() { # site, args...
 
 log "compile translations (once; app-level .mo files)"
 first="$(echo "$SITES" | awk '{print $1}')"
-run_manage "$first" compilemessages
+# compilemessages must run inside a tree that has locale/ (the yats module).
+sudo -u "$YATS_USER" sh -c "cd '${APP_DIR}/modules/yats' && \
+    DJANGO_SETTINGS_MODULE=web.settings YATS_CONFIG='/etc/yats/${first}.ini' \
+    PYTHONPATH='${APP_DIR}/modules:${APP_DIR}/sites/web' \
+    '${PY}' '${APP_DIR}/sites/web/manage.py' compilemessages"
 
 log "collectstatic per web (no DB needed)"
 for site in $SITES; do run_manage "$site" collectstatic --noinput; done
@@ -125,7 +135,7 @@ if [[ "$RUN_DB_STEPS" == "1" ]]; then
     for site in $SITES; do
         run_manage "$site" migrate --noinput
         run_manage "$site" clear_index --noinput
-        run_manage "$site" update_index --noinput
+        run_manage "$site" update_index   # haystack update_index takes no --noinput
         systemctl restart "yats-web@${site}.service" "yats-tasks@${site}.service"
     done
 else

@@ -14,6 +14,21 @@ DOMAIN: @DOMAIN@
 SECRET_KEY: @SECRET_KEY@
 # distinct prefix per web -> no key collisions in the shared memcached
 CACHE_KEY_PREFIX: @SITE@
+LOGIN_URL: /local_login
+# error-mail recipients (comma-separated; bare addr or "Name <addr>")
+ADMINS: @ADMINS@
+
+[api]
+# YATSE integration key (yats.yatse); leave empty to disable.
+API_KEY:
+
+[tickets]
+KEEP_IT_SIMPLE_DEFAULT_TYPE: 1
+KEEP_IT_SIMPLE_DEFAULT_PRIORITY: 2
+KEEP_IT_SIMPLE_DEFAULT_CUSTOMER: -1
+KEEP_IT_SIMPLE_DEFAULT_COMPONENT: 1
+# comma-separated; fields hidden from customers
+TICKET_NON_PUBLIC_FIELDS: billing_needed, billing_reason, billing_done, fixed_in_version, solution, assigned, priority
 
 [database]
 # Existing PostgreSQL cluster (same connection as the old system).

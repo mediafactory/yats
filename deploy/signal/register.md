@@ -6,6 +6,9 @@ Java 21 und Neuregistrierung der Nummern ist es wieder funktionsfähig.
 
 Jede Web hat **eine eigene Nummer** und einen **eigenen Config-Dir**
 `/var/lib/signal-cli/<site>` (von `install-signal-cli.sh` angelegt, owner `yats`).
+Nummern (Stand Migration): mf `+494516195602`, bagarino `+494516195603`,
+schiwago **eigene neue Nummer** (im Altsystem fälschlich = mf). Es sind Festnetz-
+nummern → **alle per Voice registrieren** (kein SMS-Empfang).
 
 > Wichtig: signal-cli wird im Betrieb über `sudo` als root aufgerufen
 > (`SIGNAL_BIN = sudo /usr/local/bin/signal-cli`). Damit Account-State und
@@ -18,17 +21,16 @@ Signal verlangt bei der Registrierung meist ein Captcha:
 - Captcha lösen, den `signalcaptcha://…`-Link kopieren (Rechtsklick → Link kopieren),
 - als `--captcha 'signalcaptcha://...'` übergeben.
 
-## 2. Registrieren + verifizieren (pro Nummer wiederholen)
+## 2. Registrieren + verifizieren — per VOICE (pro Nummer wiederholen)
 ```bash
 SITE=mf
 NUM=+49XXXXXXXXXX            # die Nummer dieser Web
 CFG=/var/lib/signal-cli/$SITE
 
-# Registrierung anstoßen (SMS):
-sudo signal-cli --config "$CFG" -a "$NUM" register --captcha 'signalcaptcha://...'
-# (Sprachanruf statt SMS: zusätzlich --voice)
+# Registrierung per Sprachanruf (Festnetz -> kein SMS):
+sudo signal-cli --config "$CFG" -a "$NUM" register --voice --captcha 'signalcaptcha://...'
 
-# Code aus der SMS verifizieren:
+# Code aus dem Anruf verifizieren:
 sudo signal-cli --config "$CFG" -a "$NUM" verify 123456
 
 # Profilnamen setzen (optional, erscheint beim Empfänger):

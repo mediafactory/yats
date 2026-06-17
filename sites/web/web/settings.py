@@ -13,7 +13,9 @@
 import os
 import configparser
 
-_cfg = configparser.ConfigParser()
+# interpolation=None: INI values are taken literally — SECRET_KEY / passwords
+# legitimately contain '%' and must not be treated as ConfigParser interpolation.
+_cfg = configparser.ConfigParser(interpolation=None)
 _cfg.optionxform = str  # keep key case
 YATS_CONFIG = os.environ.get('YATS_CONFIG', '/etc/yats/web.ini')
 _cfg.read(YATS_CONFIG)  # silently does nothing if the file is absent
@@ -34,6 +36,19 @@ def _getbool(section, key, default=False):
         return default
 
 
+def _getint(section, key, default):
+    val = _get(section, key)
+    return int(val) if val is not None else default
+
+
+def _getlist(section, key, default):
+    """Comma-separated INI value -> list of stripped strings."""
+    val = _get(section, key)
+    if val is None:
+        return default
+    return [x.strip() for x in val.split(',') if x.strip()]
+
+
 DEBUG = _getbool('debug', 'DEBUG', True)
 # DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
 XMLRPC_DEBUG = False
@@ -48,7 +63,16 @@ SITE_ID = 1
 
 TESTSYTEM = _getbool('debug', 'TESTSYTEM', True)
 
-ADMINS = []
+# Recipients of Django error mails (per web, from INI). Comma-separated;
+# entries may be a bare address or "Name <addr>".
+def _parse_admin(entry):
+    if '<' in entry and '>' in entry:
+        name, addr = entry.split('<', 1)
+        return (name.strip() or 'admin', addr.rstrip('>').strip())
+    return ('admin', entry)
+
+
+ADMINS = [_parse_admin(a) for a in _getlist('site', 'ADMINS', [])]
 MANAGERS = ADMINS
 
 EMAIL_SUBJECT_PREFIX = _get('mail', 'EMAIL_SUBJECT_PREFIX', 'yats-dev')
@@ -261,22 +285,25 @@ TICKET_CLASS = 'web.models.test'
 TICKET_NEW_MAIL_RCPT = _get('notify', 'TICKET_NEW_MAIL_RCPT', '')
 TICKET_NEW_JABBER_RCPT = _get('notify', 'TICKET_NEW_JABBER_RCPT', '')
 TICKET_NEW_SIGNAL_RCPT = _get('notify', 'TICKET_NEW_SIGNAL_RCPT', '')
-TICKET_NON_PUBLIC_FIELDS = ['billing_needed', 'billing_reason', 'billing_done', 'fixed_in_version', 'solution', 'assigned', 'priority']
+TICKET_NON_PUBLIC_FIELDS = _getlist('tickets', 'TICKET_NON_PUBLIC_FIELDS', ['billing_needed', 'billing_reason', 'billing_done', 'fixed_in_version', 'solution', 'assigned', 'priority'])
 TICKET_SEARCH_FIELDS = ['caption', 'c_user', 'priority', 'type', 'customer', 'component', 'deadline', 'billing_needed', 'billing_done', 'closed', 'assigned', 'state', 'description', 'hasAttachments', 'hasComments']
 TICKET_EDITABLE_FIELDS_AFTER_CLOSE = ['billing_done']
+
+# Used by yats.yatse (YATSE integration); empty disables it. Per-web.
+API_KEY = _get('api', 'API_KEY', '')
 
 GITHUB_REPO = _get('github', 'GITHUB_REPO', 'yats')
 GITHUB_OWNER = _get('github', 'GITHUB_OWNER', 'mediafactory')
 GITHUB_USER = _get('github', 'GITHUB_USER')
 GITHUB_PASS = _get('github', 'GITHUB_PASS')
 
-LOGIN_URL = '/local_login'
+LOGIN_URL = _get('site', 'LOGIN_URL', '/local_login')
 
 KEEP_IT_SIMPLE = True
-KEEP_IT_SIMPLE_DEFAULT_TYPE = 1
-KEEP_IT_SIMPLE_DEFAULT_PRIORITY = 2
-KEEP_IT_SIMPLE_DEFAULT_CUSTOMER = -1  # auto from user
-KEEP_IT_SIMPLE_DEFAULT_COMPONENT = 1
+KEEP_IT_SIMPLE_DEFAULT_TYPE = _getint('tickets', 'KEEP_IT_SIMPLE_DEFAULT_TYPE', 1)
+KEEP_IT_SIMPLE_DEFAULT_PRIORITY = _getint('tickets', 'KEEP_IT_SIMPLE_DEFAULT_PRIORITY', 2)
+KEEP_IT_SIMPLE_DEFAULT_CUSTOMER = _getint('tickets', 'KEEP_IT_SIMPLE_DEFAULT_CUSTOMER', -1)  # -1 = auto from user
+KEEP_IT_SIMPLE_DEFAULT_COMPONENT = _getint('tickets', 'KEEP_IT_SIMPLE_DEFAULT_COMPONENT', 1)
 
 REASSIGN_ALWAYS_TO_INCOMING_QUEUE = True
 
