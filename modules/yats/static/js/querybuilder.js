@@ -195,7 +195,15 @@
   QueryBuilder.prototype.collectRule = function (rule) {
     var f = this.byId[rule.fieldSel.value];
     var op = rule.opSel.value;
-    var out = { id: rule.fieldSel.value, operator: op };
+    // The backend (yats/shortcuts.py createQuery) reads `field` and `type`, and
+    // jQuery QueryBuilder used to emit `id`/`field`/`type` together — keep that
+    // shape so the saved rules and the server query stay byte-compatible.
+    var out = {
+      id: rule.fieldSel.value,
+      field: rule.fieldSel.value,
+      type: f ? f.type : 'string',
+      operator: op,
+    };
     if (NO_VALUE.indexOf(op) === -1) {
       var inputs = rule.valWrap.querySelectorAll('input,select');
       var vals = [];
