@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 {% load bootstrap_toolkit i18n boards menu %}
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="utf-8">
     <title>{% YATSName %}: {% block title %}{{ title }}{% endblock %} | YATS</title>
@@ -38,417 +38,344 @@
     <meta name="msapplication-square150x150logo" content="{{ STATIC_URL }}icons/win8-tile-150x150.png">
     <meta name="msapplication-wide310x150logo" content="{{ STATIC_URL }}icons/win8-tile-310x150.png">
     <meta name="msapplication-square310x310logo" content="{{ STATIC_URL }}icons/win8-tile-310x310.png">
-    {% bootstrap_stylesheet_tag %}
-    {% bootstrap_stylesheet_tag "responsive" %}
+
+    <link href="{{ STATIC_URL }}tailwind.css" type="text/css" rel="stylesheet" media="all">
     <link href="{{ STATIC_URL }}base.css" type="text/css" rel="stylesheet" media="all">
-    <!--[if lt IE 9]>
-    <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    {% bootstrap_javascript_tag %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/corejs-typeahead/1.2.1/bloodhound.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/corejs-typeahead/1.2.1/typeahead.jquery.min.js"></script>
+
+    <script src="{{ STATIC_URL }}js/yats.js"></script>
+    <script src="{{ STATIC_URL }}js/search.js"></script>
+    <script defer src="{{ STATIC_URL }}alpine-collapse.min.js"></script>
+    <script defer src="{{ STATIC_URL }}alpine.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css" />
     {% block extra_head %}
     {% endblock %}
-    <style>
-      div.container.pull-left.yats-navi {width: auto;}
-
-      @media only screen and (max-width: 993px) {
-        body {
-            padding-top: 0px;
-        }
-
-        .modal textarea {
-          height: 170px !important;
-      }
-      }
-
-      .typeahead,
-      .tt-query,
-      .tt-hint {
-        width: 396px;
-        height: 30px;
-        padding: 8px 12px;
-        font-size: 24px;
-        line-height: 30px;
-        border: 2px solid #ccc;
-        -webkit-border-radius: 8px;
-           -moz-border-radius: 8px;
-                border-radius: 8px;
-        outline: none;
-      }
-
-      .typeahead {
-        background-color: #fff;
-      }
-
-      .typeahead:focus {
-        border: 2px solid #0097cf;
-      }
-
-      .tt-query {
-        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-           -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-                box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-      }
-
-      .tt-hint {
-        color: #999
-      }
-
-      .tt-menu {
-        width: 422px;
-        margin: 12px 0;
-        padding: 8px 0;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        -webkit-border-radius: 8px;
-           -moz-border-radius: 8px;
-                border-radius: 8px;
-        -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-           -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-                box-shadow: 0 5px 10px rgba(0,0,0,.2);
-      }
-
-      .tt-suggestion {
-        padding: 3px 20px;
-        font-size: 18px;
-        line-height: 24px;
-      }
-
-      .tt-suggestion:hover {
-        cursor: pointer;
-        color: #000;
-        background-color: #EEEEEE;
-      }
-
-      .tt-suggestion.tt-cursor {
-        color: #000;
-        background-color: #EEEEEE;
-      }
-
-      .tt-suggestion p {
-        margin: 0;
-      }
-
-      .result-name {
-        margin: 0 20px 5px 20px;
-        padding: 3px 0;
-        border-bottom: 1px solid #ccc;
-      }
-      /* ##Device = Most of the Smartphones Mobiles (Portrait) */
-      @media (max-width: 1024px) {
-        .tt-menu {
-          width: 100%;
-          position: relative !important;
-        }
-      }
-    </style>
 </head>
 
-<body>
+<body class="h-full bg-gray-100 text-gray-800"
+      x-data
+      :class="$store.ui.sidebarOpen ? 'overflow-hidden md:overflow-auto' : ''">
 
-<div class="navbar navbar-fixed-top">
-    {% if request.user.is_authenticated %}
-    <div class="navbar-inner">
-        <div class="container-float yats-navi">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="brand " id="brand" href="/">&nbsp;&nbsp;&nbsp;<img src="{{ STATIC_URL }}icons/favicon-16x16.png" /> {% YATSName %}</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              {% board_list %}
-              {% SimpleSerch %}
+{% if request.user.is_authenticated %}
 
-              {% if request.session.isUsingYATSE %}
-              <li><a href="/docs/search/" class="">{% trans "documents" %}</a></li>
-              <li><a href="{% YATSServer %}/board/" class="">{% trans "board" %}</a></li>
-                <li><a href="{% YATSServer %}/tickets/search/" class="">{% trans "search" %}</a></li>
-                <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "New" %}<b class="caret"></b></a>
-                  <ul class="dropdown-menu">
-                      <li><a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="">{% trans "New ticket" %}</a></li>
-                      <li><a href="/docs/new/" class="">{% trans "New document" %}</a></li>
-                  </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "local" %}<b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                      <li><a href="/reports/" class="">{% trans "Reports" %}</a></li>
-                      <li class="dropdown-submenu">
-                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Boards" %}<b class="caret"></b></a>
-                          <ul class="dropdown-menu">
-                              <li><a data-toggle="modal" href="#newBoardDlg">{% trans "add new board" %}</a></li>
-                          {% for board in boards %}
-                              <li><a href="/board/{{ board.name|urlencode }}/">{{ board.name }}</a></li>
-                          {% endfor %}
-                          </ul>
-                      </li>
-                      <li><a href="/kanban/" class="">{% trans "Kanban" %}</a></li>
-                      <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>
-                      <li><a href="/log/" class="">{% trans "Logs" %}</a></li>
-                      <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>
-                      <li><a href="/info/" class="">{% trans "Info" %}</a></li>
-                      {% if request.user.is_staff %}<li><a href="/admin/" class="">{% trans "Admin" %}</a></li>{% endif %}
-                    </ul>
-                </li>
-                {% else %}
-                <li><a href="/docs/search/" class="">{% trans "Documents" %}</a></li>
-                <li><a href="/reports/" class="">{% trans "Reports" %}</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Boards" %}<b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        <li><a data-toggle="modal" href="#newBoardDlg">{% trans "add new board" %}</a></li>
-                    {% board_list %}
+{# ---- Mobile backdrop ---- #}
+<div x-show="$store.ui.sidebarOpen"
+     x-transition.opacity
+     @click="$store.ui.sidebarOpen = false"
+     class="fixed inset-0 z-30 bg-black/50 md:hidden"
+     style="display:none"></div>
+
+{# ---- Sidebar ---- #}
+<aside class="fixed inset-y-0 left-0 z-40 flex flex-col bg-gray-900 text-gray-100
+              transform transition-all duration-200 md:translate-x-0"
+       :class="[
+         $store.ui.sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+         $store.ui.collapsed ? 'w-16' : 'w-64'
+       ]">
+
+    {# brand #}
+    <div class="flex items-center gap-2 h-14 px-4 border-b border-white/10 shrink-0">
+        <a href="/" class="flex items-center gap-2 font-semibold text-white truncate">
+            <img src="{{ STATIC_URL }}icons/favicon-16x16.png" alt="">
+            <span x-show="!$store.ui.collapsed">{% YATSName %}</span>
+        </a>
+    </div>
+
+    {# nav #}
+    <nav class="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
+        {% board_list %}
+        {% SimpleSerch %}
+
+        {% if request.session.isUsingYATSE %}
+            <a href="/docs/search/" class="sidebar-item">
+                <i class="fa fa-fw fa-wikipedia-w"></i><span x-show="!$store.ui.collapsed">{% trans "documents" %}</span></a>
+            <a href="{% YATSServer %}/board/" class="sidebar-item">
+                <i class="fa fa-fw fa-columns"></i><span x-show="!$store.ui.collapsed">{% trans "board" %}</span></a>
+            <a href="{% YATSServer %}/tickets/search/" class="sidebar-item">
+                <i class="fa fa-fw fa-search"></i><span x-show="!$store.ui.collapsed">{% trans "search" %}</span></a>
+
+            <div x-data="{open:false}">
+                <button type="button" @click="open=!open" class="sidebar-item w-full">
+                    <i class="fa fa-fw fa-plus"></i><span x-show="!$store.ui.collapsed" class="flex-1 text-left">{% trans "New" %}</span>
+                    <i class="fa fa-chevron-down text-xs transition-transform" :class="open && '-rotate-180'" x-show="!$store.ui.collapsed"></i>
+                </button>
+                <div x-show="open" x-collapse class="ml-6 space-y-0.5" style="display:none">
+                    <a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="sidebar-item">{% trans "New ticket" %}</a>
+                    <a href="/docs/new/" class="sidebar-item">{% trans "New document" %}</a>
+                </div>
+            </div>
+
+            <div x-data="{open:false}">
+                <button type="button" @click="open=!open" class="sidebar-item w-full">
+                    <i class="fa fa-fw fa-cog"></i><span x-show="!$store.ui.collapsed" class="flex-1 text-left">{% trans "local" %}</span>
+                    <i class="fa fa-chevron-down text-xs transition-transform" :class="open && '-rotate-180'" x-show="!$store.ui.collapsed"></i>
+                </button>
+                <div x-show="open" x-collapse class="ml-6 space-y-0.5" style="display:none">
+                    <a href="/reports/" class="sidebar-item">{% trans "Reports" %}</a>
+                    <a href="#" @click.prevent="$store.ui.openModal('newBoardDlg')" class="sidebar-item">{% trans "add new board" %}</a>
                     {% for board in boards %}
-                        <li><a href="/board/{{ board.name|urlencode }}/">{{ board.name }}</a></li>
+                        <a href="/board/{{ board.name|urlencode }}/" class="sidebar-item">{{ board.name }}</a>
                     {% endfor %}
-                    </ul>
-                </li>
-                <li><a href="/kanban/" class="">{% trans "Kanban" %}</a></li>
-                <li><a href="/tickets/search/" class="">{% trans "Search" %}</a></li>
-                <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "New" %}<b class="caret"></b></a>
-                  <ul class="dropdown-menu">
-                      <li><a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="">{% trans "New ticket" %}</a></li>
-                      <li><a href="/docs/new/" class="">{% trans "New document" %}</a></li>
-                  </ul>
-                </li>
-                <li><a href="/log/" class="">{% trans "Logs" %}</a></li>
-                <li><a href="/workflow/" class="">{% trans "Workflow" %}</a></li>
-                <li><a href="/info/" class="">{% trans "Info" %}</a></li>
-                {% if request.user.is_staff %}<li><a href="/admin/" class="">{% trans "Admin" %}</a></li>{% endif %}
-                {% endif %}
-            </ul>
+                    <a href="/kanban/" class="sidebar-item">{% trans "Kanban" %}</a>
+                    <a href="/tickets/search/" class="sidebar-item">{% trans "Search" %}</a>
+                    <a href="/log/" class="sidebar-item">{% trans "Logs" %}</a>
+                    <a href="/workflow/" class="sidebar-item">{% trans "Workflow" %}</a>
+                    <a href="/info/" class="sidebar-item">{% trans "Info" %}</a>
+                    {% if request.user.is_staff %}<a href="/admin/" class="sidebar-item">{% trans "Admin" %}</a>{% endif %}
+                </div>
+            </div>
+        {% else %}
+            <a href="/docs/search/" class="sidebar-item">
+                <i class="fa fa-fw fa-wikipedia-w"></i><span x-show="!$store.ui.collapsed">{% trans "Documents" %}</span></a>
+            <a href="/reports/" class="sidebar-item">
+                <i class="fa fa-fw fa-bars"></i><span x-show="!$store.ui.collapsed">{% trans "Reports" %}</span></a>
 
-            <form id="fulltext" class="navbar-form pull-left" method="get" action="/search/">
-              <div class="form-group">
-                <input id="fulltextSearch" type="text" class="typeahead form-control search-query span2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Volltext" name="q" value="{{ request.GET.q }}" />
-                <input type="hidden" name="models" value="yats.docs" />
-                <input type="hidden" name="models" value="web.test" />
-                <input type="hidden" name="closed" value="false" />
-              </div>
+            <div x-data="{open:false}">
+                <button type="button" @click="open=!open" class="sidebar-item w-full">
+                    <i class="fa fa-fw fa-columns"></i><span x-show="!$store.ui.collapsed" class="flex-1 text-left">{% trans "Boards" %}</span>
+                    <i class="fa fa-chevron-down text-xs transition-transform" :class="open && '-rotate-180'" x-show="!$store.ui.collapsed"></i>
+                </button>
+                <div x-show="open" x-collapse class="ml-6 space-y-0.5" style="display:none">
+                    <a href="#" @click.prevent="$store.ui.openModal('newBoardDlg')" class="sidebar-item">{% trans "add new board" %}</a>
+                    {% for board in boards %}
+                        <a href="/board/{{ board.name|urlencode }}/" class="sidebar-item">{{ board.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <a href="/kanban/" class="sidebar-item">
+                <i class="fa fa-fw fa-tasks"></i><span x-show="!$store.ui.collapsed">{% trans "Kanban" %}</span></a>
+            <a href="/tickets/search/" class="sidebar-item">
+                <i class="fa fa-fw fa-search"></i><span x-show="!$store.ui.collapsed">{% trans "Search" %}</span></a>
+
+            <div x-data="{open:false}">
+                <button type="button" @click="open=!open" class="sidebar-item w-full">
+                    <i class="fa fa-fw fa-plus"></i><span x-show="!$store.ui.collapsed" class="flex-1 text-left">{% trans "New" %}</span>
+                    <i class="fa fa-chevron-down text-xs transition-transform" :class="open && '-rotate-180'" x-show="!$store.ui.collapsed"></i>
+                </button>
+                <div x-show="open" x-collapse class="ml-6 space-y-0.5" style="display:none">
+                    <a href="{% if simple_search %}/tickets/simple/{% else %}/tickets/new/{% endif %}" class="sidebar-item">{% trans "New ticket" %}</a>
+                    <a href="/docs/new/" class="sidebar-item">{% trans "New document" %}</a>
+                </div>
+            </div>
+
+            <a href="/log/" class="sidebar-item">
+                <i class="fa fa-fw fa-file-text-o"></i><span x-show="!$store.ui.collapsed">{% trans "Logs" %}</span></a>
+            <a href="/workflow/" class="sidebar-item">
+                <i class="fa fa-fw fa-sitemap"></i><span x-show="!$store.ui.collapsed">{% trans "Workflow" %}</span></a>
+            <a href="/info/" class="sidebar-item">
+                <i class="fa fa-fw fa-info-circle"></i><span x-show="!$store.ui.collapsed">{% trans "Info" %}</span></a>
+            {% if request.user.is_staff %}
+            <a href="/admin/" class="sidebar-item">
+                <i class="fa fa-fw fa-wrench"></i><span x-show="!$store.ui.collapsed">{% trans "Admin" %}</span></a>
+            {% endif %}
+        {% endif %}
+    </nav>
+
+    {# user menu (bottom) #}
+    <div class="border-t border-white/10 p-2" x-data="{open:false}">
+        <button type="button" @click="open=!open" class="sidebar-item w-full">
+            <i class="fa fa-fw fa-user"></i>
+            <span x-show="!$store.ui.collapsed" class="flex-1 text-left truncate">{{ request.user }}@{{ request.organisation.name }}</span>
+        </button>
+        <div x-show="open" x-collapse class="ml-6 space-y-0.5" style="display:none">
+            <a href="#" @click.prevent="$store.ui.openModal('pwdDlg')" class="sidebar-item">{% trans "change password" %}</a>
+            <a href="/local_logout/" class="sidebar-item">{% trans "Logout" %}</a>
+        </div>
+    </div>
+</aside>
+{% endif %}{# end sidebar (authenticated only) #}
+
+{# ---- Main column ---- #}
+<div class="flex flex-col min-h-full transition-all duration-200"
+     {% if request.user.is_authenticated %}:class="$store.ui.collapsed ? 'md:ml-16' : 'md:ml-64'"{% endif %}>
+
+    {% if request.user.is_authenticated %}
+    {# top header #}
+    <header class="sticky top-0 z-20 flex items-center gap-3 h-14 px-4 bg-white border-b border-gray-200 shadow-sm">
+        <button type="button" @click="$store.ui.toggleSidebar()" class="md:hidden text-gray-600 hover:text-gray-900">
+            <i class="fa fa-bars text-lg"></i>
+        </button>
+        <button type="button" @click="$store.ui.toggleCollapsed()" class="hidden md:inline text-gray-500 hover:text-gray-800" title="{% trans 'collapse sidebar' %}">
+            <i class="fa fa-bars"></i>
+        </button>
+
+        {# full-text search #}
+        <div class="relative flex-1 max-w-xl" x-data="fulltextSearch()" @click.outside="open=false">
+            <form id="fulltext" x-ref="form" method="get" action="/search/">
+                <div class="relative">
+                    <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input x-ref="input" x-model="q" @input="onInput()" @focus="onInput()"
+                           @keydown.enter.prevent="submit()"
+                           type="text" name="q" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                           class="form-control pl-9" placeholder="{% trans 'Full text' %}">
+                </div>
+                <input type="hidden" name="models" value="yats.docs">
+                <input type="hidden" name="models" value="web.test">
+                <input type="hidden" name="closed" value="false">
             </form>
 
-            <ul class="nav pull-right">
-              <li class="dropdown">
-                <a href="#" style="color: #0088cc;" class="dropdown-toggle" data-toggle="dropdown">{{ request.user }}@{{ request.organisation.name }} <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                  <li><a data-toggle="modal" href="#pwdDlg">{% trans "change password" %}</a></li>
-                  <li class="divider"></li>
-                  <li><a href="/local_logout/" class="">{% trans "Logout" %}</a></li>
-                </ul>
-              </li>
-            </ul>
-
-          </div><!--/.nav-collapse -->
+            {# suggestions dropdown #}
+            <div x-show="open" x-transition style="display:none"
+                 class="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-96 overflow-y-auto z-30 text-sm">
+                <template x-if="suggestions.length">
+                    <div class="px-3 py-2 border-b border-gray-100">
+                        <template x-for="s in suggestions" :key="s.caption">
+                            <button type="button" @click="useSuggestion(s)" class="block text-left text-brand hover:underline">
+                                {% trans "did you mean" %}: <span x-text="s.caption"></span>
+                            </button>
+                        </template>
+                    </div>
+                </template>
+                <template x-if="tickets.length">
+                    <div class="py-1">
+                        <div class="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400">{% trans "tickets" %}</div>
+                        <template x-for="t in tickets" :key="'t'+t.id">
+                            <a :href="'/tickets/view/'+t.id+'/'" class="block px-3 py-1.5 hover:bg-gray-50">
+                                <i class="fa fa-bug text-gray-400"></i>
+                                <span :class="t.closed && 'line-through text-gray-400'">#<span x-text="t.id"></span> <span x-text="t.caption"></span></span>
+                            </a>
+                        </template>
+                    </div>
+                </template>
+                <template x-if="docs.length">
+                    <div class="py-1 border-t border-gray-100">
+                        <div class="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400">{% trans "documents" %}</div>
+                        <template x-for="d in docs" :key="'d'+d.id">
+                            <a :href="'/docs/view/'+d.id+'/'" class="block px-3 py-1.5 hover:bg-gray-50">
+                                <i class="fa fa-wikipedia-w text-gray-400"></i> <span x-text="d.caption"></span>
+                            </a>
+                        </template>
+                    </div>
+                </template>
+            </div>
         </div>
+    </header>
 
+    {# breadcrumbs #}
+    {% if request.session.breadcrumbs %}
+    <div class="px-4 py-2 bg-white/60 border-b border-gray-200">
+        <nav class="breadcrumb">
+            {% for bread in request.session.breadcrumbs %}
+                {% if bread.1 == '#' %}<a href="/tickets/view/{{ bread.0 }}/" class="hover:text-brand">{% if bread.2 %}<i class="fa fa-bug"></i> #{{ bread.0 }} {{ bread.2|truncatechars:19 }}{% else %}@{{ bread.0 }}{% endif %}</a>{% endif %}
+                {% if bread.1 == '@' %}<a href="/reports/?report={{ bread.0 }}" class="hover:text-brand">{% if bread.2 %}<i class="fa fa-bars"></i> {{ bread.2 }}{% else %}@{{ bread.0 }}{% endif %}</a>{% endif %}
+                {% if bread.1 == '$' %}<a href="/board/{{ bread.0|urlencode }}/" class="hover:text-brand">${{ bread.0|truncatechars:19 }}</a>{% endif %}
+                {% if bread.1 == 'k' %}<a href="/kanban/" class="hover:text-brand"><i class="fa fa-tasks"></i> Kanban</a>{% endif %}
+                {% if bread.1 == '*' %}<a href="/docs/view/{{ bread.0 }}/" class="hover:text-brand">{% if bread.2 %}<i class="fa fa-wikipedia-w"></i> {{ bread.2|truncatechars:19 }}{% else %}@{{ bread.0 }}{% endif %}</a>{% endif %}
+                {% if not forloop.last %}<span class="text-gray-300">/</span>{% endif %}
+            {% endfor %}
+        </nav>
     </div>
+    {% endif %}
+
+{% endif %}{# end authenticated chrome (sidebar + header + breadcrumb) #}
+
+    {% comment %}content block defined once; only wrapping chrome differs by auth{% endcomment %}
+    <main class="flex-1 {% if request.user.is_authenticated %}p-4 md:p-6{% else %}flex items-center justify-center p-4{% endif %}">
+        {% if not request.user.is_authenticated %}<div class="w-full max-w-md card"><div class="card-body">{% endif %}
+        {% bootstrap_messages %}
+        {% block content %}Empty page{% endblock %}
+        {% if not request.user.is_authenticated %}</div></div>{% endif %}
+    </main>
+
+    {% if request.user.is_authenticated %}
+    {% block footer %}
+    <footer class="px-4 md:px-6 py-4 border-t border-gray-200 text-sm text-gray-500 bg-white">
+        <div class="flex flex-col sm:flex-row sm:justify-between gap-2">
+            <div>
+                {{ SETTINGS.CUSTOMER }}<br>
+                {{ SETTINGS.TEL }}<br>
+                {{ SETTINGS.MAIL }}
+            </div>
+            <div class="sm:text-right">
+                &copy; 2014 - {% now "Y" %} <a href="http://www.mediafactory.de" class="text-brand hover:underline">media factory</a>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
     {% endif %}
 </div>
 
-{% if request.session.breadcrumbs %}
-    <ul class="breadcrumb">
-        {% for bread in request.session.breadcrumbs %}
-        <li>
-            {% if bread.1 == '#' %}<a href="/tickets/view/{{ bread.0 }}/">{% if bread.2 %}<i class="fa fa-bug" aria-hidden="true"></i> #{{ bread.0 }} {{ bread.2|truncatechars:19 }}{% else %}@{{ bread.0 }}{% endif %}</a>{% endif %}
-            {% if bread.1 == '@' %}<a href="/reports/?report={{ bread.0 }}">{% if bread.2 %}<i class="fa fa-bars" aria-hidden="true"></i> {{ bread.2 }}{% else %}@{{ bread.0 }}{% endif %}</a>{% endif %}
-            {% if bread.1 == '$' %}<a href="/board/{{ bread.0|urlencode }}/">${{ bread.0|truncatechars:19 }}</a>{% endif %}
-            {% if bread.1 == 'k' %}<a href="/kanban/"><i class="fa fa-tasks" aria-hidden="true"></i> Kanban</a>{% endif %}
-            {% if bread.1 == '*' %}<a href="/docs/view/{{ bread.0 }}/">{% if bread.2 %}<i class="fa fa-wikipedia-w" aria-hidden="true"></i> {{ bread.2|truncatechars:19 }}{% else %}@{{ bread.0 }}{% endif %}</a>{% endif %}
-            {% if not forloop.last %}<span class="divider">|</span>{% endif %}
-        </li>
-        {% endfor %}
-    </ul>
+{% if request.user.is_authenticated %}
+{# ---- Modals ---- #}
+{# change password #}
+<div x-data x-show="$store.ui.modal === 'pwdDlg'" style="display:none">
+    <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+    <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+        <div class="modal-header">
+            <h3 class="text-lg font-medium">{% trans "change password" %}</h3>
+            <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+        </div>
+        <form action="/" method="post">
+            {% csrf_token %}
+            <div class="modal-body space-y-3">
+                <div>
+                    <label class="form-label" for="id_password">{% trans "Password" %}:</label>
+                    <input class="form-control" type="password" name="password" id="id_password">
+                </div>
+                <div>
+                    <label class="form-label" for="id_password_check">{% trans "Validate password" %}:</label>
+                    <input class="form-control" type="password" name="password_check" id="id_password_check">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "cancel" %}</button>
+                <input type="submit" value="{% trans 'change' %}" class="btn btn-primary">
+            </div>
+        </form>
+    </div>
+</div>
+
+{# new board #}
+<div x-data x-show="$store.ui.modal === 'newBoardDlg'" style="display:none">
+    <div class="modal-backdrop" @click="$store.ui.closeModal()"></div>
+    <div class="modal-panel" @keydown.window.escape="$store.ui.closeModal()">
+        <div class="modal-header">
+            <h3 class="text-lg font-medium">{% trans "new board" %}</h3>
+            <button type="button" @click="$store.ui.closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+        </div>
+        <form action="/board/to_add/" method="post">
+            {% csrf_token %}
+            <div class="modal-body">
+                <label class="form-label" for="id_boardname">{% trans "board name" %}</label>
+                <input class="form-control" id="id_boardname" name="boardname" type="text">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" @click="$store.ui.closeModal()">{% trans "cancel" %}</button>
+                <input type="submit" value="{% trans 'save' %}" class="btn btn-primary">
+            </div>
+        </form>
+    </div>
+</div>
+
+{% else %}
+
+{# ---- unauthenticated: centered card, no sidebar ---- #}
+<div class="min-h-full flex items-center justify-center p-4">
+    <div class="w-full max-w-md card">
+        <div class="card-body">
+            {% bootstrap_messages %}
+            {% block content_anon %}{% endblock %}
+        </div>
+    </div>
+</div>
+
 {% endif %}
 
-<div class="container">
-
-    {% bootstrap_messages %}
-
-    {% block content %}Empty page{% endblock %}
-
-</div> <!-- container -->
-
-{% block footer %}
-<div class="container">
-    <footer class="row">
-      <p><hr /></p>
-
-        <div class="span6">
-            {{ SETTINGS.CUSTOMER }}<br />
-            {{ SETTINGS.TEL }}<br />
-            {{ SETTINGS.MAIL }}<br />
-        </div>
-        <div class="span6" style="text-align:right">
-            <p>
-                &copy; 2014 - {% now "Y" %} <a href="http://www.mediafactory.de">media factory</a>
-            </p>
-        </div>
-    </footer>
-</div>
-{% endblock %}
-
-<div id="pwdDlg" class="modal hide fade">
-
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3>{% trans "change password" %}</h3>
-    </div>
-
-    <form class="form-{{ layout }}" action="/" method="post">
-    <div class="modal-body">
-      <div>
-        <label for="id_password">{% trans "Password" %}:</label> <input type="password" name="password" id="id_password" />
-        <label for="id_password">{% trans "Validate password" %}:</label> <input type="password" name="password_check" id="id_password_check" />
-      </div>
-    </div>
-
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-        <input type="submit" value="{% trans "change" %}" class="btn btn-primary">
-    </div>
-    </form>
-</div>
-
-<div id="newBoardDlg" class="modal hide fade">
-
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3>{% trans "new board" %}</h3>
-    </div>
-
-    <form class="form-{{ layout }}" action="/board/to_add/" method="post">
-    <div class="modal-body">
-		<div class="control-group">
-		    <label class="control-label" for="id_boardname">{% trans "board name" %}</label>
-		    <div class="controls">
-		        <div class="input-append boardname">
-		            <input id="id_boardname" name="boardname" type="text" />
-		        </div>
-		    </div>
-		</div>
-    </div>
-
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">{% trans "cancel" %}</a>
-        <input type="submit" value="{% trans "save" %}" class="btn btn-primary">
-    </div>
-    </form>
-</div>
 <script type="text/javascript">
-
-Handlebars.registerHelper('if', function(conditional, options) {
-  if(conditional) {
-    return options.fn(this);
-  }
-});
-
-var suggestions = new Bloodhound({
-  datumTokenizer: Bloodhound.tokenizers.whitespace,
-  queryTokenizer: Bloodhound.tokenizers.whitespace,
-  remote: {
-    url: '/search/auto/?q=%QUERY&models=web.test&models=yats.docs&suggestions=1',
-    wildcard: '%QUERY'
-  }
-});
-
-var tics = new Bloodhound({
-  datumTokenizer: Bloodhound.tokenizers.whitespace,
-  queryTokenizer: Bloodhound.tokenizers.whitespace,
-  remote: {
-    url: '/search/auto/?q=%QUERY&models=web.test',
-    wildcard: '%QUERY'
-  }
-});
-
-var docs = new Bloodhound({
-  datumTokenizer: Bloodhound.tokenizers.whitespace,
-  queryTokenizer: Bloodhound.tokenizers.whitespace,
-  remote: {
-    url: '/search/auto/?q=%QUERY&models=yats.docs',
-    wildcard: '%QUERY'
-  }
-});
-
-$('#fulltextSearch').typeahead({
-  highlight: true
-},
-{
-  name: 'suggestions',
-  display: 'caption',
-  source: suggestions,
-  limit: 10,
-  templates: {
-    suggestion: Handlebars.compile('<div>{% trans "did you mean" %}: {% verbatim %}{{caption}}{% endverbatim %}</div>'),
-    footer: '<br />'
-  }
-},
-{
-  name: 'tickets',
-  display: 'caption',
-  source: tics,
-  limit: 10,
-  templates: {
-    header: '<h3 class="result-name">{% trans "tickets" %}</h3>',
-    suggestion: Handlebars.compile('<div><i class="fa fa-bug" aria-hidden="true"></i> <a style="{% verbatim %}{{#if closed}}text-decoration: line-through;{{/if}}{% endverbatim %}" href="/tickets/view/{% verbatim %}{{id}}{% endverbatim %}/">#{% verbatim %}{{id}}{% endverbatim %} {% verbatim %}{{caption}}{% endverbatim %}</a></div>'),
-  }
-},
-{
-  name: 'documents',
-  display: 'caption',
-  source: docs,
-  limit: 10,
-  templates: {
-    header: '<h3 class="result-name">{% trans "documents" %}</h3>',
-    suggestion: Handlebars.compile('<div><i class="fa fa-wikipedia-w" aria-hidden="true"></i> <a href="/docs/view/{% verbatim %}{{id}}{% endverbatim %}/">{% verbatim %}{{caption}}{% endverbatim %}</a></div>'),
-  }
-});
-
-var stopIt = false;
-$('.typeahead').on('keydown', function(e) {
-  if (e.keyCode == 13 && ! stopIt) {
-    jQuery("#fulltext").submit()
-  }
-});
-
-$('.typeahead').bind('typeahead:selected', function(ev, suggestion) {
-  if ((typeof(suggestion.id) === 'undefined')) {
-    stopIt = true;
-    console.log('stopped');
-    window.setTimeout(function () {stopIt = false}, 1000);
-    jQuery('#fulltext').typeahead('val', suggestion.caption.trim());
-    window.setTimeout(function () {jQuery('#fulltextSearch').focus();}, 500);
-  }
-});
-
 {% if not request.user.is_staff %}
   window.addEventListener("load", function(){
     window.cookieconsent.initialise({
       "palette": {
-        "popup": {
-          "background": "#f5f5f5",
-          "text": "#333333"
-        },
-        "button": {
-          "background": "#006dcc"
-        }
+        "popup": { "background": "#f5f5f5", "text": "#333333" },
+        "button": { "background": "#006dcc" }
       },
       "theme": "classic"
     })
   });
 {% endif %}
-
 </script>
 </body>
 </html>

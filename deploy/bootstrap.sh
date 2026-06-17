@@ -127,6 +127,21 @@ sudo -u "$YATS_USER" sh -c "cd '${APP_DIR}/modules/yats' && \
     PYTHONPATH='${APP_DIR}/modules:${APP_DIR}/sites/web' \
     '${PY}' '${APP_DIR}/sites/web/manage.py' compilemessages"
 
+log "tailwind css (standalone CLI, no Node)"
+# Compile modules/yats/static/tailwind.css from assets/. The compiled file is
+# also committed, so this is a refresh — it keeps the deployed CSS in sync with
+# the templates after a pull. Idempotent: the binary is only downloaded once.
+TW_VERSION="v3.4.17"
+TW_BIN="${APP_DIR}/.bin/tailwindcss"
+if [[ ! -x "$TW_BIN" ]]; then
+    mkdir -p "${APP_DIR}/.bin"
+    curl -fsSL -o "$TW_BIN" \
+        "https://github.com/tailwindlabs/tailwindcss/releases/download/${TW_VERSION}/tailwindcss-linux-x64"
+    chmod +x "$TW_BIN"
+fi
+sudo -u "$YATS_USER" sh -c "cd '${APP_DIR}' && \
+    '${TW_BIN}' -i assets/tailwind.input.css -o modules/yats/static/tailwind.css --minify"
+
 log "collectstatic per web (no DB needed)"
 for site in $SITES; do run_manage "$site" collectstatic --noinput; done
 

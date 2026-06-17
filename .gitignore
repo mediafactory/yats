@@ -13,6 +13,10 @@
 /external/
 /vagrant/.vagrant/
 
+# Tailwind standalone CLI binary (downloaded per-host; the compiled
+# modules/yats/static/tailwind.css IS committed)
+/.bin/
+
 # Environments
 .env
 .venv
