@@ -1,3 +1,4 @@
-<label class="checkbox">
+<label class="inline-flex items-center gap-2 text-sm">
     {{ field }}
+    <span>{{ field.label }}</span>{% comment %}label text was previously supplied by the surrounding control-group; checkbox layout shows it inline now{% endcomment %}
 </label>

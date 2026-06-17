@@ -1,19 +1,9 @@
-{% if prepend %}
-    {% if append %}
-        <div class="input-prepend input-append">
-            <span class="add-on">{{ prepend }}</span>{{ field }}<span class="add-on">{{ append }}</span>
-        </div>
-    {% else %}
-        <div class="input-prepend">
-            <span class="add-on">{{ prepend }}</span>{{ field }}
-        </div>
-    {% endif %}
+{% if prepend or append %}
+    <div class="flex items-stretch">
+        {% if prepend %}<span class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-sm text-gray-500">{{ prepend }}</span>{% endif %}
+        <span class="flex-1 [&>*]:rounded-none {% if prepend %}[&>*]:rounded-r{% endif %} {% if append %}[&>*]:rounded-l{% endif %}">{{ field }}</span>
+        {% if append %}<span class="inline-flex items-center px-3 rounded-r border border-l-0 border-gray-300 bg-gray-50 text-sm text-gray-500">{{ append }}</span>{% endif %}
+    </div>
 {% else %}
-    {% if append %}
-        <div class="input-append">
-            {{ field }}<span class="add-on">{{ append }}</span>
-        </div>
-    {% else %}
-        {{ field }}
-    {% endif %}
+    {{ field }}
 {% endif %}

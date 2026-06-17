@@ -3,6 +3,27 @@
 @tailwind utilities;
 
 /*
+ * Base form styling. Django widgets across the app render plain
+ * <input>/<select>/<textarea> without classes; the old design relied on
+ * global Bootstrap rules. We reproduce that with a base layer so individual
+ * widgets need no per-field class. Opt out with the `.no-base` marker.
+ */
+@layer base {
+  input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=file]):not([type=range]):not(.no-base),
+  select:not(.no-base),
+  textarea:not(.no-base) {
+    @apply block w-full rounded border border-gray-300 px-3 py-1.5 text-sm
+           shadow-sm placeholder-gray-400
+           focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none
+           disabled:bg-gray-100 disabled:text-gray-500;
+  }
+  textarea:not(.no-base) { @apply min-h-[6rem]; }
+  input[type=checkbox]:not(.no-base), input[type=radio]:not(.no-base) {
+    @apply h-4 w-4 align-middle text-brand border-gray-300 focus:ring-brand;
+  }
+}
+
+/*
  * YATS component classes.
  * These keep page templates compact (semantic classes instead of long utility
  * chains) and give us one place to retune the look. Built with the standalone

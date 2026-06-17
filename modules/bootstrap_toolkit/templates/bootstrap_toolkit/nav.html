@@ -1,5 +1,5 @@
 {% spaceless %}
     {% for tab in tabs %}
-        <li{% if request.path == tab.link %} class="active"{% endif %}><a href="{{ tab.link }}">{{ tab.title }}</a></li>
+        <li><a href="{{ tab.link }}" class="inline-block px-4 py-2 border-b-2 {% if request.path == tab.link %}border-brand text-brand font-medium{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %}">{{ tab.title }}</a></li>
     {% endfor %}
 {% endspaceless %}

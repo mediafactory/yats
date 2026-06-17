@@ -1,7 +1,7 @@
 {% load bootstrap_toolkit %}
 {{ choices_start }}
 {% for choice_id, choice_label in field.field.choices %}
-    <label class="{{ type }}{% if display == "inline" or field.field.widget.attrs.inline %} inline{% endif %}">
+    <label class="inline-flex items-center gap-2 text-sm{% if display == "inline" or field.field.widget.attrs.inline %} mr-3{% else %} flex{% endif %}">
         <input
             type="{{ type }}"
             name="{{ field.html_name }}"

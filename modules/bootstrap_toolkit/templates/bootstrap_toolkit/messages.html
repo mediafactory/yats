@@ -1,6 +1,7 @@
 {% for message in messages %}
-    <div class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %}" data-dismiss="alert">
-        <a class="close" data-dismiss="alert" href="#">&times;</a>
-        {{ message }}
+    <div x-data="{show:true}" x-show="show" x-transition
+         class="alert mb-3{% if message.tags %} alert-{{ message.tags }}{% else %} alert-info{% endif %}">
+        <div class="flex-1">{{ message }}</div>
+        <button type="button" @click="show=false" class="opacity-60 hover:opacity-100"><i class="fa fa-times"></i></button>
     </div>
 {% endfor %}

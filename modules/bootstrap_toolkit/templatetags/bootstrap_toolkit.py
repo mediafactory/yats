@@ -16,71 +16,19 @@ from django.utils.translation import gettext as _
 from django import forms
 
 
-BOOTSTRAP_BASE_URL = getattr(settings, 'BOOTSTRAP_BASE_URL',
-                             '//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/'
-)
-
-BOOTSTRAP_JS_BASE_URL = getattr(settings, 'BOOTSTRAP_JS_BASE_URL',
-                                BOOTSTRAP_BASE_URL + 'js/'
-)
-
-BOOTSTRAP_JS_URL = getattr(settings, 'BOOTSTRAP_JS_URL',
-                           None
-)
-
-BOOTSTRAP_CSS_BASE_URL = getattr(settings, 'BOOTSTRAP_CSS_BASE_URL',
-                                 BOOTSTRAP_BASE_URL + 'css/'
-)
-
-BOOTSTRAP_CSS_URL = getattr(settings, 'BOOTSTRAP_CSS_URL',
-                            BOOTSTRAP_CSS_BASE_URL + 'bootstrap.css'
-)
-
 register = template.Library()
 
 
-@register.simple_tag
-def bootstrap_stylesheet_url(css=None):
-    """
-    URL to Bootstrap Stylesheet (CSS)
-    """
-    url = BOOTSTRAP_CSS_URL
-    if css:
-        url = BOOTSTRAP_CSS_BASE_URL + u'bootstrap-%s.css' % css
-    else:
-        url = BOOTSTRAP_CSS_URL
-    return url
-
-
+# The GUI now uses Tailwind + Alpine (loaded directly in base.html). These tags
+# are kept as no-ops so any lingering {% bootstrap_*_tag %} can't re-inject the
+# old Bootstrap CDN assets.
 @register.simple_tag
 def bootstrap_stylesheet_tag(css=None):
-    """
-    HTML tag to insert Bootstrap stylesheet
-    """
-    return mark_safe(u'<link rel="stylesheet" href="%s">' % bootstrap_stylesheet_url(css))
-
-
-@register.simple_tag
-def bootstrap_javascript_url(name=None):
-    """
-    URL to Bootstrap javascript file
-    """
-    if BOOTSTRAP_JS_URL:
-        return BOOTSTRAP_JS_URL
-    if name:
-        return mark_safe(BOOTSTRAP_JS_BASE_URL + 'bootstrap-' + name + '.js')
-    else:
-        return mark_safe(BOOTSTRAP_JS_BASE_URL + 'bootstrap.min.js')
+    return u''
 
 
 @register.simple_tag
 def bootstrap_javascript_tag(name=None):
-    """
-    HTML tag to insert bootstrap_toolkit javascript file
-    """
-    url = bootstrap_javascript_url(name)
-    if url:
-        return mark_safe(u'<script src="%s"></script>' % url)
     return u''
 
 @register.filter(is_safe=True)
@@ -310,9 +258,7 @@ def bootstrap_button(text, **kwargs):
         # Build icon classes
     icon_class = ''
     if button_icon:
-        icon_class = 'icon-' + button_icon
-        if button_type and button_type != 'link':
-            icon_class += ' icon-white'
+        icon_class = 'fa fa-' + button_icon
             # Return context for template
     return {
         'text': text,
@@ -327,9 +273,9 @@ def bootstrap_icon(icon, **kwargs):
     """
     Render an icon
     """
-    icon_class = 'icon-' + icon
+    icon_class = 'fa fa-' + icon
     if kwargs.get('inverse'):
-        icon_class += ' icon-white'
+        icon_class += ' text-white'
     return {
         'icon_class': icon_class,
     }

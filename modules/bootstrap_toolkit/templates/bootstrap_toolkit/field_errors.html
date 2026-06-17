@@ -1,9 +1,9 @@
 {% if field.errors %}
     {% for error in field.errors %}
         {% if display == "inline" %}
-            <span class="help-inline error">{{ error }}</span>
+            <span class="form-error inline-block ml-2">{{ error }}</span>
         {% else %}
-            <p class="help-block">{{ error }}</p>
+            <p class="form-error">{{ error }}</p>
         {% endif %}
     {% endfor %}
 {% endif %}

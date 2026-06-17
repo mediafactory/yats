@@ -1,6 +1,6 @@
-<div class="control-group{% if field.errors %} error{% endif %}{% if field.field.required %} required{% endif %}">
-    <label class="control-label"{% if field.auto_id and input_type != "multicheckbox" and input_type != "radioset" %} for="{{ field.auto_id }}"{% endif %}>{{ field.label }}</label>
-    <div class="controls{% if float %} controls-row{% endif %}">
+<div class="form-group sm:grid sm:grid-cols-4 sm:gap-3 sm:items-start{% if field.errors %} has-error{% endif %}">
+    <label class="form-label sm:text-right sm:pt-1.5 sm:col-span-1"{% if field.auto_id and input_type != "multicheckbox" and input_type != "radioset" %} for="{{ field.auto_id }}"{% endif %}>{{ field.label }}{% if field.field.required %} <span class="text-red-500">*</span>{% endif %}</label>
+    <div class="sm:col-span-3">
         {% if input_type == "checkbox" %}
             {% include "bootstrap_toolkit/field_checkbox.html" %}
             {% include "bootstrap_toolkit/field_errors.html" with display="inline" %}
