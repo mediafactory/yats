@@ -88,6 +88,25 @@ def dashboard(request):
 
 
 @login_required
+def dashboard_metric(request, key):
+    from yats import dashboard as dash
+
+    search = dash.metric_search(request, key)
+    if search is None:
+        return HttpResponseNotFound()
+
+    captions = {
+        'open_total': _('open total'),
+        'my_open': _('assigned to me'),
+        'unassigned': _('unassigned'),
+        'closed_this_week': _('closed this week'),
+    }
+    request.session['last_search'] = search
+    request.session['last_search_caption'] = captions.get(key, '')
+    return table(request, search=search, list_caption=request.session['last_search_caption'])
+
+
+@login_required
 def dashboard_config_save(request):
     if request.method != 'POST':
         return HttpResponseNotFound()

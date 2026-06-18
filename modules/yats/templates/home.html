@@ -36,22 +36,22 @@
 
             {% if widget.id == 'metrics' and widget.data %}
             <div class="grid grid-cols-2 gap-3">
-                <div class="card"><div class="card-body text-center">
+                <a href="/dashboard/metric/open_total/" class="card hover:ring-2 hover:ring-brand transition"><div class="card-body text-center">
                     <div class="text-3xl font-bold text-brand">{{ widget.data.open_total }}</div>
                     <div class="text-sm text-gray-500">{% trans "open total" %}</div>
-                </div></div>
-                <div class="card"><div class="card-body text-center">
+                </div></a>
+                <a href="/dashboard/metric/my_open/" class="card hover:ring-2 hover:ring-brand transition"><div class="card-body text-center">
                     <div class="text-3xl font-bold">{{ widget.data.my_open }}</div>
                     <div class="text-sm text-gray-500">{% trans "assigned to me" %}</div>
-                </div></div>
-                <div class="card"><div class="card-body text-center">
+                </div></a>
+                <a href="/dashboard/metric/unassigned/" class="card hover:ring-2 hover:ring-brand transition"><div class="card-body text-center">
                     <div class="text-3xl font-bold">{{ widget.data.unassigned }}</div>
                     <div class="text-sm text-gray-500">{% trans "unassigned" %}</div>
-                </div></div>
-                <div class="card"><div class="card-body text-center">
+                </div></a>
+                <a href="/dashboard/metric/closed_this_week/" class="card hover:ring-2 hover:ring-brand transition"><div class="card-body text-center">
                     <div class="text-3xl font-bold text-green-600">{{ widget.data.closed_this_week }}</div>
                     <div class="text-sm text-gray-500">{% trans "closed this week" %}</div>
-                </div></div>
+                </div></a>
             </div>
 
             {% elif widget.id == 'my_open' %}

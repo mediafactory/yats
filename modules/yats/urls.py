@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.urls import include, re_path
-from yats.views import root, dashboard, dashboard_config_save, info, show_board, board_by_id, yatse_api, login, logout, kanban, xptest, robots, autocomplete
+from yats.views import root, dashboard, dashboard_metric, dashboard_config_save, info, show_board, board_by_id, yatse_api, login, logout, kanban, xptest, robots, autocomplete
 from yats.tickets import new, action, table, search, search_ex, search_simple, reports, workflow, simple, create, log
 from yats.docs import docs_action, docs_new, docs_search, docs_wiki
 from yats.forms import yatsSearchView
@@ -26,6 +26,10 @@ urlpatterns = [
    re_path(r'^dashboard/config/$',
        view=dashboard_config_save,
        name='dashboard_config_save'),
+
+   re_path(r'^dashboard/metric/(?P<key>\w+)/$',
+       view=dashboard_metric,
+       name='dashboard_metric'),
 
    # tickets
    re_path(r'^tickets/create/$',

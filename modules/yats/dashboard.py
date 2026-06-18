@@ -78,22 +78,51 @@ def widget_due(request):
         .order_by('deadline')[:20]
 
 
+def _week_start():
+    """Start of the current ISO week (Monday 00:00, local time)."""
+    now = timezone.localtime()
+    return (now - timezone.timedelta(days=now.weekday())).replace(
+        hour=0, minute=0, second=0, microsecond=0)
+
+
 def widget_metrics(request):
     """Headline counters."""
     visible = get_visible_tickets(request)
     open_q = visible.filter(closed=False)
 
-    # start of the current ISO week (Monday 00:00, local time)
-    now = timezone.localtime()
-    week_start = (now - timezone.timedelta(days=now.weekday())).replace(
-        hour=0, minute=0, second=0, microsecond=0)
-
     return {
         'open_total': open_q.count(),
         'my_open': open_q.filter(assigned=request.user).count(),
         'unassigned': open_q.filter(assigned__isnull=True).count(),
-        'closed_this_week': visible.filter(closed=True, close_date__gte=week_start).count(),
+        'closed_this_week': visible.filter(closed=True, close_date__gte=_week_start()).count(),
     }
+
+
+# Maps a metric tile key to the saved-search rules that reproduce its count in
+# the ticket list (table()). Field names / operators mirror build_ticket_search_ext.
+# Kept here so the tile counts and the drill-down filter share one source of truth
+# (notably the week-start cutoff for closed_this_week).
+def metric_search(request, key):
+    """Return a search dict (rules/condition/valid) for a metric tile, or None
+    if the key is unknown."""
+    def rule(field, operator, value, rtype):
+        return {'field': field, 'id': field, 'operator': operator, 'value': value, 'type': rtype}
+
+    if key == 'open_total':
+        rules = [rule('closed', 'equal', False, 'boolean')]
+    elif key == 'my_open':
+        rules = [rule('closed', 'equal', False, 'boolean'),
+                 rule('assigned', 'equal', request.user.id, 'integer')]
+    elif key == 'unassigned':
+        rules = [rule('closed', 'equal', False, 'boolean'),
+                 rule('assigned', 'is_null', None, 'integer')]
+    elif key == 'closed_this_week':
+        rules = [rule('closed', 'equal', True, 'boolean'),
+                 rule('close_date', 'greater_or_equal', _week_start().isoformat(), 'datetime')]
+    else:
+        return None
+
+    return {'rules': rules, 'condition': 'AND', 'valid': True}
 
 
 def _counts_by(request, field, label_field):
