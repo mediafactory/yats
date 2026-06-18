@@ -132,12 +132,12 @@
 {% endblock %}
 
 {% block footer %}
-<footer class="px-4 md:px-6 py-4 border-t border-gray-200 text-sm text-gray-500 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">
-    <div class="flex flex-col sm:flex-row sm:justify-between gap-2">
-        <div>
-            {{ SETTINGS.CUSTOMER }}<br />
-            {{ SETTINGS.TEL }}<br />
-            {{ SETTINGS.MAIL }}
+<footer class="px-4 md:px-6 py-2 border-t border-gray-200 text-xs text-gray-500 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+        <div class="flex flex-wrap gap-x-3">
+            {% if SETTINGS.CUSTOMER %}<span>{{ SETTINGS.CUSTOMER }}</span>{% endif %}
+            {% if SETTINGS.TEL %}<span>{{ SETTINGS.TEL }}</span>{% endif %}
+            {% if SETTINGS.MAIL %}<span>{{ SETTINGS.MAIL }}</span>{% endif %}
         </div>
         <div class="sm:text-right">
             &copy; 2014 - {% now "Y" %} <a href="http://www.mediafactory.de" class="text-brand hover:underline">media factory</a>
