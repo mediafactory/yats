@@ -7,18 +7,34 @@ import os
 
 @background()
 def do_send_signal(msg, rcpt_list, atts=[]):
-    if len(rcpt_list) == 0:
+    if not rcpt_list:
         return
 
-    if not hasattr(settings, 'SIGNAL_BIN') or settings.SIGNAL_BIN == '' or not hasattr(settings, 'SIGNAL_USERNAME') or settings.SIGNAL_USERNAME == '':
+    if not getattr(settings, 'SIGNAL_BIN', '') or not getattr(settings, 'SIGNAL_USERNAME', ''):
         return
 
-    for rcpt in rcpt_list:
-        # signal-cli -u USERNAME send -m "test" RECIPIENT
+    # Recipients can arrive as a list AND/OR as comma-separated strings
+    # (e.g. SIGNAL_TEST_RECIPIENT / TICKET_NEW_SIGNAL_RCPT). Flatten to a list of
+    # single numbers — signal-cli expects each recipient as its own argument, not
+    # a comma-joined string (which it mangles into one "Unregistered user").
+    recipients = []
+    for entry in rcpt_list:
+        if not entry:
+            continue
+        recipients.extend(r.strip() for r in str(entry).split(',') if r.strip())
+
+    for rcpt in recipients:
+        # signal-cli --config C -u SENDER send -m "msg" RECIPIENT
         command = settings.SIGNAL_BIN
-        if hasattr(settings, 'SIGNAL_CONFIG') and settings.SIGNAL_CONFIG != '':
+        if getattr(settings, 'SIGNAL_CONFIG', ''):
             command = '%s --config %s' % (command, settings.SIGNAL_CONFIG)
-        command = '%s -u %s send -m "%s" %s' % (command, settings.SIGNAL_USERNAME, msg.replace('"', ''), rcpt)
+        command = '%s -u %s send -m "%s"' % (command, settings.SIGNAL_USERNAME, msg.replace('"', ''))
+        # phone numbers are positional recipients; Signal usernames (e.g. "Andree.01")
+        # must be passed via --username, otherwise signal-cli treats them as a number.
+        if rcpt.startswith('+'):
+            command = '%s %s' % (command, rcpt)
+        else:
+            command = '%s --username %s' % (command, rcpt)
         if len(atts) > 0:
             command = '%s -a' % command
             for att in atts:

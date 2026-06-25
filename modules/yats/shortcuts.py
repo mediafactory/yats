@@ -205,7 +205,7 @@ def has_public_fields(data):
     return False
 
 def format_chanes(new, is_staff):
-    from django.forms.forms import pretty_name
+    from django.forms.utils import pretty_name  # moved out of django.forms.forms (Django 5.x)
 
     result = []
     for field in new:
