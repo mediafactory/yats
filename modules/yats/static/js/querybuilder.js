@@ -42,16 +42,16 @@
   // ---- Group ----
   QueryBuilder.prototype.renderGroup = function (data) {
     var self = this;
-    var node = el('div', 'qb-group border border-gray-300 rounded-md p-3 mb-2 bg-gray-50');
+    var node = el('div', 'qb-group border border-gray-300 dark:border-gray-700 rounded-md p-3 mb-2 bg-gray-50 dark:bg-gray-800');
     var head = el('div', 'flex items-center gap-2 mb-2');
 
-    var cond = el('div', 'inline-flex rounded overflow-hidden border border-gray-300 text-sm');
+    var cond = el('div', 'inline-flex rounded overflow-hidden border border-gray-300 dark:border-gray-700 text-sm');
     var condState = { value: data.condition || 'AND' };
     ['AND', 'OR'].forEach(function (c) {
       var b = el('button', 'px-3 py-1', c);
       b.type = 'button';
       function paint() {
-        b.className = 'px-3 py-1 ' + (condState.value === c ? 'bg-brand text-white' : 'bg-white text-gray-600');
+        b.className = 'px-3 py-1 ' + (condState.value === c ? 'bg-brand text-white' : 'bg-white text-gray-600 dark:bg-gray-900 dark:text-gray-300');
       }
       b.addEventListener('click', function () { condState.value = c; cond.querySelectorAll('button').forEach(function (x) { x._paint(); }); });
       b._paint = paint; paint();
@@ -100,7 +100,7 @@
   // ---- Rule ----
   QueryBuilder.prototype.renderRule = function (data) {
     var self = this;
-    var node = el('div', 'qb-rule flex flex-wrap items-center gap-2 mb-2 p-2 bg-white border border-gray-200 rounded');
+    var node = el('div', 'qb-rule flex flex-wrap items-center gap-2 mb-2 p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded');
 
     var fieldSel = el('select', 'no-base form-control !w-auto');
     this.filters.forEach(function (f) {
@@ -214,7 +214,9 @@
   };
 
   QueryBuilder.prototype.getRules = function () {
-    return this.collectGroup(this.tree);
+    var tree = this.collectGroup(this.tree);
+    tree.valid = true;  // keep the jQuery-QueryBuilder shape the backend detects
+    return tree;
   };
 
   QueryBuilder.prototype.reset = function () {

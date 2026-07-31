@@ -1,10 +1,16 @@
 #cloud-config
 # Hetzner Cloud server "mf-yats-1" (mediafactory project) — base provisioning for
 # the YATS app server that takes over mf / bagarino / schiwago.
+# Target OS: Debian 13 (trixie), system Python 3.13.
 #
 # Before launch, fill the two placeholders below: SSH key and MF_ROUTER_IP.
 # Attach the server to the Hetzner Private Network at create time (so it can
 # reach the PostgreSQL cluster and be reached by mf-router).
+#
+# NOTE on networking: Hetzner private networks push NO default route and NO DNS.
+# The cleanest permanent fix is to add a route 0.0.0.0/0 -> 10.150.20.1 to the
+# Hetzner Cloud *network* (then DHCP pushes it). The write_files/runcmd below are
+# the server-side fallback (DNS via resolvconf + a retrying default-route unit).
 
 hostname: mf-yats-1
 fqdn: mf-yats-1.mediafactory.de
@@ -15,11 +21,6 @@ locale: de_DE.UTF-8
 
 package_update: true
 package_upgrade: true
-
-apt:
-  sources:
-    backports:
-      source: "deb http://deb.debian.org/debian bookworm-backports main"
 
 users:
   - name: admin
@@ -43,14 +44,14 @@ packages:
   - memcached
   - clamav
   - clamav-daemon
-  - python3-xapian
-  - python3-xapian-haystack
+  - python3-xapian          # native Xapian bindings (xapian-haystack itself comes via pip)
   - libxapian-dev
   - imagemagick
   - libmagickwand-dev
   - ffmpeg
   - libreoffice
   - gettext
+  - openjdk-21-jre-headless  # signal-cli (native build needs no JRE, but harmless to have)
 
 write_files:
   # Placeholder for the mf-router IP that may reach the gunicorn ports.
@@ -60,10 +61,48 @@ write_files:
       # IP of mf-router (OpenResty) — only host allowed to reach gunicorn 8001-8003.
       MF_ROUTER_IP=REPLACE_WITH_MF_ROUTER_PRIVATE_IP
 
+  # --- Network persistence (Hetzner private net pushes no default route + no DNS) ---
+  # DNS resolvers (resolvconf regenerates /etc/resolv.conf from this on every boot)
+  - path: /etc/resolvconf/resolv.conf.d/base
+    content: |
+      nameserver 185.12.64.1
+      nameserver 185.12.64.2
+      nameserver 1.1.1.1
+  # Default route: the IP is a /32, so add it only after DHCP installed the
+  # on-link route to the gateway — retry to handle boot timing.
+  - path: /usr/local/sbin/yats-default-route.sh
+    permissions: "0755"
+    content: |
+      #!/bin/sh
+      GW="${YATS_GATEWAY:-10.150.20.1}"
+      for i in $(seq 1 60); do
+          ip route replace default via "$GW" 2>/dev/null && exit 0
+          sleep 2
+      done
+      echo "could not set default route via $GW" >&2
+      exit 1
+  - path: /etc/systemd/system/yats-default-route.service
+    content: |
+      [Unit]
+      Description=Set yats default route (Hetzner private-network gateway)
+      After=network.target
+      Wants=network.target
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      ExecStart=/usr/local/sbin/yats-default-route.sh
+      Restart=on-failure
+      RestartSec=5
+      [Install]
+      WantedBy=multi-user.target
+
 runcmd:
-  # Java 21 for signal-cli (from bookworm-backports)
-  - apt-get update
-  - apt-get -y -t bookworm-backports install openjdk-21-jre-headless
+  # Bring up DNS + default route FIRST — apt/git below need outbound internet.
+  - resolvconf -u || true
+  - systemctl daemon-reload
+  - systemctl enable --now yats-default-route.service
+  # wait until outbound name resolution works before touching apt
+  - for i in $(seq 1 30); do getent hosts deb.debian.org >/dev/null 2>&1 && break; sleep 2; done
 
   # ClamAV: TCP socket for pyclamd, then refresh DB + enable
   - sed -i '/^TCPSocket/d;/^TCPAddr/d' /etc/clamav/clamd.conf
@@ -73,8 +112,9 @@ runcmd:
   - systemctl enable --now clamav-freshclam clamav-daemon || true
   - systemctl enable --now memcached
 
-  # ImageMagick: allow reading PDFs (needed for attachment previews via Wand)
-  - "test -f /etc/ImageMagick-6/policy.xml && sed -i 's/.*rights=\"none\" pattern=\"PDF\".*/  <policy domain=\"coder\" rights=\"read|write\" pattern=\"PDF\" \\/>/' /etc/ImageMagick-6/policy.xml || true"
+  # ImageMagick: allow reading PDFs (needed for attachment previews via Wand).
+  # Handles both ImageMagick-6 and -7 policy paths.
+  - "for p in /etc/ImageMagick-6/policy.xml /etc/ImageMagick-7/policy.xml; do [ -f \"$p\" ] && sed -i 's/.*rights=\"none\" pattern=\"PDF\".*/  <policy domain=\"coder\" rights=\"read|write\" pattern=\"PDF\" \\/>/' \"$p\"; done || true"
 
   # Firewall: deny inbound except SSH (anywhere) and gunicorn 8001-8003 (mf-router only)
   - . /etc/yats-deploy.env

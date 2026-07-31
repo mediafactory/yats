@@ -525,8 +525,9 @@ def signal_file(request, file_id):
             messages.add_message(request, messages.ERROR, _('signal not send: %s') % sys.exc_info()[1])
 
 def clean_search_values(search):
-    # clean only old
-    if 'valid' in search:
+    # already an extended-search querybuilder tree ({condition, rules, [valid]})
+    # -> nothing to clean. (The new vanilla querybuilder omits 'valid'.)
+    if 'valid' in search or 'rules' in search:
         return search
 
     result = {}
@@ -787,8 +788,8 @@ def convert_sarch(search):
             return 'contains'
         return 'equal'
 
-    # prevent convert loop
-    if 'valid' in search:
+    # prevent convert loop / already a querybuilder tree (new querybuilder omits 'valid')
+    if 'valid' in search or 'rules' in search:
         return search
 
     result = {
@@ -850,6 +851,12 @@ def build_ticket_search_ext(request, base_query, search):
                 continue
 
             q = None
+            # The querybuilder sends boolean values as lowercase strings
+            # ("true"/"false"). Django's BooleanField.to_python rejects "false"
+            # -> coerce boolean rules to a real Python bool before filtering.
+            if rule.get('type') == 'boolean' and isinstance(rule.get('value'), str):
+                rule['value'] = rule['value'].strip().lower() in ('true', '1', 't', 'yes', 'on')
+
             if rule['operator'] == 'is_null':
                 compare = '%s__isnull' % rule['field']
                 q = Q(**{compare: True})

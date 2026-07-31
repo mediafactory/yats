@@ -1,0 +1,14 @@
+[Unit]
+Description=Set yats default route (Hetzner private-network gateway)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/yats-default-route.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
