@@ -15,6 +15,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.conf import settings
 from django.utils import translation
+from django.utils.http import url_has_allowed_host_and_scheme
 from yats import get_version, get_python_version
 from yats.tickets import table
 from yats.shortcuts import get_ticket_model, add_breadcrumbs, build_ticket_search_ext, convert_sarch
@@ -122,22 +123,21 @@ def dashboard_config_save(request):
     profile.save()
     return JsonResponse({'ok': True})
 
+def safe_next(request, url):
+    if url and url_has_allowed_host_and_scheme(url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return url
+    return ''
+
 def login(request):
     if request.user.is_authenticated:
-        if 'next' in request.GET:
-            return HttpResponseRedirect(request.GET['next'])
-        else:
-            return HttpResponseRedirect('/')
+        return HttpResponseRedirect(safe_next(request, request.GET.get('next')) or '/')
 
     if request.method == 'POST':
         form = AuthenticationForm(request.POST)
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        user = authenticate(request, username=request.POST.get('username', ''), password=request.POST.get('password', ''))
         if user:
             auth_login(request, user)
-            if 'next' in request.POST:
-                return HttpResponseRedirect(request.POST['next'])
-            else:
-                return HttpResponseRedirect('/')
+            return HttpResponseRedirect(safe_next(request, request.POST.get('next')) or '/')
         else:
             messages.add_message(request, messages.ERROR, _(u'Data invalid'))
     form = AuthenticationForm()
@@ -146,9 +146,7 @@ def login(request):
     else:
         sso = False
 
-    next = ''
-    if request.GET:
-        next = request.GET['next']
+    next = safe_next(request, request.GET.get('next'))
     return render(request, 'login.html', {'form': form, 'sso': sso, 'next': next})
 
 def logout(request):
